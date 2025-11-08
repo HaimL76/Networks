@@ -1,4 +1,4 @@
-def create_matrix(network: dict[int, list[int]]):
+def create_matrix(network: dict[int, list[int]], should_print: bool = True):
     indexed_network: dict[int, tuple[int, list[int]]] = {}
 
     index: int = 0
@@ -34,6 +34,19 @@ def create_matrix(network: dict[int, list[int]]):
         if 0 <= row_index < dim:
             rows[row_index - 1] = row
 
+    if should_print:
+        str_print: str = "\\[\n\\begin{bmatrix}\n"
+
+        list_str_rows: list[str] = []
+
+        for row in rows:
+            str_row: str = " & ".join(["1" if col else "0" for col in row])
+
+            list_str_rows.append(str_row)
+
+        str_print += "\\\\\n".join(list_str_rows)
+
+        str_print += "\\end{bmatrix}\n\\]\n"
     _ = 0
 
 
