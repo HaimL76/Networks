@@ -9,7 +9,33 @@ def create_matrix(network: dict[int, list[int]]):
 
         indexed_network[key] = index, val
 
-    links_matrix
+    dim: int = len(indexed_network)
+
+    rows: list[list[bool]] = [[]] * dim
+
+    for key in indexed_network:
+        row: list[bool] = [False] * dim
+
+        val: tuple[int, list[int]] = indexed_network[key]
+
+        row_index: int = val[0]
+
+        links: list[int] = val[1]
+
+        for link in links:
+            if link in indexed_network:
+                val_link: tuple[int, list[int]] = indexed_network[link]
+
+                col_index: int = val_link[0]
+
+                if 0 <= col_index < dim:
+                    row[col_index - 1] = True
+
+        if 0 <= row_index < dim:
+            rows[row_index - 1] = row
+
+    _ = 0
+
 
 def main():
     network: dict[int, list[int]] = {
@@ -33,3 +59,6 @@ def main():
     }
 
     create_matrix(network=network)
+
+
+main()
