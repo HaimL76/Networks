@@ -11,7 +11,9 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
     dim: int = len(indexed_network)
 
-    rows: list[list[bool]] = [[]] * dim
+    tup: tuple[int, list[bool]] = 0, []
+
+    rows: list[tuple[int, list[bool]]] = [tup] * dim
 
     for key in indexed_network:
         row: list[bool] = [False] * dim
@@ -32,15 +34,26 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
                     row[col_index - 1] = True
 
         if 0 <= row_index < dim:
-            rows[row_index - 1] = row
+            tup = key, row
+            rows[row_index - 1] = tup
 
     if should_print:
         str_print: str = "\\[\n\\begin{bmatrix}\n"
 
         list_str_rows: list[str] = []
 
-        for row in rows:
-            str_row: str = " & ".join(["1" if col else "0" for col in row])
+        str_row: str = " & ".join([f"{tup[0]}" for tup in rows])
+
+        str_row = f"& {str_row}"
+
+        list_str_rows.append(str_row)
+
+        for tup in rows:
+            row: list[bool] = tup[1]
+
+            str_row = " & ".join(["1" if col else "0" for col in row])
+
+            str_row = f"{tup[0]} & {str_row}"
 
             list_str_rows.append(str_row)
 
