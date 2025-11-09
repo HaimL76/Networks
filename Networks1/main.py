@@ -135,8 +135,8 @@ def main():
 
     matrix: list[list[int]] = []
 
-    for row in rows:
-        cols: list[bool] = row[1]
+    for tup_row in rows:
+        cols: list[bool] = tup_row[1]
 
         list_cols: list[int] = [1 if col else 0 for col in cols]
 
@@ -146,7 +146,7 @@ def main():
 
     tup: tuple[int, int] = 0, 0
 
-    list_degrees: list[tuple[int, int]] = [tup] * dim
+    dict_degrees: dict[int, int] = {}
 
     for i in range(0, dim):
         tup: tuple[int, list[int]] = rows[i]
@@ -162,16 +162,52 @@ def main():
 
             degree += col
 
-        list_degrees[i] = link, degree
+        dict_degrees[link] = degree
 
     average_degree: float = 0
 
-    for tup in list_degrees:
-        degree: int = tup[1]
+    for key in dict_degrees.keys():
+        degree: int = dict_degrees[key]
 
         average_degree += degree
 
     average_degree /= dim
+
+    dict_neighbor_degrees: dict[int, float] = {}
+
+    for i in range(0, dim):
+        tup: tuple[int, list[int]] = rows[i]
+
+        link: int = tup[0]
+
+        if link in dict_degrees:
+            link_neighbors = network[link]
+
+            degree: int = 0
+
+            if isinstance(link_neighbors, list):
+                num_neighbors: int = len(link_neighbors)
+
+                if num_neighbors > 0:
+                    for neighbor in link_neighbors:
+                        if neighbor in dict_degrees:
+                            neighbor_degree: int = dict_degrees[neighbor]
+
+                            degree += neighbor_degree
+
+                if num_neighbors > 0:
+                    average_neighbor_degree: float = degree / num_neighbors
+
+                    dict_neighbor_degrees[link] = average_neighbor_degree
+
+    average_neighbors_degree: float = 0
+
+    for link in dict_neighbor_degrees:
+        degree: int = dict_degrees[link]
+
+        average_neighbors_degree += degree
+
+    average_neighbors_degree /= len(dict_neighbor_degrees)
 
     np_matrix = np.array(matrix)
 
