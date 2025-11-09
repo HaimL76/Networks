@@ -1,4 +1,47 @@
+def check_network(network: dict[int, list[int]]):
+    list_keys = list(network.keys())
+
+    key_index: int = 0
+
+    found_error: bool = False
+
+    while not found_error and key_index < len(list_keys):
+        key: int = list_keys[key_index]
+        key_index += 1
+
+        links: list[int] = network[key]
+
+        is_found: bool = False
+
+        link_index: int = 0
+
+        while not is_found and link_index < len(links):
+            link: int = links[link_index]
+            link_index += 1
+
+            if link in network:
+                link_list_of_links: list[int] = network[link]
+
+                link_index_of_links: int = 0
+
+                while not is_found and link_index_of_links < len(link_list_of_links):
+                    link_from_list_of_links: int = link_list_of_links[link_index_of_links]
+                    link_index_of_links += 1
+
+                    is_found = link_from_list_of_links == key
+
+        if not is_found:
+            found_error = True
+
+    return found_error
+
+
 def create_matrix(network: dict[int, list[int]], should_print: bool = True):
+    found_error: bool = check_network(network=network)
+
+    if not found_error:
+        return
+
     indexed_network: dict[int, tuple[int, list[int]]] = {}
 
     index: int = 0
@@ -72,7 +115,7 @@ def main():
         245: [345, 426],
         165: [426, 358, 369],
         358: [165, 452, 546],
-        121: [426, 143, 131, 782],
+        121: [426, 143, 31, 782],
         452: [426, 358, 272],
         143: [121],
         131: [121],
