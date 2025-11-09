@@ -15,7 +15,7 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
     rows: list[tuple[int, list[bool]]] = [tup] * dim
 
-    for key in indexed_network:
+    for key in indexed_network.keys():
         row: list[bool] = [False] * dim
 
         val: tuple[int, list[int]] = indexed_network[key]
@@ -30,19 +30,19 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
                 col_index: int = val_link[0]
 
-                if 0 <= col_index < dim:
+                if 0 < col_index <= dim:
                     row[col_index - 1] = True
 
-        if 0 <= row_index < dim:
+        if 0 < row_index <= dim:
             tup = key, row
             rows[row_index - 1] = tup
 
     if should_print:
-        str_print: str = "\\[\n\\begin{bmatrix}\n"
+        str_print: str = "\\[\n\\hspace{-25mm}\n\\begin{bmatrix}\n"
 
         list_str_rows: list[str] = []
 
-        str_row: str = " & ".join([f"{tup[0]}" for tup in rows])
+        str_row: str = " & ".join([f"\\bm{{{tup[0]}}}" for tup in rows])
 
         str_row = f"& {str_row}"
 
@@ -53,13 +53,13 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
             str_row = " & ".join(["1" if col else "0" for col in row])
 
-            str_row = f"{tup[0]} & {str_row}"
+            str_row = f"\\bm{{{tup[0]}}} & {str_row}"
 
             list_str_rows.append(str_row)
 
         str_print += "\\\\\n".join(list_str_rows)
 
-        str_print += "\\end{bmatrix}\n\\]\n"
+        str_print += "\n\\end{bmatrix}\n\\]\n"
     _ = 0
 
 
