@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def check_network(network: dict[int, list[int]]):
     list_keys = list(network.keys())
 
@@ -139,6 +142,40 @@ def main():
 
         matrix.append(list_cols)
 
+    dim: int = len(matrix)
+
+    tup: tuple[int, int] = 0, 0
+
+    list_degrees: list[tuple[int, int]] = [tup] * dim
+
+    for i in range(0, dim):
+        tup: tuple[int, list[int]] = rows[i]
+
+        link: int = tup[0]
+
+        row: list[int] = matrix[i]
+
+        degree: int = 0
+
+        for j in range(0, dim):
+            col: int = row[j]
+
+            degree += col
+
+        list_degrees[i] = link, degree
+
+    average_degree: float = 0
+
+    for tup in list_degrees:
+        degree: int = tup[1]
+
+        average_degree += degree
+
+    average_degree /= dim
+
+    np_matrix = np.array(matrix)
+
+    np_matrix *= np_matrix
 
     _ = 0
 
