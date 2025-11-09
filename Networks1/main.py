@@ -39,7 +39,7 @@ def check_network(network: dict[int, list[int]]):
 def create_matrix(network: dict[int, list[int]], should_print: bool = True):
     found_error: bool = check_network(network=network)
 
-    if not found_error:
+    if found_error:
         return
 
     indexed_network: dict[int, tuple[int, list[int]]] = {}
@@ -103,7 +103,8 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
         str_print += "\\\\\n".join(list_str_rows)
 
         str_print += "\n\\end{bmatrix}\n\\]\n"
-    _ = 0
+
+    return rows
 
 
 def main():
@@ -115,7 +116,7 @@ def main():
         245: [345, 426],
         165: [426, 358, 369],
         358: [165, 452, 546],
-        121: [426, 143, 31, 782],
+        121: [426, 143, 131, 782],
         452: [426, 358, 272],
         143: [121],
         131: [121],
@@ -127,7 +128,19 @@ def main():
         888: [782]
     }
 
-    create_matrix(network=network)
+    rows: list[tuple[int, list[bool]]] = create_matrix(network=network)
+
+    matrix: list[list[int]] = []
+
+    for row in rows:
+        cols: list[bool] = row[1]
+
+        list_cols: list[int] = [1 if col else 0 for col in cols]
+
+        matrix.append(list_cols)
+
+
+    _ = 0
 
 
 main()
