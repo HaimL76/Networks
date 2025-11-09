@@ -142,78 +142,97 @@ def main():
 
         matrix.append(list_cols)
 
-    dim: int = len(matrix)
-
-    tup: tuple[int, int] = 0, 0
-
     dict_degrees: dict[int, int] = {}
 
+    dim: int = len(matrix)
+
     for i in range(0, dim):
-        tup: tuple[int, list[int]] = rows[i]
+        tup: tuple[int, list[bool]] = rows[i]
 
-        link: int = tup[0]
+        node: int = tup[0]
 
-        row: list[int] = matrix[i]
+        cols: list[int] = matrix[i]
 
         degree: int = 0
 
+        # \[k_i = \sum_{j=1}^{N}A_{ij}\]
         for j in range(0, dim):
-            col: int = row[j]
+            col: int = cols[j]
 
             degree += col
 
-        dict_degrees[link] = degree
+        dict_degrees[node] = degree
 
     average_degree: float = 0
 
-    for key in dict_degrees.keys():
-        degree: int = dict_degrees[key]
+    list_nodes: list[int] = list(dict_degrees.keys())
+
+    # \[\langle{k}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_i\]
+    for i in range(0, dim):
+        node: int = list_nodes[i]
+
+        degree: int = dict_degrees[node]
 
         average_degree += degree
 
     average_degree /= dim
 
-    dict_neighbor_degrees: dict[int, float] = {}
+    dict_neighbor_degrees: dict[int, int] = {}
+
+    dim: int = len(matrix)
 
     for i in range(0, dim):
-        tup: tuple[int, list[int]] = rows[i]
+        tup: tuple[int, list[bool]] = rows[i]
 
-        link: int = tup[0]
+        node: int = tup[0]
 
-        if link in dict_degrees:
-            link_neighbors = network[link]
+        cols: list[int] = matrix[i]
 
-            degree: int = 0
+        average_neighbors_degree: int = 0
 
-            if isinstance(link_neighbors, list):
-                num_neighbors: int = len(link_neighbors)
+        num_neighbors: int = 0
 
-                if num_neighbors > 0:
-                    for neighbor in link_neighbors:
-                        if neighbor in dict_degrees:
-                            neighbor_degree: int = dict_degrees[neighbor]
+        # \[k_i,nn = \frac{1}{N}\sum_{j=1}^{N}A_{ij}k_j\]
+        for j in range(0, dim):
+            col: int = cols[j]
 
-                            degree += neighbor_degree
+            num_neighbors += col
 
-                if num_neighbors > 0:
-                    average_neighbor_degree: float = degree / num_neighbors
+            list_neighbor_nodes: list[int] = matrix[j]
 
-                    dict_neighbor_degrees[link] = average_neighbor_degree
+            neighbors_degree: int = 0
+
+            # k_j = \sum_{h=1}^{N}A_{jh}
+            for neighbor_col in list_neighbor_nodes:
+                neighbors_degree += neighbor_col
+
+            # A_{ij}k_j
+            val: int = col * neighbors_degree
+
+            # \sum_{j=1}^{N}A_{ij}k_j
+            average_neighbors_degree += val
+
+        # \[k_i,nn = \frac{\sum_{j=1}^{N}A_{ij}k_j}{\sum_{j=1}^{N}A_{ij}}\]
+        average_neighbors_degree /= num_neighbors
+
+        dict_neighbor_degrees[node] = average_neighbors_degree
 
     average_neighbors_degree: float = 0
 
-    for link in dict_neighbor_degrees:
-        degree: int = dict_degrees[link]
+    list_nodes: list[int] = list(dict_neighbor_degrees.keys())
 
+    # \langle{k_{i,nn}}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_{i,nn}
+    for i in range(0, dim):
+        node: int = list_nodes[i]
+
+        degree: int = dict_neighbor_degrees[node]
+
+        # \sum_{i=1}^{N}k_{i,nn}
         average_neighbors_degree += degree
 
-    average_neighbors_degree /= len(dict_neighbor_degrees)
-
-    np_matrix = np.array(matrix)
-
-    np_matrix *= np_matrix
+    # \langle{k_{i,nn}}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_{i,nn}
+    average_neighbors_degree /= dim
 
     _ = 0
-
 
 main()
