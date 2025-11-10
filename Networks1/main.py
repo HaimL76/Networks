@@ -2,36 +2,35 @@ import numpy as np
 
 
 def check_network(network: dict[int, list[int]]):
-    list_keys = list(network.keys())
+    nodes = list(network.keys())
 
-    key_index: int = 0
+    node_index: int = 0
 
     found_error: bool = False
 
-    while not found_error and key_index < len(list_keys):
-        key: int = list_keys[key_index]
-        key_index += 1
+    while not found_error and node_index < len(nodes):
+        node: int = nodes[node_index]
+        node_index += 1
 
-        links: list[int] = network[key]
+        neighbors: list[int] = network[node]
 
         is_found: bool = False
 
-        link_index: int = 0
+        neighbor_index: int = 0
 
-        while not is_found and link_index < len(links):
-            link: int = links[link_index]
-            link_index += 1
+        while not is_found and neighbor_index < len(neighbors):
+            neighbor: int = neighbors[neighbor_index]
+            neighbor_index += 1
 
-            if link in network:
-                link_list_of_links: list[int] = network[link]
+            if neighbor in network:
+                neighbor_neighbors: list[int] = network[neighbor]
 
-                link_index_of_links: int = 0
+                neighbor_neighbors_index: int = 0
 
-                while not is_found and link_index_of_links < len(link_list_of_links):
-                    link_from_list_of_links: int = link_list_of_links[link_index_of_links]
-                    link_index_of_links += 1
-
-                    is_found = link_from_list_of_links == key
+                while not is_found and neighbor_neighbors_index < len(neighbor_neighbors):
+                    link_from_list_of_links: int = neighbor_neighbors[neighbor_neighbors_index]
+                    neighbor_neighbors_index += 1
+                    is_found = link_from_list_of_links == node
 
         if not is_found:
             found_error = True
@@ -109,30 +108,7 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
     return rows
 
-
-def main():
-    network: dict[int, list[int]] = {
-        426: [345, 365, 245, 121, 165, 782, 452],
-        345: [426, 365, 153, 245],
-        365: [426, 345],
-        153: [345],
-        245: [345, 426],
-        165: [426, 358, 369],
-        358: [165, 452, 546],
-        121: [426, 143, 131, 782],
-        452: [426, 358, 272],
-        143: [121],
-        131: [121],
-        272: [452, 782, 171],
-        546: [358],
-        369: [165],
-        171: [272],
-        782: [272, 426, 121, 888],
-        888: [782]
-    }
-
-    rows: list[tuple[int, list[bool]]] = create_matrix(network=network)
-
+def calculate_degrees(rows: list[tuple[int, list[bool]]]):
     matrix: list[list[int]] = []
 
     for tup_row in rows:
@@ -232,6 +208,33 @@ def main():
 
     # \langle{k_{i,nn}}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_{i,nn}
     average_neighbors_degree /= dim
+    return dict_degrees, average_degree, dict_neighbor_degrees, average_neighbors_degree
+
+
+def main():
+    network: dict[int, list[int]] = {
+        426: [345, 365, 245, 121, 165, 782, 452],
+        345: [426, 365, 153, 245],
+        365: [426, 345],
+        153: [345],
+        245: [345, 426],
+        165: [426, 358, 369],
+        358: [165, 452, 546],
+        121: [426, 143, 131, 782],
+        452: [426, 358, 272],
+        143: [121],
+        131: [121],
+        272: [452, 782, 171],
+        546: [358],
+        369: [165],
+        171: [272],
+        782: [272, 426, 121, 888],
+        888: [782]
+    }
+
+    rows: list[tuple[int, list[bool]]] = create_matrix(network=network)
+
+    dict_degrees, average_degree, dict_neighbor_degrees, average_neighbors_degree = calculate_degrees(rows=rows)
 
     _ = 0
 
