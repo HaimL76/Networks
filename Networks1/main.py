@@ -268,7 +268,18 @@ def calculate_lengths(rows: list[tuple[int, list[bool]]]):
         if counter == 0:
             is_finished = True
 
-    _ = 0
+    lengths: int = 0
+
+    counter = 0
+
+    for i in range(0, dim - 1):
+        for j in range(i + 1, dim):
+            lengths += list_lengths[i][j]
+            counter += 1
+
+    average_length: float = float(lengths) / counter
+
+    return average_length
 
 
 def main():
