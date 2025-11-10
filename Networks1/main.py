@@ -259,10 +259,10 @@ def calculate_lengths(rows: list[tuple[int, list[bool]]]):
 
         counter: int = 0
 
-        for i in range(0, len(np_matrix)):
-            for j in range(0, len(np_matrix)):
+        for i in range(0, dim - 1):
+            for j in range(i + 1, dim):
                 if list_lengths[i][j] == 0 and np_matrix[i][j] > 0:
-                    list_lengths[i][j] = length
+                    list_lengths[i][j] = list_lengths[j][i] = length
                     counter += 1
 
         if counter == 0:
