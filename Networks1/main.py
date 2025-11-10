@@ -21,6 +21,20 @@ def check_network(network: dict[int, list[int]]):
         while not is_found and neighbor_index < len(neighbors):
             neighbor: int = neighbors[neighbor_index]
             neighbor_index += 1
+            
+            is_found = neighbor == node
+
+        if is_found:
+            found_error = True
+            break
+
+        is_found = False
+
+        neighbor_index = 0
+
+        while not is_found and neighbor_index < len(neighbors):
+            neighbor: int = neighbors[neighbor_index]
+            neighbor_index += 1
 
             if neighbor in network:
                 neighbor_neighbors: list[int] = network[neighbor]
@@ -209,6 +223,16 @@ def calculate_degrees(rows: list[tuple[int, list[bool]]]):
     # \langle{k_{i,nn}}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_{i,nn}
     average_neighbors_degree /= dim
     return dict_degrees, average_degree, dict_neighbor_degrees, average_neighbors_degree
+
+def calculate_lengths(rows: list[tuple[int, list[bool]]]):
+    matrix: list[list[int]] = []
+
+    for tup_row in rows:
+        cols: list[bool] = tup_row[1]
+
+        list_cols: list[int] = [1 if col else 0 for col in cols]
+
+        matrix.append(list_cols)
 
 
 def main():
