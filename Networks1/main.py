@@ -123,6 +123,9 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
     return rows
 
 def calculate_degrees(rows: list[tuple[int, list[bool]]]):
+    if not isinstance(rows, list):
+        return
+
     matrix: list[list[int]] = []
 
     for tup_row in rows:
@@ -241,7 +244,7 @@ def main():
         345: [426, 365, 153, 245],
         365: [426, 345],
         153: [345],
-        245: [345, 426],
+        245: [345, 426, 245],
         165: [426, 358, 369],
         358: [165, 452, 546],
         121: [426, 143, 131, 782],
@@ -258,7 +261,17 @@ def main():
 
     rows: list[tuple[int, list[bool]]] = create_matrix(network=network)
 
-    dict_degrees, average_degree, dict_neighbor_degrees, average_neighbors_degree = calculate_degrees(rows=rows)
+    tup: tuple = calculate_degrees(rows=rows)
+
+    if isinstance(tup, tuple) and len(tup) == 4:
+        dict_degrees, average_degree, dict_neighbor_degrees, average_neighbors_degree = tup
+
+        print("Degrees:", dict_degrees)
+        print("Average Degree:", average_degree)
+        print("Neighbor Degrees:", dict_neighbor_degrees)
+        print("Average Neighbor Degree:", average_neighbors_degree)
+    else:
+        print("Error in calculating degrees.")
 
     _ = 0
 
