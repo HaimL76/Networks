@@ -237,6 +237,39 @@ def calculate_lengths(rows: list[tuple[int, list[bool]]]):
 
         matrix.append(list_cols)
 
+    np_matrix_neighbors: np.ndarray = np.array(matrix)
+
+    dim: int = len(np_matrix_neighbors)
+
+    np_matrix: np.ndarray = np.identity(dim, dtype=int)
+
+    list_lengths: list[list[int]] = [[]] * dim
+
+    for i in range(0, dim):
+        list_lengths[i] = [0] * dim
+
+    length: int = 0
+
+    is_finished: bool = False
+
+    while not is_finished:
+        length += 1
+
+        np_matrix = np.matmul(np_matrix, np_matrix_neighbors)
+
+        counter: int = 0
+
+        for i in range(0, len(np_matrix)):
+            for j in range(0, len(np_matrix)):
+                if list_lengths[i][j] == 0 and np_matrix[i][j] > 0:
+                    list_lengths[i][j] = length
+                    counter += 1
+
+        if counter == 0:
+            is_finished = True
+
+    _ = 0
+
 
 def main():
     network: dict[int, list[int]] = {
@@ -273,6 +306,6 @@ def main():
     else:
         print("Error in calculating degrees.")
 
-    _ = 0
+    calculate_lengths(rows=rows)
 
 main()
