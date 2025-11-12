@@ -189,59 +189,58 @@ def calculate_degrees(nodes: list[int], rows: list[list[bool]]):
 
     return degrees, average_degree, neighbor_degrees, average_neighbors_degree
 
-def calculate_lengths(rows: list[tuple[int, list[bool]]]):
-    matrix: list[list[int]] = []
+def calculate_lengths(network: dict[int, list[int]], rows: list[tuple[int, list[bool]]]):
+    nodes: list[int] = list(network.keys())
+    
+    neighbors_matrix: list[list[int]] = []
 
-    for tup_row in rows:
-        cols: list[bool] = tup_row[1]
+    for row in rows:
+        list_cols: list[int] = [1 if col else 0 for col in row]
 
-        list_cols: list[int] = [1 if col else 0 for col in cols]
+        neighbors_matrix.append(list_cols)
 
-        matrix.append(list_cols)
+    np_neighbors_matrix: np.ndarray = np.array(neighbors_matrix)
 
-    np_matrix_neighbors: np.ndarray = np.array(matrix)
+    dim: int = len(nodes)
 
-    dim: int = len(np_matrix_neighbors)
+    np_lengths_matrix: np.ndarray = np.identity(dim, dtype=int)
 
-    np_matrix: np.ndarray = np.identity(dim, dtype=int)
-
-    list_lengths: list[list[int]] = [[]] * dim
+    lengths: list[list[int]] = [[]] * dim
 
     for i in range(dim):
-        list_lengths[i] = [0] * dim
+        lengths[i] = [0] * dim
+
+    finished: bool = False
 
     length: int = 0
 
-    is_finished: bool = False
-
-    while not is_finished:
+    while not finished:
         length += 1
 
-        np_matrix = np.matmul(np_matrix, np_matrix_neighbors)
+        np_lengths_matrix = np.matmul(np_lengths_matrix, np_neighbors_matrix)
 
         counter: int = 0
 
         for i in range(dim - 1):
             for j in range(i + 1, dim):
-                if list_lengths[i][j] == 0 and np_matrix[i][j] > 0:
-                    list_lengths[i][j] = list_lengths[j][i] = length
+                if lengths[i][j] == 0 and np_lengths_matrix[i][j] > 0:
+                    lengths[i][j] = lengths[j][i] = length
                     counter += 1
 
-        if counter == 0:
-            is_finished = True
+        finished = counter < 1
 
-    lengths: int = 0
+    counter = 0 # dummy
 
-    counter = 0
+    length = 0
 
     for i in range(dim - 1):
         for j in range(i + 1, dim):
-            lengths += list_lengths[i][j]
+            length += lengths[i][j]
             counter += 1
 
-    average_length: float = float(lengths) / counter
+    average_length: float = float(length) / counter
 
-    return average_length
+    return lengths, average_length
 
 
 def main():
@@ -279,6 +278,14 @@ def main():
     else:
         print("Error in calculating degrees.")
 
-    calculate_lengths(rows=rows)
+    tup: tuple = calculate_lengths(network=network, rows=rows)
+
+    if isinstance(tup, tuple) and len(tup) == 2:
+        lengths, average_length = tup
+
+        print("lengths:", lengths)
+        print("average_length:", average_length)
+    else:
+        print("Error in calculating lengths.")
 
 main()
