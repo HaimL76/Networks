@@ -57,62 +57,45 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
     if found_error:
         return
+    
+    nodes: list[int] = list(network.keys())
 
-    indexed_network: dict[int, tuple[int, list[int]]] = {}
+    dim: int = len(nodes)
 
-    index: int = 0
+    rows: list[list[bool]] = [[]] * dim
 
-    for key in network:
-        index += 1
-        val: list[int] = network[key]
+    for i in range(dim):
+        rows[i] = [False] * dim
 
-        indexed_network[key] = index, val
+    for i in range(dim - 1):
+        node_i: int = nodes[i]
 
-    dim: int = len(indexed_network)
+        neighbors: list[int] = network[node_i]
 
-    tup: tuple[int, list[bool]] = 0, []
+        for j in range(i + 1, dim):
+            node_j: int = nodes[j]
 
-    rows: list[tuple[int, list[bool]]] = [tup] * dim
-
-    for key in indexed_network.keys():
-        row: list[bool] = [False] * dim
-
-        val: tuple[int, list[int]] = indexed_network[key]
-
-        row_index: int = val[0]
-
-        links: list[int] = val[1]
-
-        for link in links:
-            if link in indexed_network:
-                val_link: tuple[int, list[int]] = indexed_network[link]
-
-                col_index: int = val_link[0]
-
-                if 0 < col_index <= dim:
-                    row[col_index - 1] = True
-
-        if 0 < row_index <= dim:
-            tup = key, row
-            rows[row_index - 1] = tup
+            rows[i][j] = rows[j][i] = node_j in neighbors
 
     if should_print:
         str_print: str = "\\[\n\\hspace{-25mm}\n\\begin{bmatrix}\n"
 
         list_str_rows: list[str] = []
 
-        str_row: str = " & ".join([f"\\bm{{{tup[0]}}}" for tup in rows])
+        str_row: str = " & ".join([f"\\bm{{{node}}}" for node in nodes])
 
         str_row = f"& {str_row}"
 
         list_str_rows.append(str_row)
 
-        for tup in rows:
-            row: list[bool] = tup[1]
+        for i in range(dim):
+            node: int = nodes[i]
+
+            row: list[bool] = rows[i]
 
             str_row = " & ".join(["1" if col else "0" for col in row])
 
-            str_row = f"\\bm{{{tup[0]}}} & {str_row}"
+            str_row = f"\\bm{{{node}}} & {str_row}"
 
             list_str_rows.append(str_row)
 
@@ -120,112 +103,91 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
         str_print += "\n\\end{bmatrix}\n\\]\n"
 
-    return rows
+    return nodes, rows
 
-def calculate_degrees(rows: list[tuple[int, list[bool]]]):
+def calculate_degrees(nodes: list[int], rows: list[list[bool]]):
     if not isinstance(rows, list):
         return
 
     matrix: list[list[int]] = []
 
-    for tup_row in rows:
-        cols: list[bool] = tup_row[1]
-
-        list_cols: list[int] = [1 if col else 0 for col in cols]
+    for row in rows:
+        list_cols: list[int] = [1 if col else 0 for col in row]
 
         matrix.append(list_cols)
 
-    dict_degrees: dict[int, int] = {}
+    degrees: dict[int, int] = {}
 
     dim: int = len(matrix)
 
-    for i in range(0, dim):
-        tup: tuple[int, list[bool]] = rows[i]
+    for i in range(dim):
+        node: int = nodes[i]
 
-        node: int = tup[0]
-
-        cols: list[int] = matrix[i]
+        row: list[int] = matrix[i]
 
         degree: int = 0
 
         # \[k_i = \sum_{j=1}^{N}A_{ij}\]
-        for j in range(0, dim):
-            col: int = cols[j]
+        for j in range(dim):
+            a_ij: int = row[j]
 
-            degree += col
+            degree += a_ij
 
-        dict_degrees[node] = degree
+        degrees[node] = degree
 
     average_degree: float = 0
 
-    list_nodes: list[int] = list(dict_degrees.keys())
-
     # \[\langle{k}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_i\]
-    for i in range(0, dim):
-        node: int = list_nodes[i]
+    for i in range(dim):
+        node: int = nodes[i]
 
-        degree: int = dict_degrees[node]
+        degree: int = degrees[node]
 
         average_degree += degree
 
     average_degree /= dim
 
-    dict_neighbor_degrees: dict[int, int] = {}
+    neighbor_degrees: dict[int, int] = {}
 
-    dim: int = len(matrix)
+    for i in range(dim):
+        node: int = nodes[i]
 
-    for i in range(0, dim):
-        tup: tuple[int, list[bool]] = rows[i]
+        row_i: list[int] = matrix[i]
 
-        node: int = tup[0]
+        degree: int = 0
 
-        cols: list[int] = matrix[i]
+        neighbors_count: int = 0
 
-        average_neighbors_degree: int = 0
+        for j in range(dim):
+            neighbor: int = nodes[j]
 
-        num_neighbors: int = 0
+            row_j: list[int] = matrix[j]
 
-        # \[k_i,nn = \frac{1}{N}\sum_{j=1}^{N}A_{ij}k_j\]
-        for j in range(0, dim):
-            col: int = cols[j]
+            a_ij: int = row_i[j]
 
-            num_neighbors += col
+            neighbors_count += a_ij
 
-            list_neighbor_nodes: list[int] = matrix[j]
+            if neighbors_count > 0:
+                for h in range(dim):
+                    a_jh: int = row_j[h]
 
-            neighbors_degree: int = 0
-
-            # k_j = \sum_{h=1}^{N}A_{jh}
-            for neighbor_col in list_neighbor_nodes:
-                neighbors_degree += neighbor_col
-
-            # A_{ij}k_j
-            val: int = col * neighbors_degree
-
-            # \sum_{j=1}^{N}A_{ij}k_j
-            average_neighbors_degree += val
-
-        # \[k_i,nn = \frac{\sum_{j=1}^{N}A_{ij}k_j}{\sum_{j=1}^{N}A_{ij}}\]
-        average_neighbors_degree /= num_neighbors
-
-        dict_neighbor_degrees[node] = average_neighbors_degree
+                    degree += a_ij * a_jh
+        
+        neighbor_degrees[node] = degree / neighbors_count if neighbors_count > 0 else 0
 
     average_neighbors_degree: float = 0
 
-    list_nodes: list[int] = list(dict_neighbor_degrees.keys())
+    # \[\langle{k}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_i\]
+    for i in range(dim):
+        node: int = nodes[i]
 
-    # \langle{k_{i,nn}}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_{i,nn}
-    for i in range(0, dim):
-        node: int = list_nodes[i]
+        degree: int = neighbor_degrees[node]
 
-        degree: int = dict_neighbor_degrees[node]
-
-        # \sum_{i=1}^{N}k_{i,nn}
         average_neighbors_degree += degree
 
-    # \langle{k_{i,nn}}\rangle = \frac{1}{N}\sum_{i=1}^{N}k_{i,nn}
     average_neighbors_degree /= dim
-    return dict_degrees, average_degree, dict_neighbor_degrees, average_neighbors_degree
+
+    return degrees, average_degree, neighbor_degrees, average_neighbors_degree
 
 def calculate_lengths(rows: list[tuple[int, list[bool]]]):
     matrix: list[list[int]] = []
@@ -245,7 +207,7 @@ def calculate_lengths(rows: list[tuple[int, list[bool]]]):
 
     list_lengths: list[list[int]] = [[]] * dim
 
-    for i in range(0, dim):
+    for i in range(dim):
         list_lengths[i] = [0] * dim
 
     length: int = 0
@@ -259,7 +221,7 @@ def calculate_lengths(rows: list[tuple[int, list[bool]]]):
 
         counter: int = 0
 
-        for i in range(0, dim - 1):
+        for i in range(dim - 1):
             for j in range(i + 1, dim):
                 if list_lengths[i][j] == 0 and np_matrix[i][j] > 0:
                     list_lengths[i][j] = list_lengths[j][i] = length
@@ -272,7 +234,7 @@ def calculate_lengths(rows: list[tuple[int, list[bool]]]):
 
     counter = 0
 
-    for i in range(0, dim - 1):
+    for i in range(dim - 1):
         for j in range(i + 1, dim):
             lengths += list_lengths[i][j]
             counter += 1
@@ -303,9 +265,9 @@ def main():
         888: [782]
     }
 
-    rows: list[tuple[int, list[bool]]] = create_matrix(network=network)
+    nodes, rows = create_matrix(network=network)
 
-    tup: tuple = calculate_degrees(rows=rows)
+    tup: tuple = calculate_degrees(nodes=nodes, rows=rows)
 
     if isinstance(tup, tuple) and len(tup) == 4:
         dict_degrees, average_degree, dict_neighbor_degrees, average_neighbors_degree = tup
