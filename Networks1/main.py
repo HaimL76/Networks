@@ -242,6 +242,45 @@ def calculate_lengths(network: dict[int, list[int]], rows: list[tuple[int, list[
 
     return lengths, average_length
 
+def count_triangles(network: dict[int, list[int]], rows: list[tuple[int, list[bool]]]):
+    nodes: list[int] = list(network.keys())
+    
+    neighbors_matrix: list[list[int]] = []
+
+    for row in rows:
+        list_cols: list[int] = [1 if col else 0 for col in row]
+
+        neighbors_matrix.append(list_cols)
+
+    np_neighbors_matrix: np.ndarray = np.array(neighbors_matrix)
+
+    dim: int = len(nodes)
+
+    np_lengths_matrix: np.ndarray = np.identity(dim, dtype=int)
+
+    lengths: list[list[int]] = [[]] * dim
+
+    for i in range(dim):
+        lengths[i] = [0] * dim
+
+    for l in range(3):
+        np_lengths_matrix = np.matmul(np_lengths_matrix, np_neighbors_matrix)
+
+    nodes_in_triangles: dict[int, int] = {}
+    
+    triangles_count: int = 0
+
+    for i in range(dim):
+        node: int = nodes[i]
+
+        val: int = int(np_lengths_matrix[i][i])
+
+        triangles_count += val
+
+        if val > 0:
+            nodes_in_triangles[node] = val
+
+    return triangles_count / 6
 
 def main():
     network: dict[int, list[int]] = {
@@ -287,5 +326,9 @@ def main():
         print("average_length:", average_length)
     else:
         print("Error in calculating lengths.")
+
+    triangles_count: int = count_triangles(network=network, rows=rows)
+
+    print("triangles_count:", triangles_count)
 
 main()
