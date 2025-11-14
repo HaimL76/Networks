@@ -78,7 +78,9 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
             rows[i][j] = rows[j][i] = node_j in neighbors
 
     if should_print:
-        str_print: str = "\\[\n\\hspace{-25mm}\n\\begin{bmatrix}\n"
+        str_print: str = "\\[\\{" + ",".join([f"\\overset{{{i+1}}}{{{nodes[i]}}}" for i in range(dim)]) + "\\}\\]"
+
+        str_print += "\\[\n\\hspace{-25mm}\n\\begin{bmatrix}\n"
 
         list_str_rows: list[str] = []
 
@@ -103,9 +105,12 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
         str_print += "\n\\end{bmatrix}\n\\]\n"
 
+        with open(r"C:\Users\isila\Networks\Networks1\neighbors_matrix.txt", "w") as fw:
+            fw.write(str_print)
+
     return nodes, rows
 
-def calculate_degrees(nodes: list[int], rows: list[list[bool]]):
+def calculate_degrees(nodes: list[int], rows: list[list[bool]], should_print: bool = False):
     if not isinstance(rows, list):
         return
 
@@ -186,6 +191,21 @@ def calculate_degrees(nodes: list[int], rows: list[list[bool]]):
         average_neighbors_degree += degree
 
     average_neighbors_degree /= dim
+
+    str_print: str = "\\[\\begin{matrix}\n"
+    str_print += "\\\\\n".join([f"k_{{{i+1}}}={degrees[nodes[i]]}" for i in range(dim)])
+    str_print += "\\end{matrix}\\]\n"
+
+    str_print += f"\\[\\langle{{k}}\\rangle={average_degree}\\]\n"
+
+    str_print += "\\[\\begin{matrix}\n"
+    str_print += "\\\\\n".join([f"k_{{{i+1},nn}}={neighbor_degrees[nodes[i]]}" for i in range(dim)])
+    str_print += "\\end{matrix}\\]\n"
+
+    str_print += f"\\[\\langle{{k,nn}}\\rangle={average_neighbors_degree}\\]\n"
+
+    with open(r"C:\Users\isila\Networks\Networks1\degrees.txt", "w") as fw:
+        fw.write(str_print)
 
     return degrees, average_degree, neighbor_degrees, average_neighbors_degree
 
