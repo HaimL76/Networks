@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath} % For bmatrix environment
+\usepackage{bm}
+\usepackage{mathtools} % For matrix* environment
+
+\title{networks1}
+\author{haiml76 }
+\date{November 2025}
+
+\begin{document}
+\setcounter{MaxMatrixCols}{20}
+\maketitle
+
+\section{}
+\[k_i=\sum_{j=1}^{N}A_{ij}\]
+
+\[\langle{k}\rangle=\frac{1}{N}\sum_{i=1}^{N}k_i\]
+\section{}
+The average degree of the neighbors of $i$ is
+\[
+k_{i,nn}=\frac{1}{k_i}\sum_{j=1}^{N}A_{ij}k_j=\frac{\sum_{j=1}^{N}A_{ij}k_j}{\sum_{h=1}^{N}A_{ih}}=\frac{\sum_{j=1}^{N}A_{ij}\sum_{r=1}^{N}A_{jr}}{\sum_{h=1}^{N}A_{ih}}=\frac{\sum_{j=1}^{N}\sum_{r=1}^{N}A_{ij}A_{jr}}{\sum_{h=1}^{N}A_{ih}}
+\]
+and then
+\[
+\langle{k_{nn}}\rangle=\frac{1}{N}\sum_{i=1}^{N}k_{i,nn}
+\]
+\section{}
+We create an array of nodes, arbitrarily enumerated, and use it to create the matrix.
+
+\[\{\overset{1}{426},\overset{2}{345},\overset{3}{365},\overset{4}{153},\overset{5}{245},\overset{6}{165},\overset{7}{358},\overset{8}{121},\overset{9}{452},\overset{10}{143},\overset{11}{131},\overset{12}{272},\overset{13}{546},\overset{14}{369},\overset{15}{171},\overset{16}{782},\overset{17}{888}\}\]\[
+\hspace{-25mm}
+\begin{bmatrix}
+& \bm{426} & \bm{345} & \bm{365} & \bm{153} & \bm{245} & \bm{165} & \bm{358} & \bm{121} & \bm{452} & \bm{143} & \bm{131} & \bm{272} & \bm{546} & \bm{369} & \bm{171} & \bm{782} & \bm{888}\\
+\bm{426} & 0 & 1 & 1 & 0 & 1 & 1 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0\\
+\bm{345} & 1 & 0 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{365} & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{153} & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{245} & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{165} & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+\bm{358} & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0\\
+\bm{121} & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 1 & 0\\
+\bm{452} & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0\\
+\bm{143} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{131} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{272} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 0\\
+\bm{546} & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{369} & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\bm{171} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0\\
+\bm{782} & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 1\\
+\bm{888} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0
+\end{bmatrix}
+\]
+\section{}
+\[\begin{matrix*}[l]
+k_{1}=7\\
+k_{2}=4\\
+k_{3}=2\\
+k_{4}=1\\
+k_{5}=2\\
+k_{6}=3\\
+k_{7}=3\\
+k_{8}=4\\
+k_{9}=3\\
+k_{10}=1\\
+k_{11}=1\\
+k_{12}=3\\
+k_{13}=1\\
+k_{14}=1\\
+k_{15}=1\\
+k_{16}=4\\
+k_{17}=1\end{matrix*}\]
+\[\langle{k}\rangle=2.4705882352941178\]
+\section{}
+\[\begin{matrix*}[l]
+k_{1,nn}=3.142857142857143\\
+k_{2,nn}=3.0\\
+k_{3,nn}=5.5\\
+k_{4,nn}=4.0\\
+k_{5,nn}=5.5\\
+k_{6,nn}=3.6666666666666665\\
+k_{7,nn}=2.3333333333333335\\
+k_{8,nn}=3.25\\
+k_{9,nn}=4.333333333333333\\
+k_{10,nn}=4.0\\
+k_{11,nn}=4.0\\
+k_{12,nn}=2.6666666666666665\\
+k_{13,nn}=3.0\\
+k_{14,nn}=3.0\\
+k_{15,nn}=3.0\\
+k_{16,nn}=3.75\\
+k_{17,nn}=4.0\end{matrix*}\]
+\[\langle{k,nn}\rangle=3.6554621848739495\]
+\section{}
+Denote a triangle by $\{i,j,h\}$, where $1\leq{i,j,h}\leq{N}$ are three distinct nodes.
+
+We have $N$ choices for $i$, then $N-1$ choices for $j$ and $N-2$ choices for $h$.
+
+But we can choose every three nodes $i,j,h$ in $3!=6$ different ways, hence $T_{max}=\frac{N(N-1)(N-2)}{3!}=\binom{N}{3}$.
+
+To calculate the actual number of triangles, we observe that if $T=\{i,j,h\}$ is a triangle, then $A_{kl}=1$, where $k,l\in\{i,j,h\}$ and $k\neq{l}$. And then
+
+$A_{ii}=0$, because we do not have loops from a node to itself in a network.
+
+$(A^2)_{ii}=\sum_{k=1}^{N}A_{ik}A_{ki}$, which is the number of paths of length $2$ from node $i$ to itself, which equals to the number of neighbors of node $i$.
+
+$(A^3)_{ii}=\sum_{k=1}^{N}A_{ik}(A^2)_{ki}=\sum_{k=1}^{N}A_{ik}(\sum_{l=1}^{N}A_{kl}A_{li})=\sum_{k=1}^{N}\sum_{l=1}^{N}A_{ik}A_{kl}A_{li}$, which is the count of all the paths from node $i$ to itself of length 3, that is, the count of all the triangles that start and end at node $i$. But we count both paths $i\rightarrow{j}\rightarrow{h}$ and $i\rightarrow{h}\rightarrow{j}$, so we need to divide the count by $2$. To count all the triangles, we must add the counts of all $(A^3)_{kk}$, where $1\leq{k}\leq{N}$.
+
+But if $\{i,j,h\}$ are nodes in a triangles, then $(A^3)_{ii}+(A^3)_{jj}+(A^3)_{hh}$ counts the same triangle three times, because the same triangle can start and end at node $i$ or node $j$ or node $h$, so we need to divide the count by $3$, so the formula is \[
+T=\frac{\sum_{i=1}^{N}(A^3)_{ii}}{3!}.
+\]
+Indeed, in our class network we have $3$ triangles (calculated in the code), and from the diagram we see that the triangles are $\{426,345,365\}$, $\{426,345,245\}$ and $\{426,121,782\}$.
+\end{document}
