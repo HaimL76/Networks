@@ -368,7 +368,7 @@ def main():
     else:
         print("Error in calculating degrees.")
 
-    tup: tuple = calculate_lengths(network=network, rows=rows)
+    tup: tuple = calculate_lengths(network=network, rows=rows, should_print=True)
 
     if isinstance(tup, tuple) and len(tup) == 2:
         lengths, average_length = tup
