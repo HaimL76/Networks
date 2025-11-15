@@ -92,7 +92,7 @@ k_{16,nn}=3.75\\
 k_{17,nn}=4.0\end{matrix*}\]
 \[\langle{k_{nn}}\rangle=3.6554621848739495\]
 \section{}
-We calculate the lengths matrix $L$ by calculating the sequence $A,A^2,A^3\dots$, and setting $L_{ij}=\min\{k|(A^k)_{ij}>0\}$, for every $1\leq{i,j}\leq{N}$.
+We calculate the distance matrix $L=(l_{ij})$ by calculating the sequence $A,A^2,A^3\dots$, and setting $l_{ij}=\min\{k|(A^k)_{ij}>0\}$, for every $1\leq{i,j}\leq{N}$.
 
 We calculate powers of $A$ until there is no change in $L$, which means that we found all the paths of the connected nodes.
 
@@ -120,7 +120,7 @@ We can see that $L_{ii}=2$, for every $1\leq{i}\leq{N}$, because there are no lo
 \bm{888} & 2 & 3 & 3 & 4 & 3 & 3 & 4 & 2 & 3 & 3 & 3 & 2 & 5 & 4 & 3 & 1 & 2
 \end{bmatrix}
 \]
-average length is $2.6013071895424837$.
+\[\langle{l}\rangle=2.6013071895424837\]
 \section{}
 Denote a triangle by $\{i,j,h\}$, where $1\leq{i,j,h}\leq{N}$ are three distinct nodes.
 
@@ -140,4 +140,6 @@ But if $\{i,j,h\}$ are nodes in a triangles, then $(A^3)_{ii}+(A^3)_{jj}+(A^3)_{
 T=\frac{\sum_{i=1}^{N}(A^3)_{ii}}{3!}.
 \]
 Indeed, in our class network we have $3$ triangles (calculated in the code), and from the diagram we see that the triangles are $\{426,345,365\}$, $\{426,345,245\}$ and $\{426,121,782\}$, and we can see that these are the only nodes for which $(A^3)_{ii}>0$, and $\frac{(A^3)_{ii}}{2}$ is the count of the triangles that node $i$ participates in.
+
+We can see that $\frac{T}{T_{max}}=\frac{\sum_{i=1}^{N}(A^3)_{ii}}{\binom{N}{3}}$, which is our case is $\frac{3}{\binom{17}{3!}}=\frac{18}{17\cdot16\cdot15}$, which is less than half percent of $T_{max}$.
 \end{document}
