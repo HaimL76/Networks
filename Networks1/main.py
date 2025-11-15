@@ -243,8 +243,8 @@ def calculate_lengths(network: dict[int, list[int]],
 
         counter: int = 0
 
-        for i in range(dim):
-            for j in range(i, dim):
+        for i in range(dim - 1):
+            for j in range(i + 1, dim):
                 if lengths[i][j] == 0 and np_lengths_matrix[i][j] > 0:
                     lengths[i][j] = lengths[j][i] = length
                     counter += 1
@@ -255,8 +255,8 @@ def calculate_lengths(network: dict[int, list[int]],
 
     length = 0
 
-    for i in range(dim):
-        for j in range(i, dim):
+    for i in range(dim - 1):
+        for j in range(i + 1, dim):
             length += lengths[i][j]
             counter += 1
 
@@ -287,6 +287,8 @@ def calculate_lengths(network: dict[int, list[int]],
         str_print += "\\\\\n".join(list_str_rows)
 
         str_print += "\n\\end{bmatrix}\n\\]\n"
+
+        str_print += f"\\[\\langle{{length}}\\rangle={average_length}\\]\n"
 
         with open(r"lengths.txt", "w") as fw:
             fw.write(str_print)
