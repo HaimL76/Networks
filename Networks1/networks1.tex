@@ -92,7 +92,7 @@ k_{16,nn}=3.75\\
 k_{17,nn}=4.0\end{matrix*}\]
 \[\langle{k_{nn}}\rangle=3.6554621848739495\]
 \section{}
-We calculate the distance matrix $L=(l_{ij})$ by calculating the sequence $A,A^2,A^3\dots$, and setting $l_{ij}=\min\{k|(A^k)_{ij}>0\}$, for every $1\leq{i,j}\leq{N}$.
+We calculate the distance matrix $L=(l_{ij})$ by calculating the sequence $A,A^2,A^3\dots$, and setting $l_{ij}=\min\{k|[A^k]_{ij}>0\}$, for every $1\leq{i,j}\leq{N}$.
 
 We calculate powers of $A$ until there is no change in $L$, which means that we found all the paths of the connected nodes.
 
@@ -132,14 +132,14 @@ To calculate the actual number of triangles, we observe that if $T=\{i,j,h\}$ is
 
 $A_{ii}=0$, because we do not have loops from a node to itself in a network.
 
-$(A^2)_{ii}=\sum_{k=1}^{N}A_{ik}A_{ki}$, which is the number of paths of length $2$ from node $i$ to itself, which equals to the number of neighbors of node $i$.
+$[A^2]_{ii}=\sum_{k=1}^{N}A_{ik}A_{ki}$, which is the number of paths of length $2$ from node $i$ to itself, which equals to the number of neighbors of node $i$.
 
-$(A^3)_{ii}=\sum_{k=1}^{N}A_{ik}(A^2)_{ki}=\sum_{k=1}^{N}A_{ik}(\sum_{l=1}^{N}A_{kl}A_{li})=\sum_{k=1}^{N}\sum_{l=1}^{N}A_{ik}A_{kl}A_{li}$, which is the count of all the paths from node $i$ to itself of length 3, that is, the count of all the triangles that start and end at node $i$. But we count both paths $i\rightarrow{j}\rightarrow{h}$ and $i\rightarrow{h}\rightarrow{j}$, so we need to divide the count by $2$. To count all the triangles, we must add the counts of all $(A^3)_{kk}$, where $1\leq{k}\leq{N}$.
+$[A^3]_{ii}=\sum_{k=1}^{N}A_{ik}[A^2]_{ki}=\sum_{k=1}^{N}A_{ik}(\sum_{l=1}^{N}A_{kl}A_{li})=\sum_{k=1}^{N}\sum_{l=1}^{N}A_{ik}A_{kl}A_{li}$, which is the count of all the paths from node $i$ to itself of length 3, that is, the count of all the triangles that start and end at node $i$. But we count both paths $i\rightarrow{j}\rightarrow{h}$ and $i\rightarrow{h}\rightarrow{j}$, so we need to divide the count by $2$. To count all the triangles, we must add the counts of all $[A^3]_{kk}$, where $1\leq{k}\leq{N}$.
 
-But if $\{i,j,h\}$ are nodes in a triangles, then $(A^3)_{ii}+(A^3)_{jj}+(A^3)_{hh}$ counts the same triangle three times, because the same triangle can start and end at node $i$ or node $j$ or node $h$, so we need to divide the count by $3$, so the formula is \[
-T=\frac{\sum_{i=1}^{N}(A^3)_{ii}}{3!}.
+But if $\{i,j,h\}$ are nodes in a triangles, then $[A^3]_{ii}+[A^3]_{jj}+[A^3]_{hh}$ counts the same triangle three times, because the same triangle can start and end at node $i$ or node $j$ or node $h$, so we need to divide the count by $3$, so the formula is \[
+T=\frac{\sum_{i=1}^{N}[A^3]_{ii}}{3!}.
 \]
-Indeed, in our class network we have $3$ triangles (calculated in the code), and from the diagram we see that the triangles are $\{426,345,365\}$, $\{426,345,245\}$ and $\{426,121,782\}$, and we can see that these are the only nodes for which $(A^3)_{ii}>0$, and $\frac{(A^3)_{ii}}{2}$ is the count of the triangles that node $i$ participates in.
+Indeed, in our class network we have $3$ triangles (calculated in the code), and from the diagram we see that the triangles are $\{426,345,365\}$, $\{426,345,245\}$ and $\{426,121,782\}$, and we can see that these are the only nodes for which $[A^3]_{ii}>0$, and $\frac{[A^3]_{ii}}{2}$ is the count of the triangles that node $i$ participates in.
 
-We can see that $\frac{T}{T_{max}}=\frac{\sum_{i=1}^{N}(A^3)_{ii}}{\binom{N}{3}}$, which is our case is $\frac{3}{\binom{17}{3!}}=\frac{18}{17\cdot16\cdot15}$, which is less than half percent of $T_{max}$.
+We can see that $\frac{T}{T_{max}}=\frac{\sum_{i=1}^{N}[A^3]_{ii}}{\binom{N}{3}}$, which is our case is $\frac{3}{\binom{17}{3!}}=\frac{18}{17\cdot16\cdot15}$, which is less than half percent of $T_{max}$.
 \end{document}
