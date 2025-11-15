@@ -139,5 +139,5 @@ $(A^3)_{ii}=\sum_{k=1}^{N}A_{ik}(A^2)_{ki}=\sum_{k=1}^{N}A_{ik}(\sum_{l=1}^{N}A_
 But if $\{i,j,h\}$ are nodes in a triangles, then $(A^3)_{ii}+(A^3)_{jj}+(A^3)_{hh}$ counts the same triangle three times, because the same triangle can start and end at node $i$ or node $j$ or node $h$, so we need to divide the count by $3$, so the formula is \[
 T=\frac{\sum_{i=1}^{N}(A^3)_{ii}}{3!}.
 \]
-Indeed, in our class network we have $3$ triangles (calculated in the code), and from the diagram we see that the triangles are $\{426,345,365\}$, $\{426,345,245\}$ and $\{426,121,782\}$.
+Indeed, in our class network we have $3$ triangles (calculated in the code), and from the diagram we see that the triangles are $\{426,345,365\}$, $\{426,345,245\}$ and $\{426,121,782\}$, and we can see that these are the only nodes for which $(A^3)_{ii}>0$, and $\frac{(A^3)_{ii}}{2}$ is the count of the triangles that node $i$ participates in.
 \end{document}
