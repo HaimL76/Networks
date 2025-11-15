@@ -255,8 +255,8 @@ def calculate_lengths(network: dict[int, list[int]],
 
     length = 0
 
-    for i in range(dim - 1):
-        for j in range(i + 1, dim):
+    for i in range(dim):
+        for j in range(i, dim):
             length += lengths[i][j]
             counter += 1
 
