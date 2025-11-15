@@ -105,7 +105,7 @@ def create_matrix(network: dict[int, list[int]], should_print: bool = True):
 
         str_print += "\n\\end{bmatrix}\n\\]\n"
 
-        with open(r"C:\Users\isila\Networks\Networks1\neighbors_matrix.txt", "w") as fw:
+        with open(r"neighbors_matrix.txt", "w") as fw:
             fw.write(str_print)
 
     return nodes, rows
@@ -204,12 +204,14 @@ def calculate_degrees(nodes: list[int], rows: list[list[bool]], should_print: bo
 
     str_print += f"\\[\\langle{{k,nn}}\\rangle={average_neighbors_degree}\\]\n"
 
-    with open(r"C:\Users\isila\Networks\Networks1\degrees.txt", "w") as fw:
+    with open(r"degrees.txt", "w") as fw:
         fw.write(str_print)
 
     return degrees, average_degree, neighbor_degrees, average_neighbors_degree
 
-def calculate_lengths(network: dict[int, list[int]], rows: list[tuple[int, list[bool]]]):
+def calculate_lengths(network: dict[int, list[int]], 
+                      rows: list[tuple[int, list[bool]]],
+                      should_print: bool = False):
     nodes: list[int] = list(network.keys())
     
     neighbors_matrix: list[list[int]] = []
@@ -241,8 +243,8 @@ def calculate_lengths(network: dict[int, list[int]], rows: list[tuple[int, list[
 
         counter: int = 0
 
-        for i in range(dim - 1):
-            for j in range(i + 1, dim):
+        for i in range(dim):
+            for j in range(i, dim):
                 if lengths[i][j] == 0 and np_lengths_matrix[i][j] > 0:
                     lengths[i][j] = lengths[j][i] = length
                     counter += 1
@@ -259,6 +261,35 @@ def calculate_lengths(network: dict[int, list[int]], rows: list[tuple[int, list[
             counter += 1
 
     average_length: float = float(length) / counter
+
+    if should_print:
+        str_print: str = "\\[\n\\hspace{-25mm}\n\\begin{bmatrix}\n"
+
+        list_str_rows: list[str] = []
+
+        str_row: str = " & ".join([f"\\bm{{{node}}}" for node in nodes])
+
+        str_row = f"& {str_row}"
+
+        list_str_rows.append(str_row)
+
+        for i in range(dim):
+            node: int = nodes[i]
+
+            row: list[int] = lengths[i]
+
+            str_row = " & ".join([str(col) for col in row])
+
+            str_row = f"\\bm{{{node}}} & {str_row}"
+
+            list_str_rows.append(str_row)
+
+        str_print += "\\\\\n".join(list_str_rows)
+
+        str_print += "\n\\end{bmatrix}\n\\]\n"
+
+        with open(r"lengths.txt", "w") as fw:
+            fw.write(str_print)
 
     return lengths, average_length
 
