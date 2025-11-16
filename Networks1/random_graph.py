@@ -13,7 +13,7 @@ def construct_graph(n: int, p: float = 0.5):
 
     for i in range(n - 1):
         size: int = n - 1 - i
-        print(f"Row {i+1}/{n-1}, size={size}")
+        #print(f"Row {i+1}/{n-1}, size={size}")
         np_arr = np.random.binomial(size=size, n=1, p= p)
 
         arr: list[int] = np_arr.tolist()
@@ -53,6 +53,8 @@ def construct_graph(n: int, p: float = 0.5):
 
     list_gcc = collect_gcc(nodes, 0, list_gcc, None)
 
+    print(f"n={n}, p={p:.4f}, len(list_gcc)={len(list_gcc)}")
+
     size_gcc: int = 0
 
     if isinstance(list_gcc, list) and len(list_gcc) > 0:
@@ -89,6 +91,8 @@ def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
         if node not in gcc:
             gcc.add(node)
 
+            print(node)
+
             neighbors: list[int] = nodes.get(node, [])
 
             for neighbor in neighbors:
@@ -96,4 +100,5 @@ def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
 
     return list_gcc
 
-construct_graph(10)
+for i in range(5):
+    construct_graph(10, p=0.0005 + i * 0.0005)
