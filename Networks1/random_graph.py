@@ -49,56 +49,43 @@ def construct_graph(n: int, p: float = 0.5):
 
     average_degree: float = sum(degrees) / n
 
-    list_gcc: list[set] = []
+    gcc: set = collect_gcc(nodes, 0, None)
 
-    list_gcc = collect_gcc(nodes, 0, list_gcc, None)
+    gcc_size: int = len(gcc) if isinstance(gcc, set) else 0
 
-    print(f"n={n}, p={p:.4f}, len(list_gcc)={len(list_gcc)}")
-
-    size_gcc: int = 0
-
-    if isinstance(list_gcc, list) and len(list_gcc) > 0:
-        for gcc in list_gcc:
-            length: int = len(gcc)
-
-            if length > size_gcc:
-                size_gcc = length
-
-        print(f"Number of nodes: {n}")
-        print(f"Average degree: {average_degree:.2f}")
-        print(f"GCC size: {size_gcc} ({size_gcc/n:.2%})")
+    print(f"n={n}, p={p:.4f}, average degree = {average_degree}, gcc size = {gcc_size}")
 
 def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
-                list_gcc: list[set] = None, gcc: set = None) -> list[set]:
-    if node == 0:
-        for node in nodes:
-            found: bool = False
-            index: int = 0
+                gcc = None, level: int = 0):
+    if not isinstance(nodes, dict) or len(nodes) < 1:
+        return
+    
+    if level > 100:
+        _ = 0
+    
+    keys: list[int] = nodes.keys()
 
-            while not found and index < len(list_gcc):
-                gcc = list_gcc[index]
-                index += 1
+    if node not in keys:
+        list_nodes = list(keys)
+        node = list_nodes[0]
 
-                found = node in gcc
+    if not isinstance(gcc, set):
+        gcc = set()
 
-            if not found:
-                _ = collect_gcc(nodes, node, list_gcc, None)
-    else:
-        if not isinstance(gcc, set):
-            gcc = set()
-            list_gcc.append(gcc)
+    if node not in gcc:
+        gcc.add(node)
 
-        if node not in gcc:
-            gcc.add(node)
+        neighbors: list[int] = nodes[node]
 
-            print(node)
+        for neighbor in neighbors:
+            collect_gcc(nodes, neighbor, gcc, level + 1)
 
-            neighbors: list[int] = nodes.get(node, [])
+    return gcc
+    
+m = 200000
 
-            for neighbor in neighbors:
-                _ = collect_gcc(nodes, neighbor, list_gcc, gcc)
+p0: float = 1/m
 
-    return list_gcc
-
-for i in range(5):
-    construct_graph(10, p=0.0005 + i * 0.0005)
+for i in range(m):
+    p: float = p0 * i
+    construct_graph(1000, p=p)
