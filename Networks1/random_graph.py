@@ -1,13 +1,11 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = None):
-    list_rows: list[list[bool]] = [[]] * n
+    rows: list[list[bool]] = [[]] * n
 
     for i in range(n):
-        list_rows[i] = [False] * n
-
-    degrees: list[int] = [0] * n
+        rows[i] = [False] * n
 
     nodes: dict[int, list[int]] = {}
 
@@ -25,9 +23,7 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
 
             neighbor: int = arr[index]
             
-            list_rows[i][j] = list_rows[j][i] = neighbor == 1
-
-            degree += neighbor
+            rows[i][j] = rows[j][i] = neighbor == 1
 
             if neighbor == 1:
                 node: int = i + 1
@@ -45,7 +41,20 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
                 neighbors: list[int] = nodes[neighbor]
                 neighbors.append(node)
 
-        degrees[i] = degree
+    degrees: dict[int, int] = {}
+
+    for i in range(n):
+        row: list[bool] = rows[i]
+
+        degree: int = 0
+
+        for j in range(n):
+            if row[j]:
+                degree += 1
+
+        node: int = i + 1
+
+        degrees[node] = degree
 
     average_degree: float = sum(degrees) / n
 
@@ -103,11 +112,9 @@ while not finished and index < m:
     print(f"{index}/{m}")
     p: float = p0 * index
     index += 1
-    average_degree, gcc_size = construct_graph(1000, p=p, points=points)
+    average_degree, gcc_size = construct_graph(10, p=p, points=points)
 
-    finished = average_degree > 1.5
-
-import matplotlib.pyplot as plt
+    finished = average_degree > 6
 
 plt.figure(figsize=(8, 6))
 
@@ -119,6 +126,6 @@ plt.plot(xs, ys, "-bD")
 plt.xlabel("<k>", fontsize=18)
 plt.ylabel("s", fontsize=18)
 
-plt.title(title)
+plt.title("Random Graph")
 #plt.show()
 plt.savefig("random_graph.png")
