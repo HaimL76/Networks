@@ -1,7 +1,7 @@
 import math
 
 
-def plot_gcc_graph(title="GCC Graph"):
+def plot_gcc_graph(title="GCC Size vs Average Degree"):
     import matplotlib.pyplot as plt
 
     k_start: float = 0
@@ -53,6 +53,7 @@ def plot_gcc_graph(title="GCC Graph"):
     plt.ylabel("s", fontsize=18)
 
     plt.title(title)
-    plt.show()
+    #plt.show()
+    plt.savefig("gcc_graph.png")
 
 plot_gcc_graph()
