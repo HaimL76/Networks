@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def construct_graph(n: int, p: float = 0.5):
+def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = None):
     list_rows: list[list[bool]] = [[]] * n
 
     for i in range(n):
@@ -55,6 +55,13 @@ def construct_graph(n: int, p: float = 0.5):
 
     print(f"n={n}, p={p:.4f}, average degree = {average_degree}, gcc size = {gcc_size}")
 
+    tup: tuple[float, int] = average_degree, gcc_size
+
+    if isinstance(points, list):
+        points.append(tup)
+
+    return average_degree, gcc_size
+
 def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
                 gcc = None, level: int = 0):
     if not isinstance(nodes, dict) or len(nodes) < 1:
@@ -86,6 +93,32 @@ m = 200000
 
 p0: float = 1/m
 
-for i in range(m):
-    p: float = p0 * i
-    construct_graph(1000, p=p)
+points: list[tuple[float, int]] = []
+
+index: int = 0
+
+finished: bool = False
+
+while not finished and index < m:
+    print(f"{index}/{m}")
+    p: float = p0 * index
+    index += 1
+    average_degree, gcc_size = construct_graph(1000, p=p, points=points)
+
+    finished = average_degree > 1.5
+
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 6))
+
+xs = [point[0] for point in points]
+ys = [point[1] for point in points]
+
+plt.plot(xs, ys, "-bD")
+
+plt.xlabel("<k>", fontsize=18)
+plt.ylabel("s", fontsize=18)
+
+plt.title(title)
+#plt.show()
+plt.savefig("random_graph.png")
