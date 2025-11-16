@@ -5,7 +5,7 @@ def plot_gcc_graph(title="GCC Graph"):
     import matplotlib.pyplot as plt
 
     k_start: float = 0
-    k_end: float = 10
+    k_end: float = 6
 
     delta_k: float = 0.1
 
@@ -47,7 +47,10 @@ def plot_gcc_graph(title="GCC Graph"):
     xs = [point[0] for point in points]
     ys = [point[1] for point in points]
 
-    plt.plot(xs, ys)
+    plt.plot(xs, ys, "-bD")
+
+    plt.xlabel("<k>", fontsize=18)
+    plt.ylabel("s", fontsize=18)
 
     plt.title(title)
     plt.show()
