@@ -76,7 +76,9 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
                 if size > gcc_size:
                     gcc_size = size
 
-    print(f"n={n}, p={p:.4f}, average degree = {average_degree}, gcc size = {gcc_size}")
+    total_components = len(gccs) if isinstance(gccs, list) else 0
+
+    print(f"n={n}, p={p:.4f}, average degree = {average_degree}, gcc size = {gcc_size}, total components = {total_components}")
 
     tup: tuple[float, int] = average_degree, gcc_size
 
@@ -102,6 +104,8 @@ def collect_gcc_list(nodes: dict[int, list[int]]):
         if not found:
             gcc: set[int] = collect_gcc(nodes, node, None)
             gccs.append(gcc)
+
+    return gccs
 
 def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
                 gcc = None, level: int = 0):
