@@ -56,11 +56,25 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
 
         degrees[node] = degree
 
-    average_degree: float = sum(degrees) / n
+    average_degree: float = 0
 
-    gcc: set = collect_gcc(nodes, 0, None)
+    for node in degrees:
+        degree: int = degrees[node]
+        average_degree += degree
 
-    gcc_size: int = len(gcc) if isinstance(gcc, set) else 0
+    average_degree /= n
+
+    gccs: list[set[int]] = collect_gcc_list(nodes)
+
+    gcc_size: int = 0
+
+    if isinstance(gccs, list) and len(gccs) > 0:
+        for gcc in gccs:
+            if isinstance(gcc, set):
+                size: int = len(gcc)
+                
+                if size > gcc_size:
+                    gcc_size = size
 
     print(f"n={n}, p={p:.4f}, average degree = {average_degree}, gcc size = {gcc_size}")
 
@@ -70,6 +84,24 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
         points.append(tup)
 
     return average_degree, gcc_size
+
+def collect_gcc_list(nodes: dict[int, list[int]]):
+    gccs: list[set[int]] = []
+
+    for node in nodes.keys():
+        found: bool = False
+
+        index: int = 0
+
+        while not found and index < len(gccs):
+            gcc: set[int] = gccs[index]
+            index += 1
+
+            found = node in gcc
+
+        if not found:
+            gcc: set[int] = collect_gcc(nodes, node, None)
+            gccs.append(gcc)
 
 def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
                 gcc = None, level: int = 0):
@@ -100,7 +132,9 @@ def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
     
 m = 200000
 
-p0: float = 1/m
+p0: float = 0.0001
+
+n: int = int(0.1/p0)
 
 points: list[tuple[float, int]] = []
 
@@ -112,7 +146,7 @@ while not finished and index < m:
     print(f"{index}/{m}")
     p: float = p0 * index
     index += 1
-    average_degree, gcc_size = construct_graph(10, p=p, points=points)
+    average_degree, gcc_size = construct_graph(n=n, p=p, points=points)
 
     finished = average_degree > 6
 
