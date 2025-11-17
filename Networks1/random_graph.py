@@ -102,8 +102,9 @@ def collect_gcc_list(nodes: dict[int, list[int]]):
             found = node in gcc
 
         if not found:
-            gcc: set[int] = collect_gcc(nodes, node, None)
+            gcc: set[int] = set()
             gccs.append(gcc)
+            _ = collect_gcc(nodes, node, gcc)
 
     return gccs
 
@@ -112,14 +113,8 @@ def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
     if not isinstance(nodes, dict) or len(nodes) < 1:
         return
     
-    if level > 100:
+    if level > 900:
         _ = 0
-    
-    keys: list[int] = nodes.keys()
-
-    if node not in keys:
-        list_nodes = list(keys)
-        node = list_nodes[0]
 
     if not isinstance(gcc, set):
         gcc = set()
