@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -129,11 +130,13 @@ def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
 
     return gcc
     
-m = 200000
+m = 10
 
-p0: float = 0.0001
+p0: float = 0.00001
 
-n: int = int(0.1/p0)
+n: int = 10000#int(1/p0)
+
+sys.setrecursionlimit(n)
 
 points: list[tuple[float, int]] = []
 
@@ -141,13 +144,14 @@ index: int = 0
 
 finished: bool = False
 
-while not finished and index < m:
-    print(f"{index}/{m}")
+while not finished:
     p: float = p0 * index
     index += 1
-    average_degree, gcc_size = construct_graph(n=n, p=p, points=points)
 
-    finished = average_degree > 6
+    for i in range(m):
+        average_degree, gcc_size = construct_graph(n=n, p=p, points=points)
+
+    finished = average_degree > 6 or p >= 1.0
 
 plt.figure(figsize=(8, 6))
 
