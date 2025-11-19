@@ -142,16 +142,18 @@ Indeed, in our class network we have $3$ triangles (calculated in the code), and
 
 We can see that $\frac{T}{T_{max}}=\frac{\sum_{i=1}^{N}[A^3]_{ii}}{\binom{N}{3}}$, which is our case is $\frac{3}{\binom{17}{3!}}=\frac{18}{17\cdot16\cdot15}$, which is less than half percent of $T_{max}$.
 \section{}
-\section{}
+Both plots are generated in the code.
+First plot make use of the equation $s=e^{-\langle{k}\rangle{s}}$, and it is running on a range of increasing discrete values of $\langle{k}\rangle$, where $0\leq\langle{k}\rangle\leq{6}$, we denote by $\langle{k}\rangle_{i}$ the values of $\langle{k}\rangle$ on each iteration.
+
+For each $\langle{k}\rangle_i$, we calculate the matching $s_i$ by running an inner iteration on a range of increasing discrete values of $s_i$. We denote by $s_{i_j}$ the values of $s_i$ on each iteration. For each $s_{i_j}$, we denote by $s'_{i_j}$ the result of the calculation $s'_{i_j}=e^{-\langle{k}\rangle}s_{i_j}$, and we calculate the difference $d_{i_j}=|s'_{i_j-}s_{i_j}|$. For each $\langle{k}\rangle_i$, we take $s_i$ to be the $s_{i_j}$ with the minimal difference $d_{i_j}$, which we consider the optimal $s_i$ for this $\langle{k}\rangle_i$, and we construct the first plot with these $(\langle{k}\rangle_i, s_i)$ pairs.
 \begin{figure}[p]
     \makebox[\linewidth]{
         \includegraphics[width=1.95\linewidth]{gcc_graph.png}
     }
 \end{figure}
-\section{}
 \begin{figure}[p]
     \makebox[\linewidth]{
-        \includegraphics[width=1.95\linewidth]{random_graph.png}
+        \includegraphics[width=1.85\linewidth]{random_graph.png}
     }
 \end{figure}
 \end{document}
