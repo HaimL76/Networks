@@ -4,19 +4,22 @@
 \usepackage{bm}
 \usepackage{mathtools} % For matrix* environment
 \usepackage{amssymb} % For \mathbb
+\usepackage{url}
 
-\title{networks1}
-\author{haiml76 }
+\title{Networks 1}
+\author{Haim Lavi, 038712105}
 \date{November 2025}
 
 \begin{document}
 \setcounter{MaxMatrixCols}{20}
 \maketitle
+All the code is in the following git repository 
 
+\url{https://github.com/HaimL76/Networks.git}
 \section{}
 \[k_i=\sum_{j=1}^{N}A_{ij}\]
 
-\[\langle{k}\rangle=\frac{1}{N}\sum_{i=1}^{N}k_i\]
+\[\langle{k}\rangle=\frac{1}{N}\sum_{i=1}^{N}k_i=\frac{1}{N}\sum_{i=1}^{N}\sum_{j=1}^{N}A_{ij}\]
 \section{}
 The average degree of the neighbors of $i$ is
 \[
