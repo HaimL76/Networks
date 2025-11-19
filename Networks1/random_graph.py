@@ -65,7 +65,7 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
 
     average_degree /= n
 
-    gccs = None#: list[set[int]] = collect_gcc_list(nodes)
+    gccs: list[set[int]] = collect_gcc_list(nodes)
 
     gcc_size: int = 0
 
@@ -79,8 +79,6 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
 
     total_components = len(gccs) if isinstance(gccs, list) else 0
 
-    gcc_size = calculate_gcc_size(nodes, n)
-
     print(f"n={n}, p={p:.4f}, average degree = {average_degree}, gcc size = {gcc_size}, total components = {total_components}")
 
     tup: tuple[float, int] = average_degree, gcc_size
@@ -89,36 +87,6 @@ def construct_graph(n: int, p: float = 0.5, points: list[tuple[float, int]] = No
         points.append(tup)
 
     return average_degree, gcc_size
-
-def calculate_gcc_size(nodes: dict[int, list[int]], size: int):
-    neighbors_matrix: list[list[int]] = [[]] * size
-
-    for i in range(size):
-        neighbors_matrix[i] = [0] * size
-
-    for node in nodes.keys():
-        neighbors: list[int] = nodes[node]
-
-        for neighbor in neighbors:
-            i = node - 1
-            j = neighbor - 1
-
-            neighbors_matrix[i][j] = neighbors_matrix[j][i] = 1
-
-    np_neighbors_matrix: np.ndarray = np.array(neighbors_matrix)
-
-    np_lengths_matrix: np.ndarray = np.identity(size, dtype=int)
-    
-    for l in range(2):
-        np_lengths_matrix = np.matmul(np_lengths_matrix, np_neighbors_matrix)
-
-    counter: int = 0
-
-    for i in range(size):
-        if np_lengths_matrix[i][i] > 0:
-            counter += 1
-
-    return counter    
 
 def collect_gcc_list(nodes: dict[int, list[int]]):
     gccs: list[set[int]] = []
@@ -166,9 +134,9 @@ m = 10
 
 p0: float = 0.00001
 
-n: int = 100#int(1/p0)
+n: int = 10000#int(1/p0)
 
-sys.setrecursionlimit(max(n, 2000))
+sys.setrecursionlimit(n)
 
 points: list[tuple[float, int]] = []
 
