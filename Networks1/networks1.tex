@@ -91,6 +91,7 @@ k_{15,nn}=3.0\\
 k_{16,nn}=3.75\\
 k_{17,nn}=4.0\end{matrix*}\]
 \[\langle{k_{nn}}\rangle=3.6554621848739495\]
+Since $2.4705882352941178<3.6554621848739495$, this may suggest that the average person is less popular than his or her friends.
 \section{}
 We calculate the distance matrix $L=(l_{ij})$ by calculating the sequence $A,A^2,A^3\dots$, and setting $l_{ij}=\min\{k|[A^k]_{ij}>0\}$, for every $1\leq{i,j}\leq{N}$.
 
@@ -142,10 +143,12 @@ Indeed, in our class network we have $3$ triangles (calculated in the code), and
 
 We can see that $\frac{T}{T_{max}}=\frac{\sum_{i=1}^{N}[A^3]_{ii}}{\binom{N}{3}}$, which is our case is $\frac{3}{\binom{17}{3!}}=\frac{18}{17\cdot16\cdot15}$, which is less than half percent of $T_{max}$.
 \section{}
+a
+\section{}
 Both plots are generated in the code.
-First plot make use of the equation $s=e^{-\langle{k}\rangle{s}}$, and it is running on a range of increasing discrete values of $\langle{k}\rangle$, where $0\leq\langle{k}\rangle\leq{6}$, we denote by $\langle{k}\rangle_{i}$ the values of $\langle{k}\rangle$ on each iteration.
+First plot make use of the equation $s=1-e^{-\langle{k}\rangle{s}}$, and it is running on a range of increasing discrete values of $\langle{k}\rangle$, where $0\leq\langle{k}\rangle\leq{6}$, we denote by $\langle{k}\rangle_{i}$ the values of $\langle{k}\rangle$ on each iteration.
 
-For each $\langle{k}\rangle_i$, we calculate the matching $s_i$ by running an inner iteration on a range of increasing discrete values of $s_i$. We denote by $s_{i_j}$ the values of $s_i$ on each iteration. For each $s_{i_j}$, we denote by $s'_{i_j}$ the result of the calculation $s'_{i_j}=e^{-\langle{k}\rangle}s_{i_j}$, and we calculate the difference $d_{i_j}=|s'_{i_j-}s_{i_j}|$. For each $\langle{k}\rangle_i$, we take $s_i$ to be the $s_{i_j}$ with the minimal difference $d_{i_j}$, which we consider the optimal $s_i$ for this $\langle{k}\rangle_i$, and we construct the first plot with these $(\langle{k}\rangle_i, s_i)$ pairs.
+For each $\langle{k}\rangle_i$, we calculate the matching $s_i$ by running an inner iteration on a range of increasing discrete values of $s_i$. We denote by $s_{i_j}$ the values of $s_i$ on each iteration. For each $s_{i_j}$, we denote by $s'_{i_j}$ the result of the calculation $s'_{i_j}=1-e^{-\langle{k}\rangle{s_{i_j}}}$, and we calculate the difference $d_{i_j}=|s'_{i_j-}s_{i_j}|$. For each $\langle{k}\rangle_i$, we take $s_i$ to be the $s_{i_j}$ with the minimal difference $d_{i_j}$, which we consider the optimal $s_i$ for this $\langle{k}\rangle_i$, and we construct the first plot with these $(\langle{k}\rangle_i, s_i)$ pairs.
 
 The second plot is obtained by running on an range of increasing discrete values of $p$, where $p$ starts from zero and stops after it yields $\langle{k}\rangle=6$. For each $p_i$, we construct a random $G(n,p_i)$ graph (actually we create $m$ different graphs for the same $p_i$, as suggested in the hint), and we calculate the GCC size for each graph. I used a simple recursion to get the neighbors of each node, then the neighbors of the neighbors and so on, which results in lists of connected components (list can contain several GCCs for the lower $\langle{k_i}\rangle$ values, but tends to $1$ as $\langle{k_i}\rangle>>1$), and we take the size $s_i$ of the largest (or only) one, and so we construct the second plot with these pairs $(k_i,s_i)$. I preferred to leave $s$ in the second plot as the absolute size of the largest (or only) GCC size, instead of the fraction $\frac{|GCC|}{N}$.
 \begin{figure}[p]
