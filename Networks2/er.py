@@ -38,19 +38,17 @@ def create_er(n: int, p: float):
     arr: list[int] = []
 
     for k in ks:
-        k_index: int = k - 1
-
-        if k > len(arr):
-            arr0: list[int] = [0] * k
+        if k >= len(arr):
+            arr0: list[int] = [0] * (k + 1)
 
             for i in range(len(arr)):
                 arr0[i] = arr[i]
 
             arr = arr0
 
-        arr[k_index] += 1
+        arr[k] += 1
 
-        print(f"k={k}, P(k)={arr[k_index]}")
+        print(f"k={k}, P(k)={arr[k]}")
 
     plt.figure(figsize=(8, 6))
 
@@ -58,6 +56,12 @@ def create_er(n: int, p: float):
     ys = [arr[k] for k in range(len(arr))]
 
     plt.plot(xs, ys, "-bD")
+
+    poisson_lambda: float = n * p
+    poisson_arr: list[float] = [0] * len(arr)
+
+    for k in range(len(poisson_arr)):
+        poisson_arr[k] = 0
 
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
