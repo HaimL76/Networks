@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 import numpy as np
 
 
@@ -8,6 +9,7 @@ def create_er(n: int, p: float):
         rows[i] = [0] * n
 
     for i in range(n - 1):
+        print(f"Row {i + 1}/{n}")
         size: int = n - i - 1
         
         np_arr = np.random.binomial(size=size, n=1, p=p)
@@ -31,10 +33,11 @@ def create_er(n: int, p: float):
 
         ks[i] = neighors_counter
 
+        print(f"Node {i + 1}, degree={neighors_counter}")
+
     arr: list[int] = []
 
     for k in ks:
-        print(k)
         k_index: int = k - 1
 
         if k > len(arr):
@@ -47,7 +50,21 @@ def create_er(n: int, p: float):
 
         arr[k_index] += 1
 
-    _ = 0
+        print(f"k={k}, P(k)={arr[k_index]}")
+
+    plt.figure(figsize=(8, 6))
+
+    xs = [k for k in range(len(arr))]
+    ys = [arr[k] for k in range(len(arr))]
+
+    plt.plot(xs, ys, "-bD")
+
+    plt.xlabel("k", fontsize=18)
+    plt.ylabel("P(k)", fontsize=18)
+
+    plt.title("Degree Distribution")
+    #plt.show()
+    plt.savefig("degree_distribution.png")
 
 n: int = 10000
 p: float = 10 / n
