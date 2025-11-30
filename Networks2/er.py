@@ -1,3 +1,4 @@
+import math
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -53,7 +54,7 @@ def create_er(n: int, p: float):
     plt.figure(figsize=(8, 6))
 
     xs = [k for k in range(len(arr))]
-    ys = [arr[k] for k in range(len(arr))]
+    ys = [arr[k]/n for k in range(len(arr))]
 
     plt.plot(xs, ys, "-bD")
 
@@ -61,7 +62,10 @@ def create_er(n: int, p: float):
     poisson_arr: list[float] = [0] * len(arr)
 
     for k in range(len(poisson_arr)):
-        poisson_arr[k] = 0
+        poisson_k: float = math.exp(-poisson_lambda) * (poisson_lambda ** k) / math.factorial(k)
+        poisson_arr[k] = poisson_k
+
+    plt.plot(xs, poisson_arr, "-ro")
 
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
