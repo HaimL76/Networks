@@ -1,0 +1,24 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Networks2}
+\author{haiml76 }
+\date{December 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{}
+\section{}
+For this plot we construct a random ER network ($N=10^4$ and $p=10^{-3}$). We create the vector $(k_1,k_2,\dots,k_{N})$ by calculating $k_i=\sum_{j=1}^{N}A_{ij}$ for every $1\leq{i}\leq{N}$. Then we count the number $N_i$ of nodes whose degree is $k_i$ and calculate $P(k_i)=\frac{N_i}{N}$. We plot this graph in blue.
+
+We calculate the Poisson distribution $P(k)=\frac{e^{-\lambda}\lambda^k}{k!}$, where $\lambda=pN$, for every $0\leq{k}\leq\max\{k_i\}$, and plot this graph in red.
+
+We can see that the two graphs are very similar to each other.
+\begin{figure}[p]
+    \makebox[\linewidth]{
+\includegraphics[width=1.85\linewidth]{degree_distribution.png}
+    }
+\end{figure}
+\end{document}
