@@ -33,7 +33,7 @@ C=\frac{\gamma-1}{k_{\min}^{1-\gamma}}
 \]
 But in our case $k_{\min}=1$, hence $C=\frac{\gamma-1}{1^{1-\gamma}}=\gamma-1$
 \[
-E(k^n)=\int_1^{\infty}k^nCk^{-\gamma}dk=\int_1^{\infty}Ck^{n-\gamma}dk=\frac{C}{n-\gamma+1}k^{n-\gamma+1}\bigg\rvert_1^{\infty}
+E(k^n)=\int_1^{\infty}k^n(\gamma-1)k^{-\gamma}dk=\int_1^{\infty}(\gamma-1)k^{n-\gamma}dk=\frac{\gamma-1}{n-\gamma+1}k^{n-\gamma+1}\bigg\rvert_1^{\infty}
 \]
 
 If $n-\gamma\geq-1$ then $n-\gamma+1\geq{0}$ and then $k^{n-\gamma+1}\overset{k\rightarrow\infty}{\longrightarrow}\infty$, so $E(k^n)$ diverges for every $\gamma\leq{n+1}$. If $\gamma>n+1$ then $k^{n-\gamma+1}\overset{k\rightarrow\infty}{\longrightarrow{0}}$, so $E(k^n)$ is finite.
