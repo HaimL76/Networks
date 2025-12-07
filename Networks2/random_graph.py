@@ -44,29 +44,45 @@ def construct_graph(n: int, d: int = 0):
     full_degree_nodes: set[int] = set()
 
     while not finished:
-        potential_neighbors: list[int] = get_potential_neighbors(neighbors, d=d, full_degree_nodes=full_degree_nodes)
+        nodes_to_connect: list[int] = []
 
-        len_potential_neighbors: int = len(potential_neighbors)
+        while not finished and len(nodes_to_connect) < 2:
+            node: int = np.random.randint(0, n)
 
-        print(f"Potential neighbors: {len_potential_neighbors}, counter: {counter}")
+            if node not in full_degree_nodes and node not in nodes_to_connect:
+                node_neighbors: list[int] = neighbors[node]
 
-        if len_potential_neighbors > 1:
-            len_potential_neighbors: int = len(potential_neighbors)
+                degree: int = 0
 
-            i: int = np.random.randint(0, len_potential_neighbors)
-            j: node = i if len_potential_neighbors > 2 else 1 - i
+                index: int = 0
 
-            while j == i:
-                j: int = np.random.randint(0, len_potential_neighbors)
+                while degree < d and index < n:
+                    degree += node_neighbors[index]
+                    index += 1
 
-            node_i: int = potential_neighbors[i]
-            node_j: int = potential_neighbors[j]
+                if degree < d:
+                    nodes_to_connect.append(node)
+                else:
+                    full_degree_nodes.add(node)
 
-            neighbors[node_i][node_j] = neighbors[node_j][node_i] = 1
+                    print(len(full_degree_nodes))
 
-            counter += 1
+            finished = len(full_degree_nodes) >= n - d
 
-        finished = len_potential_neighbors < 3
+        if len(nodes_to_connect) == 2:
+            i: int = nodes_to_connect[0]
+            j: int = nodes_to_connect[1]
+            
+            if neighbors[i][j] == 0:
+                neighbors[i][j] = neighbors[j][i] = 1
+
+                counter += 1
+
+                print(f"Connected nodes {i} and {j}, total connections = {counter}")
+
+        finished = len(full_degree_nodes) >= n - d
+
+        print(f"Finished = {finished}")
 
     gccs: list[set[int]] = collect_gcc_list(neighbors)
 
@@ -132,16 +148,16 @@ def collect_gcc(neighbors: list[list[int]], node: int, gcc: set[int], level: int
             if neighbor == 1:
                 collect_gcc(neighbors, node=j, gcc=gcc, level=level + 1)
     
-m = 10
+m = 1#10
 
 p0: float = 0.00001
 
-n: int = 10000
+n: int = 1000
 
 sys.setrecursionlimit(max(sys.getrecursionlimit(), 2000))
 
 for i in range(m):
-    tup: tuple = construct_graph(n=n, d=2)
+    tup: tuple = construct_graph(n=n, d=8)
 
 exit(0)
 
