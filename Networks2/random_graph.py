@@ -65,8 +65,6 @@ def construct_graph(n: int, d: int = 0):
                 else:
                     full_degree_nodes.add(node)
 
-                    print(len(full_degree_nodes))
-
             finished = len(full_degree_nodes) >= n - d
 
         if len(nodes_to_connect) == 2:
@@ -78,11 +76,9 @@ def construct_graph(n: int, d: int = 0):
 
                 counter += 1
 
-                print(f"Connected nodes {i} and {j}, total connections = {counter}")
+                print(f"d[{d}] Connected nodes {i} and {j}, total connections = {counter}")
 
         finished = len(full_degree_nodes) >= n - d
-
-        print(f"Finished = {finished}")
 
     gccs: list[set[int]] = collect_gcc_list(neighbors)
 
@@ -148,44 +144,33 @@ def collect_gcc(neighbors: list[list[int]], node: int, gcc: set[int], level: int
             if neighbor == 1:
                 collect_gcc(neighbors, node=j, gcc=gcc, level=level + 1)
     
-m = 1#10
+m = 40
 
 p0: float = 0.00001
 
-n: int = 1000
+n: int = 2800
 
-sys.setrecursionlimit(max(sys.getrecursionlimit(), 2000))
+sys.setrecursionlimit(max(sys.getrecursionlimit(), n))
+
+list_gcc_sizes: list[int] = [0] * m
 
 for i in range(m):
-    tup: tuple = construct_graph(n=n, d=8)
+    tup: tuple = construct_graph(n=n, d=i)
+    list_gcc_sizes[i] = i, tup[1]
 
-exit(0)
-
-points: list[tuple[float, int]] = []
-
-index: int = 0
-
-finished: bool = False
-
-while not finished:
-    p: float = p0 * index
-    index += 1
-
-    for i in range(m):
-        average_degree, gcc_size = construct_graph(n=n, d=3)
-
-    finished = average_degree > 6 or p >= 1.0
+for i in range(m):
+    print(f"d={i}, gcc size={list_gcc_sizes[i]}")
 
 plt.figure(figsize=(8, 6))
 
-xs = [point[0] for point in points]
-ys = [point[1] for point in points]
+xs = [tup[0] for tup in list_gcc_sizes]
+ys = [tup[1] for tup in list_gcc_sizes]
 
 plt.plot(xs, ys, "-bD")
 
-plt.xlabel("<k>", fontsize=18)
+plt.xlabel("d", fontsize=18)
 plt.ylabel("s", fontsize=18)
 
-plt.title("Random Graph")
+plt.title("Random Graph R(n,d)")
 #plt.show()
-plt.savefig("random_graph.png")
+plt.savefig("random_graph_r_n_d.png")
