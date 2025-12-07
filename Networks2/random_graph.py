@@ -46,15 +46,15 @@ def construct_graph(n: int, d: int = 0):
     while not finished:
         potential_neighbors: list[int] = get_potential_neighbors(neighbors, d=d, full_degree_nodes=full_degree_nodes)
 
-        print(f"Potential neighbors: {len(potential_neighbors)}, counter: {counter}")
+        len_potential_neighbors: int = len(potential_neighbors)
 
-        finished = len(potential_neighbors) < d
+        print(f"Potential neighbors: {len_potential_neighbors}, counter: {counter}")
 
-        if not finished:
+        if len_potential_neighbors > 1:
             len_potential_neighbors: int = len(potential_neighbors)
 
             i: int = np.random.randint(0, len_potential_neighbors)
-            j: node = i
+            j: node = i if len_potential_neighbors > 2 else 1 - i
 
             while j == i:
                 j: int = np.random.randint(0, len_potential_neighbors)
@@ -66,60 +66,82 @@ def construct_graph(n: int, d: int = 0):
 
             counter += 1
 
-    return neighbors    
+        finished = len_potential_neighbors < 3
 
+    gccs: list[set[int]] = collect_gcc_list(neighbors)
 
-def collect_gcc_list(nodes: dict[int, list[int]]):
+    gcc_size: int = 0
+
+    if isinstance(gccs, list) and len(gccs) > 0:
+        for gcc in gccs:
+            if isinstance(gcc, set):
+                size: int = len(gcc)
+                
+                if size > gcc_size:
+                    gcc_size = size
+
+    total_components = len(gccs) if isinstance(gccs, list) else 0
+
+    tup: tuple = total_components, gcc_size
+
+    print(f"n={n}, d={d}, total components = {total_components}, gcc size = {gcc_size}")
+
+    return tup
+
+def collect_gcc_list(neighbors: list[list[int]]):
     gccs: list[set[int]] = []
 
-    for node in nodes.keys():
+    for i in range(len(neighbors)):
         found: bool = False
 
         index: int = 0
 
         while not found and index < len(gccs):
             gcc: set[int] = gccs[index]
-            index += 1
 
-            found = node in gcc
+            found = i in gcc
+            index += 1
 
         if not found:
             gcc: set[int] = set()
+
             gccs.append(gcc)
-            _ = collect_gcc(nodes, node, gcc)
+
+            collect_gcc(neighbors, i, gcc)
 
     return gccs
 
-def collect_gcc(nodes: dict[int, list[int]], node: int = 0,
-                gcc = None, level: int = 0):
-    if not isinstance(nodes, dict) or len(nodes) < 1:
+def collect_gcc(neighbors: list[list[int]], node: int, gcc: set[int], level: int = 0):
+    if not isinstance(neighbors, list) or len(neighbors) < 1:
+        return
+    
+    if not isinstance(gcc, set):
         return
     
     if level > 900:
         _ = 0
 
-    if not isinstance(gcc, set):
-        gcc = set()
-
     if node not in gcc:
         gcc.add(node)
 
-        neighbors: list[int] = nodes[node]
+        node_neighbors: list[int] = neighbors[node]
 
-        for neighbor in neighbors:
-            collect_gcc(nodes, neighbor, gcc, level + 1)
+        for j in range(len(node_neighbors)):
+            neighbor: int = node_neighbors[j]
 
-    return gcc
+            if neighbor == 1:
+                collect_gcc(neighbors, node=j, gcc=gcc, level=level + 1)
     
 m = 10
 
 p0: float = 0.00001
 
-n: int = 10#int(1/p0)
+n: int = 10000
 
 sys.setrecursionlimit(max(sys.getrecursionlimit(), 2000))
 
-neighbors: list[list[int]] =construct_graph(n=n, d=3)
+for i in range(m):
+    tup: tuple = construct_graph(n=n, d=2)
 
 exit(0)
 
