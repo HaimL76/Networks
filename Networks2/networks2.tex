@@ -2,6 +2,8 @@
 \usepackage{graphicx} % Required for inserting images
 \usepackage{float} % For the [H] float option
 \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xfrac}
 \title{Networks2}
 \author{haiml76 }
 \date{December 2025}
@@ -10,7 +12,17 @@
 
 \maketitle
 \section{}
+For $d=1$, it is obvious that no GCC can be formed, because in that case we have only single edges in the network. But for any $d\geq{2}$, every node can be connected to the GCC.
+
+The equation is
+$S=1-e^{-dS}$
 \section{}
+\subsection{}
+If we have $N$ nodes, then $0\leq{d}\leq{N-1}$.
+
+We calculate $\langle{k}\rangle$ by calculating the mean of $d$.
+
+For every node $0\leq{i}\leq{N}$, the probability for $d_i=1$ is that $i$ has only one connected node, that is, node $i$ is connected 
 \section{}
 For this plot we construct a random ER network ($N=10^4$ and $p=10^{-3}$). We create the vector $(k_1,k_2,\dots,k_{N})$ by calculating $k_i=\sum_{j=1}^{N}A_{ij}$ for every $1\leq{i}\leq{N}$. Then we count the number $N_i$ of nodes whose degree is $k_i$ and calculate $P(k_i)=\frac{N_i}{N}$. We plot this graph in blue.
 
@@ -27,18 +39,86 @@ We can see that the two graphs are very similar to each other.
 \[
 P(k)=Ck^{-\gamma}
 \]
+
+\[
+E(k^n)=\int_1^{\infty}k^nCk^{-\gamma}dk=C\int_1^{\infty}k^{n-\gamma}dk=\frac{C}{n-\gamma+1}k^{n-\gamma+1}\bigg\rvert_1^{\infty}
+\]
+
 But
 \[
 C=\frac{\gamma-1}{k_{\min}^{1-\gamma}}
 \]
-But in our case $k_{\min}=1$, hence $C=\frac{\gamma-1}{1^{1-\gamma}}=\gamma-1$
+In our case $k_{\min}=1$, hence $C=\frac{\gamma-1}{1^{1-\gamma}}=\gamma-1$, hence 
+
 \[
-E(k^n)=\int_1^{\infty}k^n(\gamma-1)k^{-\gamma}dk=\int_1^{\infty}(\gamma-1)k^{n-\gamma}dk=\frac{\gamma-1}{n-\gamma+1}k^{n-\gamma+1}\bigg\rvert_1^{\infty}
+E(k^n)=\frac{\gamma-1}{n-\gamma+1}k^{n-\gamma+1}\bigg\rvert_1^{\infty}
 \]
 
 If $n-\gamma\geq-1$ then $n-\gamma+1\geq{0}$ and then $k^{n-\gamma+1}\overset{k\rightarrow\infty}{\longrightarrow}\infty$, so $E(k^n)$ diverges for every $\gamma\leq{n+1}$. If $\gamma>n+1$ then $k^{n-\gamma+1}\overset{k\rightarrow\infty}{\longrightarrow{0}}$, so $E(k^n)$ is finite.
 \subsection{}
 The mean is $\mu=E(k)=E(k^1)$, so it diverges for $\gamma\leq{1+1}=2$ and converges for $\gamma>2$.
 
-The variance is $\sigma^2=E(k^2)$, so it diverges for $\gamma\leq{2+1}=3$ and converges for $\gamma>3$.
+The variance is $\sigma^2=E(k^2)-E(k)^2$, so it diverges for $\gamma\leq{2+1}=3$ and converges for $\gamma>3$ (because then both $E(k)$ and $E(k^2)$ converge).
+\section{}
+\subsection{}
+Minimum wage $x_{\min}=6,247.67\approx{6,248}$ ILS
+
+Average wage $\overline{x}=13,620$ ILS
+
+\[
+\mu=E(x)=\frac{C}{2-\gamma}x^{2-\gamma}\bigg\rvert_{6248}^{\infty}\approx\overline{x}=13620
+\]
+
+But
+
+\[
+C=\frac{\gamma-1}{x_{\min}^{1-\gamma}}=\frac{\gamma-1}{6248^{1-\gamma}}
+\]
+
+Hence
+
+\[
+\frac{\gamma-1}{\gamma-2}\frac{6248^{2-\gamma}}{6248^{1-\gamma}}=\frac{\gamma-1}{\gamma-2}\frac{6248^{1-\gamma}6248}{6248^{1-\gamma}}=\frac{\gamma-1}{\gamma-2}6248\approx{13620}
+\]
+
+hence
+
+\[
+\frac{\gamma-1}{\gamma-2}\approx{2.18}
+\]
+
+hence
+
+\[
+\gamma-1\approx{2.18(\gamma-2)}=2.18\gamma-4.36
+\]
+
+hence
+
+\[
+1.18\gamma\approx{3.36}
+\]
+
+hence $\gamma\approx{2.847}$
+\subsection{}
+\[
+x_{\max}\approx{N^{\frac{1}{\gamma-1}}}\approx(10^6)^{\frac{1}{2.847-1}}=10^{\frac{6}{1.847}}\approx{10^{3.248}}
+\]
+
+But this is an obvious mistake, so I will take the value of $\gamma$ to be around $2$, hence $x_{\max}\approx({10}^6)^{\frac{1}{2-1}}=10^6$.
+\subsection{}
+The wage distribution is close enough to continuous distribution, hence we need to find $x_{\sfrac{1}{2}}$ s.t. $P(x<x_{\sfrac{1}{2}})=\frac{1}{2}$, then $x_{\sfrac{1}{2}}$ is the median value.
+
+\[
+P(k<x_{\sfrac{1}{2}})=\int_{x_{\min}}^{\sfrac{1}{2}}Ck^{-\gamma}dk=\frac{C}{1-\gamma}k^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{1}{2}
+\]
+
+But in our case, $\gamma\approx2$, hence $C=\frac{\gamma-1}{x_{\min}^{1-\gamma}}=\frac{1}{6248^{-1}}=6248$, hence
+
+\[
+P(k<x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}k^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{6248}{-1}k^{-1}\bigg\rvert_{6248}^{x_{\sfrac{1}{2}}}=\frac{-6248}{x_{\frac{1}{2}}}-\frac{-6248}{6248}=\frac{1}{2}\Rightarrow{\frac{6248}{x_{\frac{1}{2}}}}=\frac{1}{2}\Rightarrow\]
+\[\Rightarrow{x_{\frac{1}{2}}=2\cdot6248}=12496
+\]
+
+Hence, the median wage is $12,496$ ILS, which can be considered close to the average wage $13,620$ ILS, which means that nearly half the population get the average wage or below.
 \end{document}
