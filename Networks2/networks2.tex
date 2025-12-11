@@ -110,21 +110,29 @@ But this is an obvious mistake, so I will take the value of $\gamma$ to be aroun
 The wage distribution is close enough to continuous distribution, hence we need to find $x_{\sfrac{1}{2}}$ s.t. $P(x<x_{\sfrac{1}{2}})=\frac{1}{2}$, then $x_{\sfrac{1}{2}}$ is the median value.
 
 \[
-P(k<x_{\sfrac{1}{2}})=\int_{x_{\min}}^{\sfrac{1}{2}}Ck^{-\gamma}dk=\frac{C}{1-\gamma}k^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{1}{2}
+P(x<x_{\sfrac{1}{2}})=\int_{x_{\min}}^{\sfrac{1}{2}}Cx^{-\gamma}dx=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{1}{2}
 \]
 
 But in our case, $\gamma\approx2$, hence $C=\frac{\gamma-1}{x_{\min}^{1-\gamma}}=\frac{1}{6248^{-1}}=6248$, hence
 
 \[
-P(k<x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}k^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{6248}{-1}k^{-1}\bigg\rvert_{6248}^{x_{\sfrac{1}{2}}}=\frac{-6248}{x_{\frac{1}{2}}}-\frac{-6248}{6248}=\frac{1}{2}\Rightarrow{\frac{6248}{x_{\frac{1}{2}}}}=\frac{1}{2}\Rightarrow\]
+P(x<x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{6248}{-1}x^{-1}\bigg\rvert_{6248}^{x_{\sfrac{1}{2}}}=\frac{-6248}{x_{\frac{1}{2}}}-\frac{-6248}{6248}=\frac{1}{2}\Rightarrow{\frac{6248}{x_{\frac{1}{2}}}}=\frac{1}{2}\Rightarrow\]
 \[\Rightarrow{x_{\frac{1}{2}}=2\cdot6248}=12496
 \]
 
 Or, symmetrically
 
 \[
-P(k>x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}k^{1-\gamma}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}=\frac{6248}{-1}k^{-1}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}=0-\frac{-6248}{x_{\frac{1}{2}}}=\frac{1}{2}\Rightarrow{{x_{\frac{1}{2}}=2\cdot6248}=12496}
+P(x>x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}=\frac{6248}{-1}x^{-1}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}=0-\frac{-6248}{x_{\frac{1}{2}}}=\frac{1}{2}\Rightarrow{{x_{\frac{1}{2}}=2\cdot6248}=12496}
 \]
 
-Hence, the median wage is $12,496$ ILS, which is lower than, but same order of magnitude of, the average wage $13,620$ ILS.
+Hence, the median wage is $12,496$ ILS, which is lower than, but same order of magnitude as, the average wage $13,620$ ILS.
+\subsection{}
+We need to calculate how many people get more than $\overline{x}$
+
+\[
+P(x>\overline{x})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{\overline{x}}^{\infty}=\frac{6248}{-1}x^{-1}\bigg\rvert_{\overline{x}}^{\infty}=0-\frac{-6248}{\overline{x}}=\frac{6248}{13620}\approx{0.458}
+\]
+
+But $0.458\cdot10=4.58$, hence there are $4$ dociles who get higher wages, hence the average wage is in the $5$th docile.
 \end{document}
