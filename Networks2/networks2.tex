@@ -135,4 +135,37 @@ P(x>\overline{x})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{\overline{x}}^{\inf
 \]
 
 But $0.458\cdot10=4.58$, hence there are $4$ deciles who get higher wages, hence the average wage is in the $5$th decile.
+\subsection{}
+We write $x\in{k}$ to say that $x$ is in the $k$th decile, and denote by $x_k$ the minimum wage in the $k$th decile (where $x_0=x_{\max}$ and $x_{10}=x_{\min}$). Then
+\[
+P(x\in{K})=P(x_k\leq{x}<x_{k-1})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{k}}^{x_{k-1}}=\frac{C}{1-\gamma}(x_{k-1}^{1-\gamma}-x_k^{1-\gamma})
+\]
+Whereas if $k=1$ then $P(x_k\leq{x}<x_{k-1})=P(x_1\leq{x}<x_0)=P(x_1\leq{x})$, because all people get less than $x_{\max}$ [hence $P(x<x_0)=1$], 
+
+and if $k=10$ then $P(x_k\leq{x}<x_{k-1})=P(x_{10}\leq{x}<x_9)=P(x<x_9)$, because all people get more than $x_{\min}$ [hence $P(x\geq{x_{10}})=1$].
+
+We use our $\gamma$ and $C$ to get
+
+$-6248(\frac{1}{x_{k-1}}-\frac{1}{x_k})=\frac{1}{10}$
+
+We calculate
+
+$\frac{-6248}{x_9}+\frac{6248}{x_{10}}=\frac{6248}{x_{\min}}-\frac{6248}{x_9}=\frac{6248}{6248}-\frac{6248}{x_9}=1-\frac{6248}{x_9}=0.1\Rightarrow{\frac{6248}{x_9}}=0.9\Rightarrow{x_9=6942.222}$
+
+Hence
+
+$\frac{6248}{x_9}-\frac{6248}{x_8}=0.9-\frac{6248}{x_8}=0.1\Rightarrow\frac{6248}{x_8}=0.8\Rightarrow{x_8=7810}$
+
+\[x_{10}=x_{\min}=6248\]
+\[x_9=6942.222\]
+\[x_8=7810\]
+\[x_7=8925.714\]\[x_6=10413.333\]\[x_5=12496\]
+\[x_4=15620\]
+\[x_3=20826.666\]
+\[x_2=31240\]
+\[x_1=62480\]
+
+We see that the sequence of differences \[\{a_k\}=\{x_9-x_{10},x_8-x_9,
+\dots,x_1-x_2,x_0-x_1\}\]
+is monotone increasing, hence we know that $\max\{a_k\}=x_0-x_1=x_{\max}-x_1$, but we saw that $x_{\max}\approx10^6$, hence the highest difference is without proportion to the other differences, because we took $\gamma$ to be around $2$, hence $\sigma^2$ diverges.
 \end{document}
