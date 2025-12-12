@@ -113,17 +113,17 @@ The wage distribution is close enough to continuous distribution, hence we need 
 P(x<x_{\sfrac{1}{2}})=\int_{x_{\min}}^{\sfrac{1}{2}}Cx^{-\gamma}dx=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{1}{2}
 \]
 
-But in our case, $\gamma\approx2$, hence $C=\frac{\gamma-1}{x_{\min}^{1-\gamma}}=\frac{1}{6248^{-1}}=6248$, hence
+But in our case, $\gamma\approx2$, hence $C=\frac{\gamma-1}{x_{\min}^{1-\gamma}}\approx\frac{1}{6248^{-1}}=6248$, hence
 
 \[
-P(x<x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}=\frac{6248}{-1}x^{-1}\bigg\rvert_{6248}^{x_{\sfrac{1}{2}}}=\frac{-6248}{x_{\frac{1}{2}}}-\frac{-6248}{6248}=\frac{1}{2}\Rightarrow{\frac{6248}{x_{\frac{1}{2}}}}=\frac{1}{2}\Rightarrow\]
-\[\Rightarrow{x_{\frac{1}{2}}=2\cdot6248}=12496
+P(x<x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\min}}^{x_{\sfrac{1}{2}}}\approx\frac{6248}{-1}x^{-1}\bigg\rvert_{6248}^{x_{\sfrac{1}{2}}}=\frac{-6248}{x_{\frac{1}{2}}}-\frac{-6248}{6248}=\frac{1}{2}\Rightarrow{\frac{6248}{x_{\frac{1}{2}}}}=\frac{1}{2}\Rightarrow\]
+\[\Rightarrow{x_{\frac{1}{2}}\approx2\cdot6248}=12496
 \]
 
 Or, symmetrically
 
 \[
-P(x>x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}=\frac{6248}{-1}x^{-1}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}=0-\frac{-6248}{x_{\frac{1}{2}}}=\frac{1}{2}\Rightarrow{{x_{\frac{1}{2}}=2\cdot6248}=12496}
+P(x>x_{\sfrac{1}{2}})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}\approx\frac{6248}{-1}x^{-1}\bigg\rvert_{x_{\frac{1}{2}}}^{\infty}=0-\frac{-6248}{x_{\frac{1}{2}}}=\frac{1}{2}\Rightarrow{{x_{\frac{1}{2}}\approx2\cdot6248}=12496}
 \]
 
 Hence, the median wage is $12,496$ ILS, which is lower than, but same order of magnitude as, the average wage $13,620$ ILS.
@@ -136,36 +136,36 @@ P(x>\overline{x})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{\overline{x}}^{\inf
 
 But $0.458\cdot10=4.58$, hence there are $4$ deciles who get higher wages, hence the average wage is in the $5$th decile.
 \subsection{}
-We write $x\in{k}$ to say that $x$ is in the $k$th decile, and denote by $x_k$ the minimum wage in the $k$th decile (where $x_0=x_{\max}$ and $x_{10}=x_{\min}$). Then
+We write $x\in{D_k}$ to say that $x$ is in the $k$th decile, and denote by $x_k$ the minimum wage in the $k$th decile (where $x_0=x_{\max}$ and $x_{10}=x_{\min}$). Then
 \[
-P(x\in{K})=P(x_k\leq{x}<x_{k-1})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{k}}^{x_{k-1}}=\frac{C}{1-\gamma}(x_{k-1}^{1-\gamma}-x_k^{1-\gamma})
+P(x\in{D_k})=P(x_k\leq{x}<x_{k-1})=\frac{C}{1-\gamma}x^{1-\gamma}\bigg\rvert_{x_{k}}^{x_{k-1}}=\frac{C}{1-\gamma}(x_{k-1}^{1-\gamma}-x_k^{1-\gamma})
 \]
 Whereas if $k=1$ then $P(x_k\leq{x}<x_{k-1})=P(x_1\leq{x}<x_0)=P(x_1\leq{x})$, because all people get less than $x_{\max}$ [hence $P(x<x_0)=1$], 
 
 and if $k=10$ then $P(x_k\leq{x}<x_{k-1})=P(x_{10}\leq{x}<x_9)=P(x<x_9)$, because all people get more than $x_{\min}$ [hence $P(x\geq{x_{10}})=1$].
 
-We use our $\gamma$ and $C$ to get
+We use the value $\gamma\approx2$
 
-$-6248(\frac{1}{x_{k-1}}-\frac{1}{x_k})=\frac{1}{10}$
-
-We calculate
-
-$\frac{-6248}{x_9}+\frac{6248}{x_{10}}=\frac{6248}{x_{\min}}-\frac{6248}{x_9}=\frac{6248}{6248}-\frac{6248}{x_9}=1-\frac{6248}{x_9}=0.1\Rightarrow{\frac{6248}{x_9}}=0.9\Rightarrow{x_9=6942.222}$
-
+\[
+\frac{C}{1-\gamma}(x_{k-1}^{1-\gamma}-x_k^{1-\gamma})=-C(\frac{1}{x_{k-1}}-\frac{1}{x_k})=\frac{1}{10}\Rightarrow\frac{1}{x_k}-\frac{1}{x_{k-1}}=\frac{1}{10C}
+\]
 Hence
 
-$\frac{6248}{x_9}-\frac{6248}{x_8}=0.9-\frac{6248}{x_8}=0.1\Rightarrow\frac{6248}{x_8}=0.8\Rightarrow{x_8=7810}$
+\[
+\frac{1}{x_{k-1}}=\frac{1}{x_k}-\frac{1}{10C}\Rightarrow\frac{1}{x_{k-2}}=\frac{1}{x_{k-1}}-\frac{1}{10C}=(\frac{1}{x_k}-\frac{1}{10C})-\frac{1}{10C}=\frac{1}{x_k}-\frac{2}{10C}
+\]
 
-\[x_{10}=x_{\min}=6248\]
-\[x_9=6942.222\]
-\[x_8=7810\]
-\[x_7=8925.714\]\[x_6=10413.333\]\[x_5=12496\]
-\[x_4=15620\]
-\[x_3=20826.666\]
-\[x_2=31240\]
-\[x_1=62480\]
+And in general
 
-We see that the sequence of differences \[\{a_k\}=\{x_9-x_{10},x_8-x_9,
-\dots,x_1-x_2,x_0-x_1\}\]
+\[
+\frac{1}{x_{k-i}}=\frac{1}{x_k}-\frac{i}{10C}\Rightarrow{x_{k-i}=\frac{10Cx_k}{10C-ix_k}}
+\]
+
+We use the value $C\approx6248=x_{\min}=x_{10}$, hence \[x_{10-i}=\frac{62480x_{10}}{62480-ix_{10}}=\frac{62480x_{\min}}{62480-ix_{\min}}=\frac{62480\cdot6248}{62480-i6248}=\]\[=\frac{10\cdot6248\cdot6248}{10\cdot6248-i6248}=\frac{6248(10\cdot6248)}{6248(10-i)}=\frac{62480}{10-i}
+\]
+
+For example $x_5=\frac{62480}{10-5}=\frac{62480}{5}=12496$, which is the median value that we calculated earlier.
+
+We see that the sequence of differences \[\{a_k\}=\{x_9-x_{10},\dots,x_{k-1}-x_k,\dots,x_0-x_1\}\]
 is monotone increasing, hence we know that $\max\{a_k\}=x_0-x_1=x_{\max}-x_1$, but we saw that $x_{\max}\approx10^6$, hence the highest difference is without proportion to the other differences, because we took $\gamma$ to be around $2$, hence $\sigma^2$ diverges.
 \end{document}
