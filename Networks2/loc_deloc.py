@@ -59,7 +59,11 @@ def construct_network_ring(n: int, alpha: float, local_global: int) -> list[list
 
     for a in range(n - 1):
         for b in range(a + 1, n):
-            p: float = math.exp(-1 * alpha * abs(a - b)) if local_global == Local else math.pow(abs(a - b), -alpha)
+            diff: int = abs(a - b)
+            mod_diff: int = n - abs(a - b)
+            min_diff: int = min(diff, mod_diff)
+
+            p: float = math.exp(-1 * alpha * min_diff) if local_global == Local else math.pow(min_diff, -alpha)
 
             #print(f"Nodes: ({a}, {b}), Probability: {p}")
 
@@ -71,9 +75,9 @@ def construct_network_ring(n: int, alpha: float, local_global: int) -> list[list
 
     avg_k: float = calculate_average_degree(neighbors)
 
-    lengths, avg_length = calculate_lengths(neighbors)
+    #lengths, avg_length = calculate_lengths(neighbors)
 
-    print(f"Size lattice: {n}, Average degree: {avg_k}, Average length: {avg_length}")
+    print(f"Size lattice: {n}, Average degree: {avg_k}")#, Average length: {avg_length}")
 
 def calculate_average_degree(neighbors: list[list[int]]) -> float:
     degrees: list[int] = [0] * len(neighbors)
@@ -90,4 +94,4 @@ def calculate_average_degree(neighbors: list[list[int]]) -> float:
     return average_degree
 
 for i in range(3, 1000):
-    construct_network_ring(i, 0.5, Local)
+    construct_network_ring(i, 0.25, Local)
