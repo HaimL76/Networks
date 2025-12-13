@@ -18,11 +18,13 @@ The equation is
 $S=1-e^{-dS}$
 \section{}
 \subsection{}
-If we have $N$ nodes, then $0\leq{d}\leq{N-1}$.
+We have a potential edge between node $0$ and each one of the other $N$ nodes. So for node $0$ to have all potential edges, the probability is $e^{-\alpha}e^{-2\alpha}\cdots{e^{-N\alpha}}$
 
-We calculate $\langle{k}\rangle$ by calculating the mean of $d$.
+For node $1$, we already have the edge $\{0,1\}$, so the probability to have all the edges is $e^{-\alpha}e^{-2\alpha}\cdots{e^{-(N-1)}\alpha}$
 
-For every node $0\leq{i}\leq{N}$, the probability for $d_i=1$ is that $i$ has only one connected node, that is, node $i$ is connected 
+For node $2$, we already have nodes $\{0,2\},\{1,2\}$, so the probability to have all the edges is $e^{\alpha}e^{-2\alpha}\cdots{e^{-(N-2)\alpha}}$ and so on, until node $N$ who already has all its edges with nodes $\{0,1,\dots,N-1\}$, so it does not change the probability.
+
+We conclude that the probability to have all the possible edges in the network is $e^{-N\alpha}e^{-(N-1)2\alpha}\cdots{e^{-1\cdot{N}\alpha}}=\prod_{i=1}^Ne^{-(N-i+1)i\alpha}$
 \section{}
 For this plot we construct a random ER network ($N=10^4$ and $p=10^{-3}$). We create the vector $(k_1,k_2,\dots,k_{N})$ by calculating $k_i=\sum_{j=1}^{N}A_{ij}$ for every $1\leq{i}\leq{N}$. Then we count the number $N_i$ of nodes whose degree is $k_i$ and calculate $P(k_i)=\frac{N_i}{N}$. We plot this graph in blue.
 
