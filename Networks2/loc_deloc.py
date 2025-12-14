@@ -73,11 +73,14 @@ def construct_network_ring(n: int, alpha: float, local_global: int) -> list[list
 
             neighbors[a][b] = neighbors[b][a] = neighbor
 
-    avg_k: float = calculate_average_degree(neighbors)
+    if n == 35:
+        _ = 0
+
+    total_degree, avg_k = calculate_average_degree(neighbors)
 
     #lengths, avg_length = calculate_lengths(neighbors)
 
-    print(f"Size lattice: {n}, Average degree: {avg_k}")#, Average length: {avg_length}")
+    print(f"alpha={alpha}, Size lattice: {n}, Average degree: {avg_k}, total degree: {total_degree}")#, Average length: {avg_length}")
 
 def calculate_average_degree(neighbors: list[list[int]]) -> float:
     degrees: list[int] = [0] * len(neighbors)
@@ -91,7 +94,7 @@ def calculate_average_degree(neighbors: list[list[int]]) -> float:
 
     average_degree: float = total_degree / n
 
-    return average_degree
+    return total_degree, average_degree
 
 for i in range(3, 1000):
-    construct_network_ring(i, 0.25, Local)
+    construct_network_ring(i, 0.35, Local)
