@@ -1,5 +1,6 @@
 import math
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 Local: int = 0
@@ -51,7 +52,7 @@ def calculate_lengths(neighbors: list[list[int]],
     return lengths, average_length
 
 
-def construct_network_ring(n: int, alpha: float, local_global: int) -> list[list[int]]:
+def construct_network_ring(iter: int, n: int, alpha: float, local_global: int) -> list[list[int]]:
     neighbors: list[list[int]] = [[]] * n
 
     for i in range(n):
@@ -62,10 +63,16 @@ def construct_network_ring(n: int, alpha: float, local_global: int) -> list[list
             diff: int = abs(a - b)
             mod_diff: int = n - abs(a - b)
             min_diff: int = min(diff, mod_diff)
+            min_diff = diff
 
-            p: float = math.exp(-1 * alpha * min_diff) if local_global == Local else math.pow(min_diff, -alpha)
-
-            #print(f"Nodes: ({a}, {b}), Probability: {p}")
+            p: float = 0.0
+            
+            if local_global == Local:
+                p = math.exp(-1 * alpha * min_diff)
+            elif local_global == Global:
+                p = math.pow(min_diff, -alpha)
+            else:
+                raise ValueError("local_global must be either Local or Global")
 
             np_arr = np.random.binomial(size=1, n=1, p=p)
 
@@ -73,14 +80,13 @@ def construct_network_ring(n: int, alpha: float, local_global: int) -> list[list
 
             neighbors[a][b] = neighbors[b][a] = neighbor
 
-    if n == 35:
-        _ = 0
-
     total_degree, avg_k = calculate_average_degree(neighbors)
 
-    #lengths, avg_length = calculate_lengths(neighbors)
+    lengths, avg_length = calculate_lengths(neighbors)
 
-    print(f"alpha={alpha}, Size lattice: {n}, Average degree: {avg_k}, total degree: {total_degree}")#, Average length: {avg_length}")
+    print(f"[{iter}]: alpha={alpha}, Size lattice: {n}, Average degree: {avg_k}, total degree: {total_degree}, Average length: {avg_length}")
+
+    return avg_k, avg_length
 
 def calculate_average_degree(neighbors: list[list[int]]) -> float:
     degrees: list[int] = [0] * len(neighbors)
@@ -96,5 +102,96 @@ def calculate_average_degree(neighbors: list[list[int]]) -> float:
 
     return total_degree, average_degree
 
-for i in range(3, 1000):
-    construct_network_ring(i, 0.35, Local)
+start: int = 1
+end: int = 1000
+
+length: int = end - start
+
+network_length: int = 100
+
+xs: list[float] = [0] * length
+ys: list[float] = [0] * length
+zs: list[float] = [0] * length
+
+for i in range(start, end):
+    alpha: float = 0.01 * i
+    index: int = i - start
+    avg_k, avg_length = construct_network_ring(iter=index, n=network_length, alpha=alpha, 
+                                               local_global=Global)
+    xs[index] = alpha
+    ys[index] = avg_k
+    zs[index] = avg_length
+
+plt.figure(figsize=(8, 6))
+# plot lines
+plt.plot(xs, ys, label = "avg degree")
+plt.plot(xs, zs, label = "avg length")
+plt.legend()
+plt.savefig(f"global_network_length_{network_length}_changing_alpha.png")
+
+xs: list[float] = [0] * length
+ys: list[float] = [0] * length
+zs: list[float] = [0] * length
+
+for i in range(start, end):
+    alpha: float = 0.01 * i
+    index: int = i - start
+    avg_k, avg_length = construct_network_ring(iter=index, n=network_length, alpha=alpha, 
+                                               local_global=Local)
+    xs[index] = alpha
+    ys[index] = avg_k
+    zs[index] = avg_length
+
+plt.figure(figsize=(8, 6))
+# plot lines
+plt.plot(xs, ys, label = "avg degree")
+plt.plot(xs, zs, label = "avg length")
+plt.legend()
+plt.savefig(f"local_network_length_{network_length}_changing_alpha.png")
+
+start = 3
+end = 285
+
+length = end - start
+
+xs: list[float] = [0] * length
+ys: list[float] = [0] * length
+zs: list[float] = [0] * length
+
+alpha: float = 0.5
+
+for i in range(start, end):
+    index: int = i - start
+    avg_k, avg_length = construct_network_ring(iter=index, n=i, alpha=alpha, 
+                                               local_global=Global)
+    xs[index] = alpha
+    ys[index] = avg_k
+    zs[index] = avg_length
+
+plt.figure(figsize=(8, 6))
+# plot lines
+plt.plot(xs, ys, label = "avg degree")
+plt.plot(xs, zs, label = "avg length")
+plt.legend()
+plt.savefig(f"global_network_length_changing_n_alpha_{alpha}.png")
+
+xs: list[float] = [0] * length
+ys: list[float] = [0] * length
+zs: list[float] = [0] * length
+
+alpha: float = 0.5
+
+for i in range(start, end):
+    index: int = i - start
+    avg_k, avg_length = construct_network_ring(iter=index, n=i, alpha=alpha, 
+                                               local_global=Local)
+    xs[index] = alpha
+    ys[index] = avg_k
+    zs[index] = avg_length
+
+plt.figure(figsize=(8, 6))
+# plot lines
+plt.plot(xs, ys, label = "avg degree")
+plt.plot(xs, zs, label = "avg length")
+plt.legend()
+plt.savefig(f"local_network_length_changing_n_alpha_{alpha}.png")
