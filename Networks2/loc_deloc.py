@@ -164,7 +164,7 @@ for i in range(start, end):
     index: int = i - start
     avg_k, avg_length = construct_network_ring(iter=index, n=i, alpha=alpha, 
                                                local_global=Global)
-    xs[index] = alpha
+    xs[index] = i
     ys[index] = avg_k
     zs[index] = avg_length
 
@@ -185,7 +185,7 @@ for i in range(start, end):
     index: int = i - start
     avg_k, avg_length = construct_network_ring(iter=index, n=i, alpha=alpha, 
                                                local_global=Local)
-    xs[index] = alpha
+    xs[index] = i
     ys[index] = avg_k
     zs[index] = avg_length
 
