@@ -68,7 +68,7 @@ def try_page(search_term, level=0, names: set[str] = None):
 
         print(f"[{level}]: Processing page {search_term} with {len(page_links)} links.")
 
-        list_links: list[str] = []
+        list_links: list[tuple[str, list[str]]] = []
 
         print(f"[{level}]: Writing links to {output_path}")
         
@@ -78,25 +78,28 @@ def try_page(search_term, level=0, names: set[str] = None):
             link_parts: list[str] = page_link.split(" ")
 
             part_index: int = 0
-            names_counter: int = 0
+            name_parts: list[str] = []
             
-            while names_counter < 2 and part_index < len(link_parts):
+            while len(name_parts) < 2 and part_index < len(link_parts):
                 part: str = link_parts[part_index]
                 part_index += 1
                 part = part.strip()
                 if part in names:
-                    names_counter += 1
+                    name_parts.append(part)
 
-                if names_counter > 1:
-                    list_links.append(page_link)
+                if len(name_parts) > 1:
+                    tup: tuple[str, list[str]] = (page_link, name_parts)
+                    list_links.append(tup)
         
         if isinstance(list_links, list) and len(list_links) > 0:
             with open(output_path, "w", encoding="utf-8") as fw:
-                for page_link in list_links:
+                for tup in list_links:
+                    page_link: str = tup[0]
                     fw.write(f"{page_link}\n")
-                    print(f"[{level}][]: {page_link}")
+                    print(f"[{level}][]: {page_link}, name parts: {','.join(tup[1])}")
 
-            for page_link in list_links:
+            for tup in list_links:
+                page_link: str = tup[0]
                 try_page(page_link, level=level+1, names=names)
 
     except Exception as e:  # wikipedia.DisambiguationError as e:
