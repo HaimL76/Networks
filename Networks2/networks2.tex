@@ -4,8 +4,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{xfrac}
-\title{Networks2}
-\author{haiml76 }
+\title{Networks 2}
+\author{Haim Lavi, 038712105}
 \date{December 2025}
 
 \begin{document}
@@ -26,17 +26,9 @@ When $u=0$ we can let the degree be any $d\geq{2}$, because for $d=1$ we end up 
 The intuition is that for $d=1$, it is obvious that no GCC can be formed, because in that case we have only single edges in the network. But for any $d\geq{2}$, every node can be connected to the GCC.
 \section{}
 \subsection{}
-We have a potential edge between node $0$ and each one of the other $N$ nodes. So for node $0$ to have all potential edges, the probability is $e^{-\alpha}e^{-2\alpha}\cdots{e^{-N\alpha}}$
+For all $0\leq{a,b}\leq{N}$, the probability $\mathbb{P}[A_{ab}=1]=e^{-\alpha|b-a|}$, hence $p_{\max}=\mathbb{P}[A_{a,a+1}=1]=e^{-\alpha}$, and $p_{\min}=\mathbb{P}[A_{a,a+\frac{N}{2}}=1]=e^{-\alpha\frac{N}{2}}$ (the exponent is linear by the nodes distance).
 
-For node $1$, we already have the edge $\{0,1\}$, so the probability to have all the edges is $e^{-\alpha}e^{-2\alpha}\cdots{e^{-(N-1)}\alpha}$
-
-For node $2$, we already have nodes $\{0,2\},\{1,2\}$, so the probability to have all the edges is $e^{\alpha}e^{-2\alpha}\cdots{e^{-(N-2)\alpha}}$ and so on, until node $N$ who already has all its edges with nodes $\{0,1,\dots,N-1\}$, so it does not change the probability.
-
-We conclude that the probability to have all the possible edges in the network is $e^{-(N-1)\alpha}e^{-(N-2)2\alpha}\cdots{e^{-1\cdot{(N-1)}\alpha}}=\prod_{i=1}^Ne^{-(N-i)i\alpha}$, and the degree in this case is $d=N-1$.
-
-
-Now we omit one edge from one of the nodes.
-
+A node $a$ has degree $k_a$ if out of $N-1$ potential neighbors it achieves exactly $k_a$ neighbors and does not achieve $N-1-k_a$ neighbors, hence this resembles the binomial distribution, only that $p$ for success depends on the distance between the nodes. Hence, the expected value of $k_a$ has a lower bound of $m=(N-1)p_{\min}=(N-1)e^{-\alpha\frac{N}{2}}$, and an upper bound of $M=(N-1)p_{\max}=(N-1)e^{-\alpha}$. 
 \section{}
 For this plot we construct a random ER network ($N=10^4$ and $p=10^{-3}$). We create the vector $(k_1,k_2,\dots,k_{N})$ by calculating $k_i=\sum_{j=1}^{N}A_{ij}$ for every $1\leq{i}\leq{N}$. Then we count the number $N_i$ of nodes whose degree is $k_i$ and calculate $P(k_i)=\frac{N_i}{N}$. We plot this graph in blue.
 
