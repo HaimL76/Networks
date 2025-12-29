@@ -31,8 +31,17 @@ def run_ba_model(size: int, kernel_size: int):
 
         ratio: float = max_k / min_k if min_k > 0 else 0.0
         square_root_size: float = math.sqrt(len(list_nodes))
+
+        k: int = 0
+
+        for i in range(len(list_nodes)):
+            node: Node = list_nodes[i]
+
+            k += len(node.neighbors)
+
+        k_avg: float = k / len(list_nodes) if len(list_nodes) > 0 else 0.0
     
-        print(f"size={len(list_nodes)}, ratio={ratio}, sqrt_size={square_root_size}")
+        print(f"size={len(list_nodes)}, ratio={ratio}, sqrt_size={square_root_size}, k_avg={k_avg}")
 
         probabilities = prepare_probabilities(list_nodes, kernel_size, step)
 
