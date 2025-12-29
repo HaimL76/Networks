@@ -180,6 +180,29 @@ def main():
     # Get list of available dump files
     dump_files = get_dump_files()
     
+    # Print all files found in the wiki JSON URL
+    if dump_files:
+        print(f"\n{'='*100}")
+        print("ALL FILES FOUND IN WIKI JSON URL:")
+        print(f"{'='*100}")
+        for i, file_info in enumerate(dump_files, 1):
+            filename: str = file_info['filename']
+
+            if not filename.startswith("enwiki"):
+                continue
+
+            size_mb = int(file_info['size']) / (1024 * 1024) if file_info['size'] != 'Unknown' and file_info['size'] else 0
+            print(f"{i:3d}. File: {file_info['filename']}")
+            continue
+            print(f"     Job: {file_info['job']}")
+            print(f"     URL: {file_info['url']}")
+            print(f"     Size: {size_mb:.2f} MB")
+            print(f"     Status: {file_info['status']}")
+            if file_info['md5']:
+                print(f"     MD5: {file_info['md5']}")
+            print("-" * 100)
+        print(f"TOTAL: {len(dump_files)} files found\n")
+    
     if dump_files:
         # Print summary of all files
         print_dump_files_summary(dump_files)
