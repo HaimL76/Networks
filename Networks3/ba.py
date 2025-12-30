@@ -56,7 +56,43 @@ def run_ba_model(size: int, kernel_size: int):
         list_nodes.append(new_node)
 
         if len(list_nodes) == 54:
-            _ = 0    
+            _ = 0
+
+    dict_degrees: dict[int, int] = {}
+
+    for node in list_nodes:
+        k_i: int = len(node.neighbors)
+
+        if k_i not in dict_degrees:
+            dict_degrees[k_i] = 0
+
+        dict_degrees[k_i] += 1
+
+        plt.figure(figsize=(8, 6))
+
+    list_degrees: list[int] = sorted(dict_degrees.keys())
+
+    max_k: int = list_degrees[-1]
+    min_k: int = list_degrees[0]
+
+    ks: list[int] = [index for index in range(max_k + 1)]
+
+    pks: list[float] = [0.0] * len(ks)
+
+    degrees_count: int = sum(dict_degrees.values())
+
+    for i in range(len(ks)):
+        pks[i] = dict_degrees.get(ks[i], 0) / degrees_count
+
+    #plt.plot(node_indices, ks, "-bD")
+    plt.plot(ks, pks, "-b")
+
+    plt.xlabel("P(k)", fontsize=18)
+    plt.ylabel("ke", fontsize=18)
+
+    plt.title("ba model P(k)")
+    #plt.show()
+    plt.savefig("ba_model_P_k.png")
 
     node_indices: list[int] = [0] * len(list_nodes)
     ks: list[int] = [0] * len(list_nodes)
@@ -109,7 +145,7 @@ def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int) -
 
     return probabilities
 
-def create_kernel(kernel_size: int) -> list[list[Node]]:
+def create_kernel(kernel_size: int) -> list[Node]:
     list_of_nodes: list[Node] = [None] * kernel_size
 
     for i in range(kernel_size):
