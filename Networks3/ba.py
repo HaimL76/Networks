@@ -9,6 +9,22 @@ class Node:
     def add_neighbor(self, neighbor: 'Node'):
         self.neighbors.append(neighbor)
 
+def has_double(selected_indices: np.ndarray) -> bool:
+    index_set = set()
+
+    is_double: bool = False
+
+    index: int = 0
+
+    while not is_double and index < len(selected_indices):
+        selected_index: int = selected_indices[index]
+        index += 1
+
+        is_double = selected_index in index_set
+            
+        index_set.add(selected_index)
+        
+    return is_double
 
 def run_ba_model(size: int, kernel_size: int):
     list_nodes: list[Node] = create_kernel(kernel_size)
@@ -47,6 +63,9 @@ def run_ba_model(size: int, kernel_size: int):
 
         selected_indices = np.random.choice(list_indices, replace=False, size=kernel_size, p=probabilities)
 
+        if has_double(selected_indices):
+            raise Exception("Double selection of nodes!")
+
         for index in selected_indices:
             node: Node = list_nodes[index]
 
@@ -54,9 +73,6 @@ def run_ba_model(size: int, kernel_size: int):
             new_node.add_neighbor(node)
 
         list_nodes.append(new_node)
-
-        if len(list_nodes) == 54:
-            _ = 0
 
     dict_degrees: dict[int, int] = {}
 
@@ -67,8 +83,6 @@ def run_ba_model(size: int, kernel_size: int):
             dict_degrees[k_i] = 0
 
         dict_degrees[k_i] += 1
-
-        plt.figure(figsize=(8, 6))
 
     list_degrees: list[int] = sorted(dict_degrees.keys())
 
@@ -82,13 +96,15 @@ def run_ba_model(size: int, kernel_size: int):
     degrees_count: int = sum(dict_degrees.values())
 
     for i in range(len(ks)):
-        pks[i] = dict_degrees.get(ks[i], 0) / degrees_count
+        pks[i] = dict_degrees.get(i, 0) / degrees_count
+
+    plt.figure(figsize=(8, 6))
 
     #plt.plot(node_indices, ks, "-bD")
     plt.plot(ks, pks, "-b")
 
-    plt.xlabel("P(k)", fontsize=18)
-    plt.ylabel("ke", fontsize=18)
+    plt.xlabel("k", fontsize=18)
+    plt.ylabel("P(k)", fontsize=18)
 
     plt.title("ba model P(k)")
     #plt.show()
@@ -161,4 +177,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(22220, 4)
+run_ba_model(8525, 4)
