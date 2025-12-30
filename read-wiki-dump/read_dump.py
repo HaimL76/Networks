@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import re
 import requests
 import json
+import os
 from urllib.parse import urljoin
 
 def read_wikipedia_dump(file_path):
@@ -149,10 +150,10 @@ def print_dump_files_summary(dump_files):
         for file_info in files[:3]:  # Show first 3 files of each type
             size_mb = int(file_info['size']) / (1024 * 1024) if file_info['size'] != 'Unknown' and file_info['size'] else 0
             print(f"  - {file_info['filename']} ({size_mb:.1f} MB)")
-        if len(files) > 3:
-            print(f"  ... and {len(files) - 3} more files")
+        #if len(files) > 3:
+         #   print(f"  ... and {len(files) - 3} more files")
 
-def filter_dump_files(dump_files, job_type=None, file_extension=None):
+def filter_dump_files(dump_files, job_type=None, file_extension=None, filename_prefix=None):
     """
     Filter dump files by job type and/or file extension.
     
@@ -172,7 +173,56 @@ def filter_dump_files(dump_files, job_type=None, file_extension=None):
     if file_extension:
         filtered = [f for f in filtered if f['filename'].endswith(file_extension)]
     
+    if filename_prefix:
+        filtered = [f for f in filtered if f['filename'].startswith(filename_prefix)]
+    
     return filtered
+
+def download_file(url, local_filename, chunk_size=8192):
+    """
+    Download a file from URL with progress indication.
+    
+    Args:
+        url: URL to download from
+        local_filename: Path where to save the file
+        chunk_size: Size of chunks to download at a time
+    
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        print(f"Downloading {url}...")
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(local_filename), exist_ok=True)
+        
+        # Start download
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded_size = 0
+        
+        with open(local_filename, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=chunk_size):
+                if chunk:
+                    file.write(chunk)
+                    downloaded_size += len(chunk)
+                    
+                    # Show progress
+                    if total_size > 0:
+                        progress = (downloaded_size / total_size) * 100
+                        print(f"\rProgress: {progress:.1f}% ({downloaded_size:,} / {total_size:,} bytes)", end='', flush=True)
+        
+        print(f"\nDownload completed: {local_filename}")
+        return True
+        
+    except requests.RequestException as e:
+        print(f"\nError downloading file: {e}")
+        return False
+    except OSError as e:
+        print(f"\nError saving file: {e}")
+        return False
 
 def main():
     print("Fetching available Wikipedia dump files...")
@@ -202,32 +252,36 @@ def main():
                 print(f"     MD5: {file_info['md5']}")
             print("-" * 100)
         print(f"TOTAL: {len(dump_files)} files found\n")
-    
-    if dump_files:
-        # Print summary of all files
-        print_dump_files_summary(dump_files)
-        
-        # Show some specific examples
-        print("\n" + "="*80)
-        print("ARTICLE DUMP FILES (.bz2 format):")
+
+        # Example: Download the first small article file
         article_files = filter_dump_files(dump_files, 
                                         job_type='articlesmultistreamdump', 
                                         file_extension='.bz2')
-        for i, file_info in enumerate(article_files[:5]):
-            size_mb = int(file_info['size']) / (1024 * 1024) if file_info['size'] != 'Unknown' and file_info['size'] else 0
-            print(f"{i+1}. {file_info['filename']} ({size_mb:.1f} MB)")
-            print(f"   URL: {file_info['url']}")
-            print(f"   Status: {file_info['status']}")
-            if file_info['md5']:
-                print(f"   MD5: {file_info['md5']}")
-            print()
         
-        if len(article_files) > 5:
-            print(f"... and {len(article_files) - 5} more article dump files")
+        if article_files:
+            # Find a smaller file to download as example (less than 100MB)
+            small_files = [f for f in article_files if int(f.get('size', 0)) < 100 * 1024 * 1024]
+            
+            if small_files:
+                for small_file in small_files:
+                    print(f"Small file found: {small_file['filename']} ({int(small_file.get('size', 0)) / (1024*1024):.2f} MB)")
+
+                    download_path = f"downloads/{small_file['filename']}"
+                
+                    print(f"Example: Downloading small file {small_file['filename']}...")
+                    success = download_file(small_file['url'], download_path)
+                
+                    if success:
+                        print(f"File downloaded to: {download_path}")
+                        print("You can now process it using read_wikipedia_dump() function!")
+            else:
+                print("No small files found for download example.")
         
-        print("\n" + "="*80)
-        print("You can now download and process these files using the existing read_wikipedia_dump() function.")
+        return
     
+    # This section would run if no dump files were found (unlikely)
+    print("No dump files found.")
+
     # Example of processing a local dump file (commented out)
     # Uncomment the code below to process a downloaded dump file:
     #
