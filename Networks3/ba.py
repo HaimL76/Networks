@@ -29,6 +29,8 @@ def has_double(selected_indices: np.ndarray) -> bool:
 def run_ba_model(size: int, kernel_size: int):
     list_nodes: list[Node] = create_kernel(kernel_size)
 
+    square_root_size_and_ratio: list[tuple[float, float]] = []
+
     for step in range(1, size):
         new_node: Node = Node()
 
@@ -47,6 +49,8 @@ def run_ba_model(size: int, kernel_size: int):
 
         ratio: float = max_k / min_k if min_k > 0 else 0.0
         square_root_size: float = math.sqrt(len(list_nodes))
+
+        square_root_size_and_ratio.append((square_root_size, ratio))
 
         k: int = 0
 
@@ -73,6 +77,21 @@ def run_ba_model(size: int, kernel_size: int):
             new_node.add_neighbor(node)
 
         list_nodes.append(new_node)
+
+    sqrs: list[float] = [0.0] * len(square_root_size_and_ratio)
+    ratios: list[float] = [0.0] * len(square_root_size_and_ratio)
+
+    for i in range(len(square_root_size_and_ratio)):
+        sqrs[i] = square_root_size_and_ratio[i][0]
+        ratios[i] = square_root_size_and_ratio[i][1]
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(sqrs, ratios, "-b")
+    plt.xlabel("sqrt(size)", fontsize=18)
+    plt.ylabel("max_k / min_k", fontsize=18)
+    plt.title("ba model max_k / min_k")
+    #plt.show()
+    plt.savefig("ba_model_max_k_min_k.png")
 
     dict_degrees: dict[int, int] = {}
 
