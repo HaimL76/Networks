@@ -114,8 +114,18 @@ def run_ba_model(size: int, kernel_size: int):
 
     degrees_count: int = sum(dict_degrees.values())
 
-    for i in range(len(ks)):
-        pks[i] = dict_degrees.get(i, 0) / degrees_count
+    for i in range(0, len(list_degrees)):
+        k: int = list_degrees[i]
+
+        count_k: int = dict_degrees[k]
+
+        pk: float = count_k / degrees_count if degrees_count > 0 else 0.0
+
+        log_pk = math.log(pk) if pk > 0 else 0.0
+
+        log_log_pk = math.log(log_pk) if log_pk > 0 else 0.0
+
+        pks[i] = log_log_pk
 
     plt.figure(figsize=(8, 6))
 
@@ -196,4 +206,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(8525, 4)
+run_ba_model(222, 4)
