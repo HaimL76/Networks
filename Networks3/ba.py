@@ -87,11 +87,11 @@ def run_ba_model(size: int, kernel_size: int):
 
     plt.figure(figsize=(8, 6))
     plt.plot(sqrs, ratios, "-b")
-    plt.xlabel("sqrt(size)", fontsize=18)
-    plt.ylabel("max_k / min_k", fontsize=18)
-    plt.title("ba model max_k / min_k")
+    plt.xlabel("Square Root of N", fontsize=18)
+    plt.ylabel("Max and Min Degrees Ratio", fontsize=18)
+    plt.title("ba square root of size to max and min degrees ratio")
     #plt.show()
-    plt.savefig("ba_model_max_k_min_k.png")
+    plt.savefig("ba_model_square_root_n_ratio.png")
 
     dict_degrees: dict[int, int] = {}
 
@@ -108,26 +108,34 @@ def run_ba_model(size: int, kernel_size: int):
     max_k: int = list_degrees[-1]
     min_k: int = list_degrees[0]
 
-    ks: list[int] = [0] * (max_k - min_k + 1)
-
-    pks: list[float] = [0.0] * (max_k - min_k + 1)
+    pks: list[tuple[int, float]] = []
 
     degrees_count: int = sum(dict_degrees.values())
 
     for k in range(min_k, max_k + 1):
-        count_k: int = dict_degrees[k] if k in dict_degrees else 0
+        count_k: int = 0
+        
+        if k in dict_degrees:
+            count_k = dict_degrees[k]
 
-        pk: float = count_k / degrees_count if degrees_count > 0 else 0.0
+            if count_k > 0:
+                pk: float = count_k / degrees_count
 
-        index_k: int = k - min_k
+                pks.append((k, pk))
 
-        ks[index_k] = k
-        pks[index_k] = pk
+    ks: list[int] = [0] * len(pks)
+    pks_values: list[float] = [0.0] * len(pks)
+
+    for i in range(len(pks)):
+        tup: tuple[int, float] = pks[i]
+
+        ks[i] = tup[0]
+        pks_values[i] = tup[1]
 
     plt.figure(figsize=(8, 6))
 
     #plt.plot(node_indices, ks, "-bD")
-    plt.loglog(ks, pks, "-b")
+    plt.loglog(ks, pks_values, "-b")
     plt.gca().set_xscale('log', base=np.e)
     plt.gca().set_yscale('log', base=np.e)
 
@@ -167,18 +175,18 @@ def run_ba_model(size: int, kernel_size: int):
 
     print(f"alpha={alpha}")
 
-    bins: list[tuple[float, int]] = [[]] * (n + 1)
+    bins: list[tuple[float, list[Node]]] = [[]] * (n + 1)
 
     for i in range(n + 1):
         threshold: float = min_k * (alpha ** i)
 
         print(f"threshold[{i}]={threshold}")
 
-        bins[i] = (threshold, 0)
+        bins[i] = (threshold, [])
 
     for node in list_nodes:
         k_i: int = len(node.neighbors)
-        
+
         ratio_i: float = k_i / min_k
 
         log_ratio_i: float = math.log(ratio_i, alpha)
@@ -186,14 +194,16 @@ def run_ba_model(size: int, kernel_size: int):
         index_bin: int = int(log_ratio_i)
 
         if index_bin < len(bins):
-            tup: tuple[float, int] = bins[index_bin]
+            tup: tuple[float, list[Node]] = bins[index_bin]
 
-            bins[index_bin] = (tup[0], tup[1] + 1)
+            list_nodes: list[Node] = tup[1]
+
+            list_nodes.append(node)
         else:
             print("no bin found!")
             return
         
-    bin_densities: list[float] = [0.0] * len(bins)
+    bin_densities: dict[int, float] = {}
 
     for i in range(len(bins)):
         tup: tuple[float, int] = bins[i]
@@ -205,42 +215,56 @@ def run_ba_model(size: int, kernel_size: int):
         k_i: float = tup[0]
         k_next: float = next_tup[0] if next_tup is not None else min_k * (alpha ** (n + 1))
 
-        bin_n: int = tup[1]
+        list_nodes: list[Node] = tup[1]
+
+        bin_n: int = len(list_nodes)
 
         width = k_next - k_i
 
-        bin_densities[i] = bin_n / width if width > 0.0 else 0.0
-        
-    k_bins: list[tuple] = [0.0] * (max_k - min_k + 1)
+        if bin_n > 0:
+            density: float = bin_n / width
+            bin_densities[i] = density
 
-    for k in range(min_k, max_k + 1):
+    print(f"len bin_densities={len(bin_densities)}, len list degrees={len(list_degrees)}")
+        
+    k_bins: list[tuple[int, float]] = []
+
+    for i in range(len(list_degrees)):
+        k: int = list_degrees[i]
+
         ratio_k: float = k / min_k
 
         log_ratio_k: float = math.log(ratio_k, alpha)
 
         bin_index: int = int(log_ratio_k)
 
-        bin: tuple[float, int] = bins[bin_index] if bin_index < len(bins) else None
+        if bin_index in bin_densities.keys():
+            k_density: float = bin_densities[bin_index]
 
-        bin_n: int = bin[1] if bin is not None else 0
-
-        index_k: int = k - min_k
-
-        k_density = bin_densities[bin_index] if bin_index < len(bins) else 0.0
-
-        k_bins[index_k] = (k, k_density)
+            k_bins.append((k, k_density))
+        else:
+            print(f"No density for k={k} (bin_index={bin_index})")
+            return
 
     plt.figure(figsize=(8, 6))
 
     xs: list[float] = [0] * len(k_bins)
     ys: list[float] = [0] * len(k_bins)
+
     for i in range(len(k_bins)):
-        xs[i] = k_bins[i][0]
-        ys[i] = k_bins[i][1]
+        k_bin: tuple[int, float] = k_bins[i]
+
+        k: int = k_bin[0]
+        density: float = k_bin[1]
+
+        xs[i] = k
+        ys[i] = density
+
+    print(f"len xs={len(xs)}, len ys={len(ys)}, len k bins={len(k_bins)}")
 
     plt.loglog(xs, ys, "-b")
-    plt.gca().set_xscale('log', base=np.e)
-    plt.gca().set_yscale('log', base=np.e)
+    plt.gca().set_xscale('log', base=alpha)
+    plt.gca().set_yscale('log', base=alpha)
     
     plt.xlabel("k", fontsize=18)
     plt.ylabel("density", fontsize=18)
@@ -298,4 +322,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(22222, 4)
+run_ba_model(222, 2)
