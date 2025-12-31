@@ -108,29 +108,26 @@ def run_ba_model(size: int, kernel_size: int):
     max_k: int = list_degrees[-1]
     min_k: int = list_degrees[0]
 
-    ks: list[int] = [index for index in range(max_k + 1)]
+    ks: list[int] = [0] * (max_k + 1)
 
-    pks: list[float] = [0.0] * len(ks)
+    pks: list[float] = [0.0] * (max_k + 1)
 
     degrees_count: int = sum(dict_degrees.values())
 
-    for i in range(0, len(list_degrees)):
-        k: int = list_degrees[i]
-
-        count_k: int = dict_degrees[k]
+    for k in range(max_k + 1):
+        count_k: int = dict_degrees[k] if k in dict_degrees else 0
 
         pk: float = count_k / degrees_count if degrees_count > 0 else 0.0
 
-        log_pk = math.log(pk) if pk > 0 else 0.0
-
-        log_log_pk = math.log(log_pk) if log_pk > 0 else 0.0
-
-        pks[i] = log_log_pk
+        ks[k] = k
+        pks[k] = pk
 
     plt.figure(figsize=(8, 6))
 
     #plt.plot(node_indices, ks, "-bD")
-    plt.plot(ks, pks, "-b")
+    plt.loglog(ks, pks, "-b")
+    plt.gca().set_xscale('log', base=np.e)
+    plt.gca().set_yscale('log', base=np.e)
 
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
@@ -206,4 +203,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(222, 4)
+run_ba_model(2222, 4)
