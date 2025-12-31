@@ -108,19 +108,21 @@ def run_ba_model(size: int, kernel_size: int):
     max_k: int = list_degrees[-1]
     min_k: int = list_degrees[0]
 
-    ks: list[int] = [0] * (max_k + 1)
+    ks: list[int] = [0] * (max_k - min_k + 1)
 
-    pks: list[float] = [0.0] * (max_k + 1)
+    pks: list[float] = [0.0] * (max_k - min_k + 1)
 
     degrees_count: int = sum(dict_degrees.values())
 
-    for k in range(max_k + 1):
+    for k in range(min_k, max_k + 1):
         count_k: int = dict_degrees[k] if k in dict_degrees else 0
 
         pk: float = count_k / degrees_count if degrees_count > 0 else 0.0
 
-        ks[k] = k
-        pks[k] = pk
+        index_k: int = k - min_k
+
+        ks[index_k] = k
+        pks[index_k] = pk
 
     plt.figure(figsize=(8, 6))
 
@@ -152,6 +154,64 @@ def run_ba_model(size: int, kernel_size: int):
 
         node_indices[i] = i
         ks[i] = k_i
+
+    diff: int = max_k - min_k
+
+    n: int = 15
+
+    ratio: float = max_k / min_k
+
+    exp_n: float = 1/float(n)
+
+    alpha: float = ratio ** exp_n
+
+    print(f"alpha={alpha}")
+
+    bins: list[tuple[float, int]] = [[]] * (n + 1)
+
+    for i in range(n + 1):
+        threshold: float = min_k * (alpha ** i)
+
+        print(f"threshold[{i}]={threshold}")
+
+        bins[i] = (threshold, 0)
+
+    for node in list_nodes:
+        k_i: int = len(node.neighbors)
+        
+        ratio_i: float = k_i / min_k
+
+        log_ratio_i: float = math.log(ratio_i, alpha)
+
+        index_bin: int = int(log_ratio_i)
+
+        if index_bin < len(bins):
+            tup: tuple[float, int] = bins[index_bin]
+
+            bins[index_bin] = (tup[0], tup[1] + 1)
+        else:
+            print("no bin found!")
+            return
+        
+    bin_densities: list[float] = [0.0] * len(bins)
+
+    for i in range(len(bins)):
+        tup: tuple[float, int] = bins[i]
+        next_tup: tuple[float, int] = None
+
+        if i < len(bins) - 1:
+            next_tup = bins[i + 1]
+
+        k_i: float = tup[0]
+        k_next: float = next_tup[0] if next_tup is not None else min_k * (alpha ** (n + 1))
+
+        bin_n: int = tup[1]
+
+        width = k_next - k_i
+
+        bin_densities[i] = bin_n / width if width > 0.0 else 0.0
+        
+    k_bins: list[tuple] = [0.0] * len(bins)
 
     ratio: float = max_k / min_k if min_k > 0 else 0.0
     square_root_size: float = math.sqrt(len(list_nodes))
@@ -203,4 +263,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(2222, 4)
+run_ba_model(22222, 4)
