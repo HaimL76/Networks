@@ -165,7 +165,7 @@ def run_ba_model(size: int, kernel_size: int):
 
     diff: int = max_k - min_k
 
-    n: int = 22
+    n: int = 222
 
     ratio: float = max_k / min_k
 
@@ -322,4 +322,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(222, 2)
+run_ba_model(22222, 2)
