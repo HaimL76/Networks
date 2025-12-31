@@ -274,6 +274,8 @@ def main():
                     if success:
                         print(f"File downloaded to: {download_path}")
                         print("You can now process it using read_wikipedia_dump() function!")
+
+                        read_local_dump_file(download_path)
             else:
                 print("No small files found for download example.")
         
@@ -282,33 +284,33 @@ def main():
     # This section would run if no dump files were found (unlikely)
     print("No dump files found.")
 
+def read_local_dump_file(local_file_path: str):
     # Example of processing a local dump file (commented out)
     # Uncomment the code below to process a downloaded dump file:
-    #
-    # file_path = "C:\\Users\\HaimL1\\Downloads\\enwiki-20251220-pages-articles-multistream1.xml-p1p41242.bz2"
-    # 
-    # page_count = 0
-    # for page in read_wikipedia_dump(file_path):
-    #     page_count += 1
-    #     
-    #     # Only process articles (namespace 0)
-    #     if page.get('namespace') == '0':
-    #         title = page.get('title', 'No title')
-    #         page_id = page.get('id', 'No ID')
-    #         text = page.get('text', '')
-    #         
-    #         # Clean the wikitext
-    #         clean_text = clean_wikitext(text)
-    #         
-    #         print(f"Page {page_count}: {title} (ID: {page_id})")
-    #         print(f"Text preview: {clean_text[:200]}...")
-    #         print("-" * 50)
-    #         
-    #         # Limit output for demonstration
-    #         if page_count >= 10:
-    #             break
-    # 
-    # print(f"Processed {page_count} pages total.")
+
+    page_count = 0
+    
+    for page in read_wikipedia_dump(local_file_path):
+        page_count += 1
+        
+        # Only process articles (namespace 0)
+        if page.get('namespace') == '0':
+            title = page.get('title', 'No title')
+            page_id = page.get('id', 'No ID')
+            text = page.get('text', '')
+            
+            # Clean the wikitext
+            clean_text = clean_wikitext(text)
+            
+            print(f"Page {page_count}: {title} (ID: {page_id})")
+            print(f"Text preview: {clean_text[:200]}...")
+            print("-" * 50)
+            
+            # Limit output for demonstration
+            if page_count >= 10:
+                break
+ 
+    print(f"Processed {page_count} pages total.")
 
 if __name__ == "__main__":
     main()

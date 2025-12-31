@@ -322,4 +322,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(22222, 2)
+run_ba_model(size=22222, kernel_size=4)
