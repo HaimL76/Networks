@@ -55,7 +55,7 @@ class OnlineWikipediaDumpReader:
             print(f"Error parsing JSON: {e}")
             return []
     
-    def stream_dump_from_url(self, url: str, chunk_size: int = 8192) -> Iterator[Dict[str, Any]]:
+    def stream_dump_from_url(self, url: str, chunk_size: int = 65536) -> Iterator[Dict[str, Any]]:
         """
         Stream and parse a Wikipedia dump file directly from a URL.
         
@@ -76,95 +76,145 @@ class OnlineWikipediaDumpReader:
             total_size = int(response.headers.get('content-length', 0))
             downloaded_size = 0
             
-            # Create a buffer to accumulate bz2 data
-            bz2_data = b""
+            # Create decompressor and XML buffer
             decompressor = bz2.BZ2Decompressor()
             xml_buffer = ""
+            pages_found = 0
             
-            # XML parser state
-            context = None
-            root = None
+            # Track if we're inside a page element
+            inside_page = False
             current_page = {}
-            current_element = None
+            current_tag = None
+            current_text = ""
             
             for chunk in response.iter_content(chunk_size=chunk_size):
                 if chunk:
                     downloaded_size += len(chunk)
                     
-                    # Show progress
-                    if total_size > 0:
-                        progress = (downloaded_size / total_size) * 100
-                        print(f"\rProgress: {progress:.1f}% ({downloaded_size:,} / {total_size:,} bytes)", end='', flush=True)
+                    # Show progress every 1MB
+                    if downloaded_size % (1024 * 1024) == 0 or total_size > 0:
+                        if total_size > 0:
+                            progress = (downloaded_size / total_size) * 100
+                            print(f"\rProgress: {progress:.1f}% - Pages found: {pages_found}", end='', flush=True)
+                        else:
+                            print(f"\rDownloaded: {downloaded_size:,} bytes - Pages found: {pages_found}", end='', flush=True)
                     
                     # Decompress chunk
                     try:
                         decompressed = decompressor.decompress(chunk)
                         if decompressed:
-                            xml_buffer += decompressed.decode('utf-8')
+                            xml_buffer += decompressed.decode('utf-8', errors='replace')
                             
-                            # Process complete XML elements
+                            # Process the buffer line by line to extract complete pages
                             while True:
-                                # Try to parse what we have so far
-                                if context is None:
-                                    try:
-                                        # Find the start of the XML document
-                                        xml_start = xml_buffer.find('<?xml')
-                                        if xml_start >= 0:
-                                            xml_buffer = xml_buffer[xml_start:]
-                                            
-                                        # Try to create parser context
-                                        xml_io = io.StringIO(xml_buffer)
-                                        context = ET.iterparse(xml_io, events=('start', 'end'))
-                                        context = iter(context)
-                                        event, root = next(context)
-                                        
-                                    except (ET.ParseError, StopIteration):
-                                        # Need more data
-                                        break
+                                # Look for complete page elements
+                                page_start = xml_buffer.find('<page>')
+                                page_end = xml_buffer.find('</page>')
                                 
-                                if context:
-                                    try:
-                                        for event, elem in context:
-                                            # Process XML events
-                                            tag = elem.tag.split('}')[-1] if '}' in elem.tag else elem.tag
-                                            
-                                            if event == 'start':
-                                                current_element = tag
-                                            elif event == 'end':
-                                                if tag == 'page':
-                                                    if current_page:
-                                                        yield current_page
-                                                        current_page = {}
-                                                elif tag == 'title':
-                                                    current_page['title'] = elem.text
-                                                elif tag == 'id' and current_element != 'revision':
-                                                    current_page['id'] = elem.text
-                                                elif tag == 'text':
-                                                    current_page['text'] = elem.text
-                                                elif tag == 'ns':
-                                                    current_page['namespace'] = elem.text
-                                                
-                                                # Clear element to save memory
-                                                elem.clear()
-                                                if root is not None:
-                                                    root.clear()
+                                if page_start != -1 and page_end != -1 and page_end > page_start:
+                                    # Extract complete page XML
+                                    page_xml = xml_buffer[page_start:page_end + 7]  # +7 for '</page>'
                                     
-                                    except (ET.ParseError, StopIteration):
-                                        # Parser reached end of buffer, need more data
-                                        break
+                                    # Remove this page from buffer
+                                    xml_buffer = xml_buffer[page_end + 7:]
+                                    
+                                    # Parse this page
+                                    page_data = self._parse_single_page(page_xml)
+                                    if page_data:
+                                        pages_found += 1
+                                        yield page_data
+                                    
                                 else:
+                                    # No complete page found, break and wait for more data
                                     break
+                                
+                                # Limit buffer size to prevent memory issues
+                                if len(xml_buffer) > 10 * 1024 * 1024:  # 10MB limit
+                                    # Keep only the last 1MB of buffer
+                                    xml_buffer = xml_buffer[-1024*1024:]
                     
+                    except EOFError:
+                        # End of compressed data
+                        break
                     except Exception as e:
                         print(f"\nDecompression error: {e}")
                         continue
             
-            print("\nStream processing completed.")
+            # Process any remaining complete pages in buffer
+            while True:
+                page_start = xml_buffer.find('<page>')
+                page_end = xml_buffer.find('</page>')
+                
+                if page_start != -1 and page_end != -1 and page_end > page_start:
+                    page_xml = xml_buffer[page_start:page_end + 7]
+                    xml_buffer = xml_buffer[page_end + 7:]
+                    
+                    page_data = self._parse_single_page(page_xml)
+                    if page_data:
+                        pages_found += 1
+                        yield page_data
+                else:
+                    break
+            
+            print(f"\nStream processing completed. Total pages found: {pages_found}")
             
         except requests.RequestException as e:
             print(f"\nError streaming file: {e}")
         except Exception as e:
             print(f"\nUnexpected error: {e}")
+    
+    def _parse_single_page(self, page_xml: str) -> Optional[Dict[str, Any]]:
+        """
+        Parse a single page XML string.
+        
+        Args:
+            page_xml: XML string containing a single page
+        
+        Returns:
+            dict: Dictionary containing page information, or None if parsing failed
+        """
+        try:
+            # Wrap in a root element to make it valid XML
+            wrapped_xml = f"<root>{page_xml}</root>"
+            root = ET.fromstring(wrapped_xml)
+            
+            page_elem = root.find('page')
+            if page_elem is None:
+                return None
+            
+            # Extract page data
+            page_data = {}
+            
+            # Get title
+            title_elem = page_elem.find('title')
+            if title_elem is not None and title_elem.text:
+                page_data['title'] = title_elem.text
+            
+            # Get page ID (not revision ID)
+            id_elem = page_elem.find('id')
+            if id_elem is not None and id_elem.text:
+                page_data['id'] = id_elem.text
+            
+            # Get namespace
+            ns_elem = page_elem.find('ns')
+            if ns_elem is not None and ns_elem.text:
+                page_data['namespace'] = ns_elem.text
+            
+            # Get text from revision
+            revision = page_elem.find('revision')
+            if revision is not None:
+                text_elem = revision.find('text')
+                if text_elem is not None and text_elem.text:
+                    page_data['text'] = text_elem.text
+            
+            return page_data
+            
+        except ET.ParseError as e:
+            print(f"\nXML Parse error: {e}")
+            return None
+        except Exception as e:
+            print(f"\nError parsing page: {e}")
+            return None
     
     def clean_wikitext(self, text: str) -> str:
         """
