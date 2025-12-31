@@ -157,7 +157,7 @@ def run_ba_model(size: int, kernel_size: int):
 
     diff: int = max_k - min_k
 
-    n: int = 15
+    n: int = 22
 
     ratio: float = max_k / min_k
 
@@ -211,7 +211,42 @@ def run_ba_model(size: int, kernel_size: int):
 
         bin_densities[i] = bin_n / width if width > 0.0 else 0.0
         
-    k_bins: list[tuple] = [0.0] * len(bins)
+    k_bins: list[tuple] = [0.0] * (max_k - min_k + 1)
+
+    for k in range(min_k, max_k + 1):
+        ratio_k: float = k / min_k
+
+        log_ratio_k: float = math.log(ratio_k, alpha)
+
+        bin_index: int = int(log_ratio_k)
+
+        bin: tuple[float, int] = bins[bin_index] if bin_index < len(bins) else None
+
+        bin_n: int = bin[1] if bin is not None else 0
+
+        index_k: int = k - min_k
+
+        k_density = bin_densities[bin_index] if bin_index < len(bins) else 0.0
+
+        k_bins[index_k] = (k, k_density)
+
+    plt.figure(figsize=(8, 6))
+
+    xs: list[float] = [0] * len(k_bins)
+    ys: list[float] = [0] * len(k_bins)
+    for i in range(len(k_bins)):
+        xs[i] = k_bins[i][0]
+        ys[i] = k_bins[i][1]
+
+    plt.loglog(xs, ys, "-b")
+    plt.gca().set_xscale('log', base=np.e)
+    plt.gca().set_yscale('log', base=np.e)
+    
+    plt.xlabel("k", fontsize=18)
+    plt.ylabel("density", fontsize=18)
+    plt.title("ba model binned density")
+    #plt.show()
+    plt.savefig("ba_model_binned_density.png")
 
     ratio: float = max_k / min_k if min_k > 0 else 0.0
     square_root_size: float = math.sqrt(len(list_nodes))
