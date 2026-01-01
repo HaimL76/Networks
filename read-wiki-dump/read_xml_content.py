@@ -25,6 +25,8 @@ def read_wikipedia_xml(file_path, max_articles=0, line_limit=100000):
     
     print(f"Reading Wikipedia XML file: {file_path}")
     print("=" * 80)
+
+    list_redirections: list[str] = []
     
     try:
         with bz2.open(file_path, 'rt', encoding='utf-8', errors='ignore') as f:
@@ -89,7 +91,7 @@ def read_wikipedia_xml(file_path, max_articles=0, line_limit=100000):
                         
                         # Only show articles in main namespace (ns=0)
                         if current_article.get('namespace') == '0':
-                            print_article(current_article, article_count + 1)
+                            print_article(current_article, article_count + 1, list_redirections)
                             article_count += 1
                             
                             if max_articles > 0 and article_count >= max_articles:
@@ -103,17 +105,31 @@ def read_wikipedia_xml(file_path, max_articles=0, line_limit=100000):
     
     print(f"\nShowed {article_count} articles from the Wikipedia dump.")
 
-def print_article(article, number):
+def print_article(article, number, list_redirections: list[str]=None):
     """Print article information in a readable format"""
-    print(f"ARTICLE #{number}, Title: {article.get('title', 'Unknown')}, Page ID: {article.get('id', 'Unknown')}")
+    title: str = article.get('title', 'Unknown')
+    page_id: str = article.get('id', 'Unknown')
+    
+    print(f"ARTICLE #{number}, Title: {title}, Page ID: {page_id}")
 
     text = article.get('text', '')
     
     if text:
-        # Extract links from the article
-        wiki_links = extract_wiki_links(text)
+        skip_links: bool = False
 
-        print(f"Extracted {len(wiki_links)} wiki links: {', '.join(wiki_links[:10])}" + (f", ..." if len(wiki_links) > 10 else ""))
+        # Check for redirection
+        if text.startswith('#REDIRECT') or text.startswith('#redirect'):
+            skip_links = True
+
+            print("This article is a redirection.")
+            if list_redirections is not None:
+                list_redirections.append(title)
+
+        if not skip_links:
+            # Extract links from the article
+            wiki_links = extract_wiki_links(text)
+
+            print(f"Extracted {len(wiki_links)} wiki links: {', '.join(wiki_links[:10])}" + (f", ..." if len(wiki_links) > 10 else ""))
 
     return
     print(f"Namespace: {article.get('namespace', 'Unknown')}")
