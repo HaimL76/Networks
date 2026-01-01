@@ -107,6 +107,14 @@ def print_article(article, number):
     """Print article information in a readable format"""
     print(f"ARTICLE #{number}, Title: {article.get('title', 'Unknown')}, Page ID: {article.get('id', 'Unknown')}")
 
+    text = article.get('text', '')
+    
+    if text:
+        # Extract links from the article
+        wiki_links = extract_wiki_links(text)
+
+        print(f"Extracted {len(wiki_links)} wiki links: {', '.join(wiki_links[:10])}" + (f", ..." if len(wiki_links) > 10 else ""))
+
     return
     print(f"Namespace: {article.get('namespace', 'Unknown')}")
     print(f"\nContent Preview (first 1000 characters):")
@@ -127,6 +135,23 @@ def print_article(article, number):
     
     print("-" * 80)
     print(f"Statistics: {word_count} words, {char_count} characters, ~{link_count} links")
+
+def extract_wiki_links(text):
+    """Extract wiki links from wikitext"""
+    # Pattern for wiki links: [[Target Page|Display Text]] or [[Target Page]]
+    import re
+    link_pattern = r'\[\[([^|\]]+)(?:\|[^\]]*)?\]\]'
+    links = re.findall(link_pattern, text)
+    
+    # Clean up links (remove namespace prefixes for files, categories, etc.)
+    clean_links = []
+    for link in links:
+        link = link.strip()
+        # Skip files, categories, templates, etc. - focus on article links
+        if not any(link.startswith(prefix) for prefix in ['File:', 'Category:', 'Template:', 'Help:', 'Wikipedia:', 'User:']):
+            clean_links.append(link)
+    
+    return clean_links
 
 def main():
     """Main function"""
