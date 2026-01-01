@@ -1,1 +1,43 @@
+# Large data files
+*.sql.gz
+*.xml.bz2
+*.bz2
+*.gz
+data/
 downloads/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# IDE files
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large files
+*.db
+*.sqlite
+*.sqlite3
+
+# Network analysis outputs
+*.pkl
+*.pickle
+
+# Image files (can be large)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
