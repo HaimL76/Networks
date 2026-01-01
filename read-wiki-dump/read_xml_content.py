@@ -105,11 +105,9 @@ def read_wikipedia_xml(file_path, max_articles=0, line_limit=100000):
 
 def print_article(article, number):
     """Print article information in a readable format"""
-    print(f"\n{'='*80}")
-    print(f"ARTICLE #{number}")
-    print(f"{'='*80}")
-    print(f"Title: {article.get('title', 'Unknown')}")
-    print(f"Page ID: {article.get('id', 'Unknown')}")
+    print(f"ARTICLE #{number}, Title: {article.get('title', 'Unknown')}, Page ID: {article.get('id', 'Unknown')}")
+
+    return
     print(f"Namespace: {article.get('namespace', 'Unknown')}")
     print(f"\nContent Preview (first 1000 characters):")
     print("-" * 80)
