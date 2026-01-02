@@ -14,6 +14,7 @@ class WikiDumpReader:
     def __init__(self):
         self.last_title_to_id_count: int = 0
         self.title_to_id_dict: dict[str, int] = {}
+        self.title_to_id_buffer: dict[str, int] = {}
         self.list_redirections: list[str] = []
         self.title_to_id_directory: str = "title-id"
         self.list_title_to_id_files: list[str] = []
@@ -139,6 +140,9 @@ class WikiDumpReader:
 
                     self.list_title_to_id_files.append(file_path)
 
+                    self.list_title_to_id_files = sorted(self.list_title_to_id_files, 
+                                                         key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+
         if len(self.list_title_to_id_files) > 0:
             for file_path in self.list_title_to_id_files:
                 with open(file_path, 'r', encoding='utf-8') as fr:
@@ -180,33 +184,51 @@ class WikiDumpReader:
                 
         try:
             with open(file_path, 'a', encoding='utf-8') as f:
-                for title, page_id in self.title_to_id_dict.items():
+                for title, page_id in self.title_to_id_buffer.items():
                     f.write(f"{title},{page_id}\n")
             print(f"Saved dictionary to {file_path}")
+
+            file_size: int = os.path.getsize(file_path)
+
+            if file_size >= 10 * 1024 * 1024:  # 10 MB
+                file_name = os.path.basename(file_path)
+                file_index_str = os.path.splitext(file_name)[0] 
+                new_file_index: int = int(file_index_str) + 1
+                new_file_path: str = os.path.join(self.title_to_id_directory, f"{new_file_index}.txt")
+                self.list_title_to_id_files.append(new_file_path)
         except Exception as e:
             print(f"Error saving dictionary to file: {e}")
 
     def print_article(self, article, number):
         """Print article information in a readable format"""
         title: str = article.get('title', 'Unknown')
+
+        if title:
+            title = title.strip()
+
         page_id: str = article.get('id', 'Unknown')
 
-        self.title_to_id_dict[title] = int(page_id)
+        if page_id:
+            page_id = page_id.strip()
+
+        if page_id and page_id.isnumeric():
+            self.title_to_id_buffer[title] = int(page_id)
 
         current_count: int = len(self.title_to_id_dict)
         diff_count: int = current_count - self.last_title_to_id_count
 
         self.subject_counter += 1
 
-        if self.subject_counter - self.last_updated_subject_counter >= 10000:
+        if self.subject_counter - self.last_updated_subject_counter >= 100:
             print(f"Processed {self.subject_counter} subjects so far...")
             self.last_updated_subject_counter = self.subject_counter
 
-        if diff_count >= 1000:
+        if len(self.title_to_id_buffer) >= 1000:
             print(f"Title to ID dictionary size: {current_count} entries (added {diff_count})")
             self.save_title_to_id_dictionary_to_file()
- 
-            self.last_title_to_id_count = current_count
+            
+            self.title_to_id_dict.update(self.title_to_id_buffer)
+            self.title_to_id_buffer.clear()
         
         #print(f"ARTICLE #{number}, Title: {title}, Page ID: {page_id}")
 
