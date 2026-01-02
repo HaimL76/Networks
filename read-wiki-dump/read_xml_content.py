@@ -211,8 +211,10 @@ class WikiDumpReader:
         if page_id:
             page_id = page_id.strip()
 
-        if page_id and page_id.isnumeric():
-            self.title_to_id_buffer[title] = int(page_id)
+        if page_id and page_id.isnumeric() and title not in self.title_to_id_dict:
+            int_page_id: int = int(page_id)
+            
+            self.title_to_id_buffer[title] = int_page_id
 
         current_count: int = len(self.title_to_id_dict)
         diff_count: int = current_count - self.last_title_to_id_count
