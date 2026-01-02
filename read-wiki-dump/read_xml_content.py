@@ -17,6 +17,8 @@ class WikiDumpReader:
         self.list_redirections: list[str] = []
         self.title_to_id_directory: str = "title-id"
         self.list_title_to_id_files: list[str] = []
+        self.subject_counter: int = 0
+        self.last_updated_subject_counter = 0
         
     def read_wikipedia_xml(self, file_path, max_articles=0, line_limit=100000):
         """
@@ -177,7 +179,7 @@ class WikiDumpReader:
         file_path: str = self.list_title_to_id_files[-1]
                 
         try:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, 'a', encoding='utf-8') as f:
                 for title, page_id in self.title_to_id_dict.items():
                     f.write(f"{title},{page_id}\n")
             print(f"Saved dictionary to {file_path}")
@@ -193,6 +195,12 @@ class WikiDumpReader:
 
         current_count: int = len(self.title_to_id_dict)
         diff_count: int = current_count - self.last_title_to_id_count
+
+        self.subject_counter += 1
+
+        if self.subject_counter - self.last_updated_subject_counter >= 10000:
+            print(f"Processed {self.subject_counter} subjects so far...")
+            self.last_updated_subject_counter = self.subject_counter
 
         if diff_count >= 1000:
             print(f"Title to ID dictionary size: {current_count} entries (added {diff_count})")
@@ -215,7 +223,7 @@ class WikiDumpReader:
                 if self.list_redirections is not None:
                     self.list_redirections.append(title)
 
-            if not skip_links:
+            if False:# not skip_links:
                 # Extract links from the article
                 wiki_links = self.extract_wiki_links(text)
 
