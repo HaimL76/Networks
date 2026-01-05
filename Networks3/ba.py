@@ -173,7 +173,7 @@ def run_ba_model(size: int, kernel_size: int):
 
     diff: int = max_k - min_k
 
-    n: int = 222
+    n: int = 22
 
     ratio: float = max_k / min_k
 
