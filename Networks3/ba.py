@@ -9,6 +9,14 @@ class Node:
     def add_neighbor(self, neighbor: 'Node'):
         self.neighbors.append(neighbor)
 
+    def __str__(self):
+        num_neighbors: int = 0
+        
+        if isinstance(self.neighbors, list):
+            num_neighbors = len(self.neighbors)
+        
+        return str(num_neighbors)
+
 def has_double(selected_indices: np.ndarray) -> bool:
     index_set = set()
 
@@ -175,14 +183,14 @@ def run_ba_model(size: int, kernel_size: int):
 
     print(f"alpha={alpha}")
 
-    bins: list[tuple[float, list[Node]]] = [[]] * (n + 1)
+    bins: list[tuple[float, int, list[Node]]] = [[]] * (n + 1)
 
     for i in range(n + 1):
         threshold: float = min_k * (alpha ** i)
 
         print(f"threshold[{i}]={threshold}")
 
-        bins[i] = (threshold, [])
+        bins[i] = threshold, [], 0
 
     for node in list_nodes:
         k_i: int = len(node.neighbors)
@@ -194,28 +202,40 @@ def run_ba_model(size: int, kernel_size: int):
         index_bin: int = int(log_ratio_i)
 
         if index_bin < len(bins):
-            tup: tuple[float, list[Node]] = bins[index_bin]
+            bin: tuple[float, list[Node], int] = bins[index_bin]
 
-            list_nodes: list[Node] = tup[1]
+            list_nodes: list[Node] = bin[1]
 
             list_nodes.append(node)
         else:
             print("no bin found!")
             return
         
-    bin_densities: dict[int, float] = {}
+    for i in range(len(bins)):
+        bin: tuple[float, list[Node], int] = bins[i]
+        list_nodes: list[Node] = bin[1]
+        sorted_nodes: list[Node] = list(sorted(list_nodes, 
+                           key=lambda node: len(node.neighbors)))
+        
+        if isinstance(sorted_nodes, list) and len(sorted_nodes) > 0:
+            index_median: int = int(len(sorted_nodes) / 2)
+            node_median: Node = sorted_nodes[index_median]
+
+            bins[i] = bin[0], list_nodes, len(node_median.neighbors)
+
+    bin_densities: dict[int, tuple[float, int]] = {}
 
     for i in range(len(bins)):
-        tup: tuple[float, int] = bins[i]
-        next_tup: tuple[float, int] = None
+        bin: tuple[float, list[Node], int] = bins[i]
+        next_bin: tuple[float, list[Node], int] = None
 
         if i < len(bins) - 1:
-            next_tup = bins[i + 1]
+            next_bin = bins[i + 1]
 
-        k_i: float = tup[0]
-        k_next: float = next_tup[0] if next_tup is not None else min_k * (alpha ** (n + 1))
+        k_i: float = bin[0]
+        k_next: float = next_bin[0] if next_bin is not None else min_k * (alpha ** (n + 1))
 
-        list_nodes: list[Node] = tup[1]
+        list_nodes: list[Node] = bin[1]
 
         bin_n: int = len(list_nodes)
 
@@ -223,11 +243,11 @@ def run_ba_model(size: int, kernel_size: int):
 
         if bin_n > 0:
             density: float = bin_n / width
-            bin_densities[i] = density
+            bin_densities[i] = density, bin[2]
 
     print(f"len bin_densities={len(bin_densities)}, len list degrees={len(list_degrees)}")
         
-    k_bins: list[tuple[int, int, float]] = []
+    k_bins: list[tuple[int, float, int]] = []
 
     for i in range(len(list_degrees)):
         k: int = list_degrees[i]
@@ -239,9 +259,12 @@ def run_ba_model(size: int, kernel_size: int):
         bin_index: int = int(log_ratio_k)
 
         if bin_index in bin_densities.keys():
-            k_density: float = bin_densities[bin_index]
+            tup: tuple[float, int] = bin_densities[bin_index]
 
-            k_bins.append((k, bin_index, k_density))
+            k_density: float = tup[0]
+            k_median: int = tup[1]
+
+            k_bins.append((k, k_density, k_median))
         else:
             print(f"No density for k={k} (bin_index={bin_index})")
             return
@@ -255,7 +278,7 @@ def run_ba_model(size: int, kernel_size: int):
         k_bin: tuple[int, int, float] = k_bins[i]
 
         k: int = k_bin[0]
-        density: float = k_bin[2]
+        density: float = k_bin[1]
 
         xs[i] = k
         ys[i] = density
