@@ -165,7 +165,7 @@ def run_ba_model(size: int, kernel_size: int):
 
     diff: int = max_k - min_k
 
-    n: int = 222
+    n: int = 8
 
     ratio: float = max_k / min_k
 
@@ -227,7 +227,7 @@ def run_ba_model(size: int, kernel_size: int):
 
     print(f"len bin_densities={len(bin_densities)}, len list degrees={len(list_degrees)}")
         
-    k_bins: list[tuple[int, float]] = []
+    k_bins: list[tuple[int, int, float]] = []
 
     for i in range(len(list_degrees)):
         k: int = list_degrees[i]
@@ -241,7 +241,7 @@ def run_ba_model(size: int, kernel_size: int):
         if bin_index in bin_densities.keys():
             k_density: float = bin_densities[bin_index]
 
-            k_bins.append((k, k_density))
+            k_bins.append((k, bin_index, k_density))
         else:
             print(f"No density for k={k} (bin_index={bin_index})")
             return
@@ -252,10 +252,10 @@ def run_ba_model(size: int, kernel_size: int):
     ys: list[float] = [0] * len(k_bins)
 
     for i in range(len(k_bins)):
-        k_bin: tuple[int, float] = k_bins[i]
+        k_bin: tuple[int, int, float] = k_bins[i]
 
         k: int = k_bin[0]
-        density: float = k_bin[1]
+        density: float = k_bin[2]
 
         xs[i] = k
         ys[i] = density
@@ -322,4 +322,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(size=22222, kernel_size=4)
+run_ba_model(size=222, kernel_size=4)

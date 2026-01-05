@@ -15,9 +15,12 @@ class WikiDumpReader:
         self.last_title_to_id_count: int = 0
         self.title_to_id_dict: dict[str, int] = {}
         self.title_to_id_buffer: dict[str, int] = {}
+        self.article_links_buffer: dict[int, set[int]] = {}
         self.list_redirections: list[str] = []
         self.title_to_id_directory: str = "title-id"
+        self.article_links_directory: str = "article-links"
         self.list_title_to_id_files: list[str] = []
+        self.list_article_links_files: list[str] = []
         self.subject_counter: int = 0
         self.last_updated_subject_counter = 0
         
@@ -199,6 +202,36 @@ class WikiDumpReader:
         except Exception as e:
             print(f"Error saving dictionary to file: {e}")
 
+    def save_article_links_dictionary_to_file(self):
+        """Save title to page ID dictionary to a text file"""
+        if not os.path.exists(self.article_links_directory):
+            os.makedirs(self.article_links_directory)
+
+        if not self.list_article_links_files:
+            file_path = os.path.join(self.article_links_directory, "1.txt")
+            
+            self.list_article_links_files = [file_path]
+
+        file_path: str = self.list_article_links_files[-1]
+                
+        try:
+            with open(file_path, 'a', encoding='utf-8') as f:
+                for article, links in self.article_links_buffer.items():
+                    str_link_ids: str = ",".join(str(id) for id in links)
+                    f.write(f"{article}:{str_link_ids}\n")
+            print(f"Saved dictionary to {file_path}")
+
+            file_size: int = os.path.getsize(file_path)
+
+            if file_size >= 10 * 1024 * 1024:  # 10 MB
+                file_name = os.path.basename(file_path)
+                file_index_str = os.path.splitext(file_name)[0] 
+                new_file_index: int = int(file_index_str) + 1
+                new_file_path: str = os.path.join(self.article_links_directory, f"{new_file_index}.txt")
+                self.list_article_links_files.append(new_file_path)
+        except Exception as e:
+            print(f"Error saving dictionary to file: {e}")
+
     def print_article(self, article, number):
         """Print article information in a readable format"""
         title: str = article.get('title', 'Unknown')
@@ -247,11 +280,35 @@ class WikiDumpReader:
                 if self.list_redirections is not None:
                     self.list_redirections.append(title)
 
-            if False:# not skip_links:
+            if not skip_links:
                 # Extract links from the article
                 wiki_links = self.extract_wiki_links(text)
 
-                #print(f"Extracted {len(wiki_links)} wiki links: {', '.join(wiki_links[:10])}" + (f", ..." if len(wiki_links) > 10 else ""))
+                if wiki_links:
+                    list_link_ids: set[int] = set()
+
+                    for link in wiki_links:
+                        link_id: int = None
+
+                        if link:
+                            link = link.strip()
+
+                        if link:
+                            print(f"Link: {link}")
+
+                            if link in self.title_to_id_dict:
+                                link_id = self.title_to_id_dict[link]
+                                print(f" -> Link ID: {link_id}")
+
+                                list_link_ids.add(link_id)
+
+                self.article_links_buffer[int(page_id)] = sorted(list_link_ids)
+
+        if len(self.article_links_buffer) >= 1000:
+            self.save_article_links_dictionary_to_file()
+            print(f"Article links buffer size: {len(self.article_links_buffer)} entries")
+            # Here you would typically save the article links buffer to a file or database
+            self.article_links_buffer.clear()
 
         return
         print(f"Namespace: {article.get('namespace', 'Unknown')}")
