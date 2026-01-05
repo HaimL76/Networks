@@ -173,7 +173,7 @@ def run_ba_model(size: int, kernel_size: int):
 
     diff: int = max_k - min_k
 
-    n: int = 8
+    n: int = 222
 
     ratio: float = max_k / min_k
 
@@ -295,6 +295,36 @@ def run_ba_model(size: int, kernel_size: int):
     #plt.show()
     plt.savefig("ba_model_binned_density.png")
 
+    plt.figure(figsize=(8, 6))
+
+    xs: list[float] = [0] * len(bin_densities)
+    ys: list[float] = [0] * len(bin_densities)
+
+    keys: list[int] = sorted(bin_densities.keys())
+
+    for i in range(len(keys)):
+        k: int = keys[i]
+
+        tup: tuple[float, int] = bin_densities[k]
+
+        median_k: int = tup[1]
+        density: float = tup[0]
+
+        xs[i] = median_k
+        ys[i] = density
+
+    print(f"len xs={len(xs)}, len ys={len(ys)}, len k bins={len(k_bins)}")
+
+    plt.loglog(xs, ys, "-b")
+    plt.gca().set_xscale('log', base=alpha)
+    plt.gca().set_yscale('log', base=alpha)
+    
+    plt.xlabel("k", fontsize=18)
+    plt.ylabel("density", fontsize=18)
+    plt.title("ba model binned density (median k)")
+    #plt.show()
+    plt.savefig("ba_model_binned_density_median_k.png")
+
     ratio: float = max_k / min_k if min_k > 0 else 0.0
     square_root_size: float = math.sqrt(len(list_nodes))
     
@@ -345,4 +375,4 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(size=222, kernel_size=4)
+run_ba_model(size=22222, kernel_size=4)
