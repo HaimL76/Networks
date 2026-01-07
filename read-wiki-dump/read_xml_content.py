@@ -16,6 +16,7 @@ class WikiDumpReader:
         self.title_to_id_dict: dict[str, int] = {}
         self.title_to_id_buffer: dict[str, int] = {}
         self.article_links_buffer: dict[int, set[int]] = {}
+        self.article_links_found: dict[int, int] = {}
         self.list_redirections: list[str] = []
         self.title_to_id_directory: str = "title-id"
         self.article_links_directory: str = "article-links"
@@ -38,6 +39,8 @@ class WikiDumpReader:
             return
         
         self.read_title_to_id_dictionary()
+
+        self.read_articles_with_links()
         
         print(f"Reading Wikipedia XML file: {file_path}")
         print("=" * 80)
@@ -122,6 +125,64 @@ class WikiDumpReader:
             print(f"Error reading file: {e}")
         
         print(f"\nShowed {article_count} articles from the Wikipedia dump.")
+
+
+    def read_articles_with_links(self):
+        """Read title to page ID dictionary from text files"""
+        if not os.path.exists(self.article_links_directory):
+            print(f"Article links directory does not exist: {self.article_links_directory}")
+            return
+
+        self.title_to_id_dict = {}
+
+        list_files: list[str] = os.listdir(self.article_links_directory)
+
+        if list_files:
+            for filename in list_files:
+                if filename.endswith('.txt'):
+                    file_path = os.path.join(self.article_links_directory, filename)
+
+                    if self.list_article_links_files is None:
+                        self.list_article_links_files = []
+
+                    self.list_article_links_files.append(file_path)
+
+                    self.list_article_links_files = sorted(self.list_article_links_files, 
+                                                         key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+
+        if len(self.list_article_links_files) > 0:
+            for file_path in self.list_article_links_files:
+                with open(file_path, 'r', encoding='utf-8') as fr:
+                    for line in fr:
+                        if line:
+                            line = line.strip()
+                        
+                        if line:
+                            index: int = line.rfind(',')
+
+                            if index > 0:
+                                str_article: str = line[:index]
+
+                                if str_article:
+                                    str_article = str_article.strip()
+
+                                page_id: int = None
+                                num_links: int = 0
+
+                                if str_article and str_article.isnumeric():
+                                    page_id = int(str_article)
+
+                                str_num_links: str = line[index + 1:]
+
+                                if str_num_links:
+                                    str_num_links = str_num_links.strip()
+
+                                if str_num_links and str_num_links.isnumeric():
+                                    num_links: int = int(str_num_links)
+                                    
+                                if page_id is not None:
+                                    self.article_links_found[page_id] = num_links
+
 
     def read_title_to_id_dictionary(self):
         """Read title to page ID dictionary from text files"""
@@ -239,15 +300,17 @@ class WikiDumpReader:
         if title:
             title = title.strip()
 
+        int_page_id: int = None
+
         page_id: str = article.get('id', 'Unknown')
 
         if page_id:
             page_id = page_id.strip()
 
         if page_id and page_id.isnumeric() and title not in self.title_to_id_dict:
-            int_page_id: int = int(page_id)
-            
             self.title_to_id_buffer[title] = int_page_id
+
+            int_page_id = int(page_id)
 
         current_count: int = len(self.title_to_id_dict)
         diff_count: int = current_count - self.last_title_to_id_count
@@ -269,12 +332,12 @@ class WikiDumpReader:
 
         text = article.get('text', '')
         
-        if text:
+        if text and int_page_id is not None and int_page_id not in self.article_links_found:
             skip_links: bool = False
 
             # Check for redirection
             if text.startswith('#REDIRECT') or text.startswith('#redirect'):
-                skip_links = True
+                #skip_links = True
 
                 #print("This article is a redirection.")
                 if self.list_redirections is not None:
@@ -294,7 +357,7 @@ class WikiDumpReader:
                             link = link.strip()
 
                         if link:
-                            print(f"Link: {link}")
+                            #print(f"Link: {link}")
 
                             if link in self.title_to_id_dict:
                                 link_id = self.title_to_id_dict[link]
@@ -302,7 +365,8 @@ class WikiDumpReader:
 
                                 list_link_ids.add(link_id)
 
-                self.article_links_buffer[int(page_id)] = sorted(list_link_ids)
+                    if isinstance(list_link_ids, list) and len(list_link_ids) > 0:
+                        self.article_links_buffer[int_page_id] = sorted(list_link_ids)
 
         if len(self.article_links_buffer) >= 1000:
             self.save_article_links_dictionary_to_file()
