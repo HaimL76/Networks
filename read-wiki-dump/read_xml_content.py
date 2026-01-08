@@ -309,6 +309,8 @@ class WikiDumpReader:
             
             self.title_to_id_dict.update(self.title_to_id_buffer)
             self.title_to_id_buffer.clear()
+
+        return
         
         #print(f"ARTICLE #{number}, Title: {title}, Page ID: {page_id}")
 
