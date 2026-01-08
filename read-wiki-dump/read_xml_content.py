@@ -309,8 +309,6 @@ class WikiDumpReader:
             
             self.title_to_id_dict.update(self.title_to_id_buffer)
             self.title_to_id_buffer.clear()
-
-        return
         
         #print(f"ARTICLE #{number}, Title: {title}, Page ID: {page_id}")
 
@@ -341,12 +339,17 @@ class WikiDumpReader:
                             link = link.strip()
 
                         if link:
-                            #print(f"Link: {link}")
+                            skip_link: bool = False
 
-                            if link in self.title_to_id_dict:
-                                link_id = self.title_to_id_dict[link]
+                            if link.startswith('קטגוריה: '):
+                                skip_link = True
+
+                            
+                            if not skip_link:
+                                if link in self.title_to_id_dict:
+                                    link_id = self.title_to_id_dict[link]
                                 
-                                list_link_ids.add(link_id)
+                                    list_link_ids.add(link_id)
 
                                 #print(f"Link found: {link} -> {link_id}")
                             else:
