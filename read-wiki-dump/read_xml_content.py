@@ -288,10 +288,11 @@ class WikiDumpReader:
         if page_id:
             page_id = page_id.strip()
 
-        if page_id and page_id.isnumeric() and title not in self.title_to_id_dict:
-            self.title_to_id_buffer[title] = int_page_id
-
+        if page_id and page_id.isnumeric():
             int_page_id = int(page_id)
+
+        if int_page_id and title not in self.title_to_id_dict:
+            self.title_to_id_buffer[title] = int_page_id
 
         current_count: int = len(self.title_to_id_dict)
         diff_count: int = current_count - self.last_title_to_id_count
@@ -345,11 +346,11 @@ class WikiDumpReader:
                                 
                                 list_link_ids.add(link_id)
 
-                                print(f"Link found: {link} -> {link_id}")
+                                #print(f"Link found: {link} -> {link_id}")
                             else:
                                 print(f"Link title not found in dictionary: {link}")
 
-                    if isinstance(list_link_ids, list) and len(list_link_ids) > 0:
+                    if isinstance(list_link_ids, set) and len(list_link_ids) > 0:
                         self.article_links_buffer[int_page_id] = sorted(list_link_ids)
 
         if len(self.article_links_buffer) >= 1000:
