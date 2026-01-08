@@ -437,5 +437,7 @@ def main():
     # Read and display content
     reader.read_wikipedia_xml(xml_file, max_articles=0, line_limit=0)
 
+    reader.save_title_to_id_dictionary_to_file()
+
 if __name__ == "__main__":
     main()
