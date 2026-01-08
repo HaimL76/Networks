@@ -46,8 +46,6 @@ class WikiDumpReader:
         print("=" * 80)
 
         list_redirections: list[str] = []
-
-        title_to_id_dict: dict[str, int] = {}
         
         try:
             with bz2.open(file_path, 'rt', encoding='utf-8', errors='ignore') as f:
@@ -133,8 +131,6 @@ class WikiDumpReader:
             print(f"Article links directory does not exist: {self.article_links_directory}")
             return
 
-        self.title_to_id_dict = {}
-
         list_files: list[str] = os.listdir(self.article_links_directory)
 
         if list_files:
@@ -158,30 +154,15 @@ class WikiDumpReader:
                             line = line.strip()
                         
                         if line:
-                            index: int = line.rfind(',')
-
-                            if index > 0:
-                                str_article: str = line[:index]
-
-                                if str_article:
-                                    str_article = str_article.strip()
-
-                                page_id: int = None
-                                num_links: int = 0
-
-                                if str_article and str_article.isnumeric():
-                                    page_id = int(str_article)
-
-                                str_num_links: str = line[index + 1:]
-
-                                if str_num_links:
-                                    str_num_links = str_num_links.strip()
-
-                                if str_num_links and str_num_links.isnumeric():
-                                    num_links: int = int(str_num_links)
+                            arr: list[str] = line.split(':')
                                     
-                                if page_id is not None:
-                                    self.article_links_found[page_id] = num_links
+                            if isinstance(arr, list) and len(arr) > 1:
+                                page_id_str: str = arr[0].strip()
+
+                                if page_id_str and page_id_str.isnumeric():
+                                    page_id: int = int(page_id_str)
+                                
+                                self.article_links_found[page_id] = len(arr[1])
 
 
     def read_title_to_id_dictionary(self):
@@ -361,9 +342,12 @@ class WikiDumpReader:
 
                             if link in self.title_to_id_dict:
                                 link_id = self.title_to_id_dict[link]
-                                print(f" -> Link ID: {link_id}")
-
+                                
                                 list_link_ids.add(link_id)
+
+                                print(f"Link found: {link} -> {link_id}")
+                            else:
+                                print(f"Link title not found in dictionary: {link}")
 
                     if isinstance(list_link_ids, list) and len(list_link_ids) > 0:
                         self.article_links_buffer[int_page_id] = sorted(list_link_ids)
