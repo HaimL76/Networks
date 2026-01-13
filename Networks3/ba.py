@@ -7,6 +7,9 @@ class Node:
         self.fitness: float = fitness
         self.neighbors: list[Node] = []
 
+        if self.fitness == 0:
+            self.fitness = 1#np.random.randint(1, 11)
+
     def add_neighbor(self, neighbor: 'Node'):
         self.neighbors.append(neighbor)
 
@@ -36,12 +39,14 @@ def has_double(selected_indices: np.ndarray) -> bool:
     return is_double
 
 def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
+    file_name_fitness_part: str = "_with_fitness" if with_fitness else ""
+
     list_nodes: list[Node] = create_kernel(kernel_size)
 
     square_root_size_and_ratio: list[tuple[float, float]] = []
 
     for step in range(1, size):
-        new_node: Node = Node()
+        new_node: Node = Node(fitness=step * 100000)
 
         list_indices: list[int] = [index for index in range(len(list_nodes))]
 
@@ -100,7 +105,7 @@ def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
     plt.ylabel("Max and Min Degrees Ratio", fontsize=18)
     plt.title("ba square root of size to max and min degrees ratio")
     #plt.show()
-    plt.savefig("ba_model_square_root_n_ratio.png")
+    plt.savefig(f"ba_model_square_root_n_ratio{file_name_fitness_part}.png")
 
     dict_degrees: dict[int, int] = {}
 
@@ -153,7 +158,7 @@ def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
 
     plt.title("ba model P(k)")
     #plt.show()
-    plt.savefig("ba_model_P_k.png")
+    plt.savefig(f"ba_model_P_k{file_name_fitness_part}.png")
 
     node_indices: list[int] = [0] * len(list_nodes)
     ks: list[int] = [0] * len(list_nodes)
@@ -294,7 +299,7 @@ def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
     plt.ylabel("density", fontsize=18)
     plt.title("ba model binned density")
     #plt.show()
-    plt.savefig("ba_model_binned_density.png")
+    plt.savefig(f"ba_model_binned_density{file_name_fitness_part}.png")
 
     plt.figure(figsize=(8, 6))
 
@@ -324,7 +329,7 @@ def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
     plt.ylabel("density", fontsize=18)
     plt.title("ba model binned density (median k)")
     #plt.show()
-    plt.savefig("ba_model_binned_density_median_k.png")
+    plt.savefig(f"ba_model_binned_density_median_k{file_name_fitness_part}.png")
 
     ratio: float = max_k / min_k if min_k > 0 else 0.0
     square_root_size: float = math.sqrt(len(list_nodes))
@@ -343,7 +348,7 @@ def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
 
     plt.title("ba model")
     #plt.show()
-    plt.savefig("ba_model.png")
+    plt.savefig(f"ba_model{file_name_fitness_part}.png")
 
 
 def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int, with_fitness: bool = False) -> np.ndarray:
@@ -387,4 +392,5 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-run_ba_model(size=22222, kernel_size=4)
+#run_ba_model(size=2222, kernel_size=4)
+run_ba_model(size=2222, kernel_size=4, with_fitness=True)
