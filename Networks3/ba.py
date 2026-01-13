@@ -3,7 +3,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 class Node:
-    def __init__(self):
+    def __init__(self, fitness: int = 0):
+        self.fitness: float = fitness
         self.neighbors: list[Node] = []
 
     def add_neighbor(self, neighbor: 'Node'):
@@ -34,7 +35,7 @@ def has_double(selected_indices: np.ndarray) -> bool:
         
     return is_double
 
-def run_ba_model(size: int, kernel_size: int):
+def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
     list_nodes: list[Node] = create_kernel(kernel_size)
 
     square_root_size_and_ratio: list[tuple[float, float]] = []
@@ -71,7 +72,7 @@ def run_ba_model(size: int, kernel_size: int):
     
         print(f"size={len(list_nodes)}, ratio={ratio}, sqrt_size={square_root_size}, k_avg={k_avg}")
 
-        probabilities = prepare_probabilities(list_nodes, kernel_size, step)
+        probabilities = prepare_probabilities(list_nodes, kernel_size, step, with_fitness=with_fitness)
 
         selected_indices = np.random.choice(list_indices, replace=False, size=kernel_size, p=probabilities)
 
@@ -345,17 +346,28 @@ def run_ba_model(size: int, kernel_size: int):
     plt.savefig("ba_model.png")
 
 
-def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int) -> np.ndarray:
-    links_count: int = 0#2 * kernel_size * step
+def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int, with_fitness: bool = False) -> np.ndarray:
+    total_links_weight: int = 0
 
     for node in list_nodes:
-        links_count += len(node.neighbors)
+        node_weight: int = len(node.neighbors)
+
+        if with_fitness:
+            node_weight *= node.fitness
+
+        total_links_weight += node_weight
 
     probabilities: list[float] = [0.0] * len(list_nodes)
 
     for i in range(len(list_nodes)):
         node: Node = list_nodes[i]
-        probabilities[i] = len(node.neighbors) / links_count
+
+        node_weight: int = len(node.neighbors)
+
+        if with_fitness:
+            node_weight *= node.fitness
+
+        probabilities[i] = node_weight / total_links_weight
 
     return probabilities
 

@@ -41,6 +41,15 @@ class WikiDumpReader:
         self.read_title_to_id_dictionary()
 
         self.read_articles_with_links()
+
+        with open("edges.csv", 'w') as edges_file:
+            edges_file.write("Source,Target\n")
+
+            for article_id, link_ids in self.article_links_buffer.items():
+                for link_id in link_ids:
+                    edges_file.write(f"{article_id},{link_id}\n")
+
+        return
         
         print(f"Reading Wikipedia XML file: {file_path}")
         print("=" * 80)
@@ -155,14 +164,39 @@ class WikiDumpReader:
                         
                         if line:
                             arr: list[str] = line.split(':')
-                                    
-                            if isinstance(arr, list) and len(arr) > 1:
-                                page_id_str: str = arr[0].strip()
 
-                                if page_id_str and page_id_str.isnumeric():
-                                    page_id: int = int(page_id_str)
-                                
-                                self.article_links_found[page_id] = len(arr[1])
+                            page_id_str: str = None
+                            str_link_ids: str = None
+                            pade_id: int = None
+
+                            if isinstance(arr, list) and len(arr) > 1:
+                                page_id_str = arr[0].strip()
+
+                            if page_id_str and page_id_str.isnumeric():
+                                page_id = int(page_id_str)
+
+                            if page_id is not None:
+                                str_link_ids = arr[1]
+
+                            if str_link_ids:
+                                str_link_ids = str_link_ids.strip()
+
+                            if str_link_ids:
+                                list_link_ids_str: list[str] = str_link_ids.split(',')
+
+                                if isinstance(list_link_ids_str, list) and len(list_link_ids_str) > 0:
+                                    set_link_ids: set[int] = set()
+
+                                    for link_id_str in list_link_ids_str:
+                                        link_id_str = link_id_str.strip()
+
+                                        if link_id_str and link_id_str.isnumeric():
+                                            link_id: int = int(link_id_str)
+
+                                            set_link_ids.add(link_id)
+
+                                    if len(set_link_ids) > 0:
+                                        self.article_links_found[page_id] = set_link_ids
 
 
     def read_title_to_id_dictionary(self):
@@ -441,6 +475,8 @@ def main():
     reader.read_wikipedia_xml(xml_file, max_articles=0, line_limit=0)
 
     reader.save_title_to_id_dictionary_to_file()
+
+    reader.save_article_links_dictionary_to_file()
 
 if __name__ == "__main__":
     main()
