@@ -3,12 +3,9 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 class Node:
-    def __init__(self, fitness: int = 0):
+    def __init__(self, fitness: float = 0.0):
         self.fitness: float = fitness
         self.neighbors: list[Node] = []
-
-        if self.fitness == 0:
-            self.fitness = 1#np.random.randint(1, 11)
 
     def add_neighbor(self, neighbor: 'Node'):
         self.neighbors.append(neighbor)
@@ -38,15 +35,33 @@ def has_double(selected_indices: np.ndarray) -> bool:
         
     return is_double
 
-def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
-    file_name_fitness_part: str = "_with_fitness" if with_fitness else ""
+def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
+    fitness_param: float = 0.0
+    fitness_method: str = None
+
+    if isinstance(fitness, tuple) and len(fitness) == 2:
+        fitness_method = fitness[0]
+        fitness_param = fitness[1]
+
+    with_fitness: str = f"{fitness_method}_{fitness_param}" if fitness_method and fitness_param > 0.0 else ""
+
+    file_name_fitness_part: str = f"_with_fitness_{with_fitness}" if with_fitness else ""
 
     list_nodes: list[Node] = create_kernel(kernel_size)
 
     square_root_size_and_ratio: list[tuple[float, float]] = []
 
     for step in range(1, size):
-        new_node: Node = Node(fitness=step * 100000)
+        fitness_value: float = 0.0
+
+        if fitness_method == 'exp':
+            fitness_value = math.exp(step * fitness_param)
+        elif fitness_method == 'mul':
+            fitness_value = step * fitness_param
+        elif fitness_method == 'pol':
+            fitness_value = math.pow(step, fitness_param)
+
+        new_node: Node = Node(fitness=fitness_value)
 
         list_indices: list[int] = [index for index in range(len(list_nodes))]
 
@@ -77,7 +92,7 @@ def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
     
         print(f"size={len(list_nodes)}, ratio={ratio}, sqrt_size={square_root_size}, k_avg={k_avg}")
 
-        probabilities = prepare_probabilities(list_nodes, kernel_size, step, with_fitness=with_fitness)
+        probabilities = prepare_probabilities(list_nodes, kernel_size, step)
 
         selected_indices = np.random.choice(list_indices, replace=False, size=kernel_size, p=probabilities)
 
@@ -351,13 +366,13 @@ def run_ba_model(size: int, kernel_size: int, with_fitness: bool = False):
     plt.savefig(f"ba_model{file_name_fitness_part}.png")
 
 
-def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int, with_fitness: bool = False) -> np.ndarray:
+def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int) -> np.ndarray:
     total_links_weight: int = 0
 
     for node in list_nodes:
         node_weight: int = len(node.neighbors)
 
-        if with_fitness:
+        if node.fitness != 0.0:
             node_weight *= node.fitness
 
         total_links_weight += node_weight
@@ -369,7 +384,7 @@ def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int, w
 
         node_weight: int = len(node.neighbors)
 
-        if with_fitness:
+        if node.fitness != 0.0:
             node_weight *= node.fitness
 
         probabilities[i] = node_weight / total_links_weight
@@ -392,5 +407,9 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-#run_ba_model(size=2222, kernel_size=4)
-run_ba_model(size=2222, kernel_size=4, with_fitness=True)
+size=22222
+
+run_ba_model(size=size, kernel_size=4)
+run_ba_model(size=size, kernel_size=4, fitness=('exp', 5/size))
+run_ba_model(size=size, kernel_size=4, fitness=('mul', 10))
+run_ba_model(size=size, kernel_size=4, fitness=('pol', 10))
