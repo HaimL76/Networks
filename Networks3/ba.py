@@ -1,4 +1,5 @@
 import math
+import os
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -36,6 +37,8 @@ def has_double(selected_indices: np.ndarray) -> bool:
     return is_double
 
 def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
+    os.makedirs("ba_figs", exist_ok=True)
+
     fitness_param: float = 0.0
     fitness_method: str = None
 
@@ -120,7 +123,7 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
     plt.ylabel("Max and Min Degrees Ratio", fontsize=18)
     plt.title("ba square root of size to max and min degrees ratio")
     #plt.show()
-    plt.savefig(f"ba_model_square_root_n_ratio{file_name_fitness_part}.png")
+    plt.savefig(f"ba_figs\\ba_model_square_root_n_ratio{file_name_fitness_part}.png")
 
     dict_degrees: dict[int, int] = {}
 
@@ -173,7 +176,7 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
 
     plt.title("ba model P(k)")
     #plt.show()
-    plt.savefig(f"ba_model_P_k{file_name_fitness_part}.png")
+    plt.savefig(f"ba_figs\\ba_model_P_k{file_name_fitness_part}.png")
 
     node_indices: list[int] = [0] * len(list_nodes)
     node_degrees: list[int] = [0] * len(list_nodes)
@@ -316,7 +319,7 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
     plt.ylabel("density", fontsize=18)
     plt.title("ba model binned density")
     #plt.show()
-    plt.savefig(f"ba_model_binned_density{file_name_fitness_part}.png")
+    plt.savefig(f"ba_figs\\ba_model_binned_density{file_name_fitness_part}.png")
 
     plt.figure(figsize=(8, 6))
 
@@ -346,7 +349,7 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
     plt.ylabel("density", fontsize=18)
     plt.title("ba model binned density (median k)")
     #plt.show()
-    plt.savefig(f"ba_model_binned_density_median_k{file_name_fitness_part}.png")
+    plt.savefig(f"ba_figs\\ba_model_binned_density_median_k{file_name_fitness_part}.png")
 
     ratio: float = max_k / min_k if min_k > 0 else 0.0
     square_root_size: float = math.sqrt(len(list_nodes))
@@ -366,7 +369,7 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
 
     plt.title("ba model degree by time")
     #plt.show()
-    plt.savefig(f"ba_model_degree_by_time{file_name_fitness_part}.png")
+    plt.savefig(f"ba_figs\\ba_model_degree_by_time{file_name_fitness_part}.png")
 
 
 def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int) -> np.ndarray:

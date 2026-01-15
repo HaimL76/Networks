@@ -13,10 +13,19 @@
 \section{}
 Code is in https://github.com/HaimL76/Networks.git
 \section{}
+All the plots in this section are for the BA model without fitness.
 \subsection{}
 \begin{figure}[H]
     \makebox[\linewidth]{
 \includegraphics[width=1.85\linewidth]{ba_model_square_root_n_ratio.png}
+    }
+\end{figure}
+\subsection{}
+Without fitness, the $k_i(t)$ graph is
+\begin{figure}[H]
+    \makebox[\linewidth]{
+\includegraphics[width=1.75\linewidth]{ba_model_degree_by_time.png
+}
     }
 \end{figure}
 \subsection{}
@@ -34,6 +43,16 @@ Code is in https://github.com/HaimL76/Networks.git
 \begin{figure}[H]
     \makebox[\linewidth]{
 \includegraphics[width=1.75\linewidth]{ba_model_binned_density_median_k.png}
+    }
+\end{figure}
+\section{}
+\
+For the fitness model, we need a fitness function $\eta_i$.
+
+For $\eta_i=t_i^{10}$, the graph of $k_i$ by $t_i$ is
+\begin{figure}[H]
+    \makebox[\linewidth]{
+\includegraphics[width=1.75\linewidth]{ba_model_degree_by_time_with_fitness_pol_10.png}
     }
 \end{figure}
 \end{document}
