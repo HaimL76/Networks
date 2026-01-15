@@ -14,6 +14,7 @@ class WikiDumpReader:
     def __init__(self):
         self.last_title_to_id_count: int = 0
         self.title_to_id_dict: dict[str, int] = {}
+        self.id_to_title_dict: dict[int, str] = {}
         self.title_to_id_buffer: dict[str, int] = {}
         self.article_links_buffer: dict[int, set[int]] = {}
         self.article_links_found: dict[int, int] = {}
@@ -25,7 +26,11 @@ class WikiDumpReader:
         self.subject_counter: int = 0
         self.last_updated_subject_counter = 0
 
-    def read_sql_dumps(self):
+    def read_sql_dumps(self):        
+        self.read_title_to_id_dictionary()
+
+        self.read_articles_with_links()
+
         file_path = "C:\\Users\\HaimL1\\Downloads\\hewiki-20251220-category.sql.gz"
 
         self.read_sql_dump(file_path)
@@ -147,8 +152,13 @@ class WikiDumpReader:
             
             if cl_to:
                 cl_to = str(cl_to).strip().strip("'\"")
+
+            page_title: str = None
+
+            if cl_from in self.id_to_title_dict:
+                page_title = self.id_to_title_dict[cl_from]
             
-            print(f"CategoryLink - From Page: {cl_from}, To Category: '{cl_to}', Type: {cl_type}")
+            print(f"CategoryLink - From Page: {cl_from} {page_title}, To Category: '{cl_to}', Type: {cl_type}")
 
     def _extract_tuples_from_values(self, values_string: str):
         """Extract individual tuples from VALUES string"""
@@ -276,10 +286,6 @@ class WikiDumpReader:
             print(f"File not found: {file_path}")
             return
         
-        self.read_title_to_id_dictionary()
-
-        self.read_articles_with_links()
-
         with open("edges.csv", 'w') as edges_file:
             edges_file.write("Source,Target\n")
 
@@ -444,6 +450,7 @@ class WikiDumpReader:
             return
 
         self.title_to_id_dict = {}
+        self.id_to_title_dict = {}
 
         list_files: list[str] = os.listdir(self.title_to_id_directory)
 
@@ -476,14 +483,15 @@ class WikiDumpReader:
                                 if title:
                                     title = title.strip()
 
-                                page_id: str = line[index + 1:]
+                                str_page_id: str = line[index + 1:]
 
-                                if page_id:
-                                    page_id = page_id.strip()
+                                if str_page_id:
+                                    str_page_id = str_page_id.strip()
                                 
-                                if page_id and page_id.isnumeric():
-                                    self.title_to_id_dict[title] = int(page_id)
-
+                                if str_page_id and str_page_id.isnumeric():
+                                    page_id: int = int(str_page_id)
+                                    self.title_to_id_dict[title] = page_id
+                                    self.id_to_title_dict[page_id] = title
                                     if "," in title:
                                         print(f"{file_path}, Loaded title to ID: {title} -> {page_id}")
 
@@ -680,6 +688,7 @@ def main():
     reader.read_sql_dumps()
 
     return
+
     """Main function"""
     # List of possible XML files to try
     download_dir = r"c:\Users\HaimL1\Networks\downloads"
