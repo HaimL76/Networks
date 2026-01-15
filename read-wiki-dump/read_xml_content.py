@@ -44,57 +44,42 @@ class WikiDumpReader:
         print(f"Reading SQL dump file: {file_path}")
         
         try:
-            text_file_path: str = file_path.replace(".gz", ".txt")
-
             with gzip.open(file_path, 'rt', encoding='utf-8') as f:
                 line_count = 0
-
-                buffer: str = ""
-
-                parentheses_level: int = 0
+                insert_line_buffer = ""
+                in_insert_statement = False
 
                 for line in f:
                     line_count += 1
+                    line = line.strip()
 
-                    if line:
-                        line = line.strip()
-
-                    for i in range(len(line)):
-                        char = line[i]
-
-                        add_char: bool = False
-
-                        if char == '(':
-                            if parentheses_level == 0:
-                                buffer = ""
-                            else:
-                                add_char = True
-
-                            parentheses_level += 1
-                        elif char == ')':
-                            parentheses_level -= 1
-
-                            if parentheses_level > 0:
-                                add_char = True
-                            else:
-                                self.parse_buffer(buffer)
-                                #print(buffer)
-                        else:
-                            add_char = True
-                            
-                        if add_char:
-                            buffer += char
-
-                    continue
-                    
-                    # Skip comments and non-INSERT statements
-                    if line.startswith('--') or line.startswith('/*') or not line.strip().startswith('INSERT INTO'):
+                    # Skip comments and empty lines
+                    if not line or line.startswith('--') or line.startswith('/*'):
                         continue
-                    
-                    # Parse INSERT statements for category data
-                    if 'INSERT INTO' in line and 'category' in line.lower():
-                        self._parse_category_insert_line(line)
-                    
+
+                    # Check if this is the start of an INSERT statement
+                    if line.upper().startswith('INSERT INTO'):
+                        in_insert_statement = True
+                        insert_line_buffer = line
+                        
+                        # If the entire INSERT is on one line
+                        if ';' in line:
+                            self._process_insert_line(insert_line_buffer, file_path)
+                            in_insert_statement = False
+                            insert_line_buffer = ""
+                        continue
+
+                    # Continue building the INSERT statement if we're in one
+                    if in_insert_statement:
+                        insert_line_buffer += " " + line
+                        
+                        # Check if INSERT statement is complete
+                        if ';' in line:
+                            self._process_insert_line(insert_line_buffer, file_path)
+                            in_insert_statement = False
+                            insert_line_buffer = ""
+                        continue
+
                     # Print progress every 10000 lines
                     if line_count % 10000 == 0:
                         print(f"Processed {line_count} lines...")
@@ -104,161 +89,179 @@ class WikiDumpReader:
         except Exception as e:
             print(f"Error reading SQL dump file: {e}")
 
-        print(f"line count: {line_count}")
-
-    def parse_buffer(self, buffer: str):
-        char_index: int = buffer.find(',')
-
-        str_cat_id: str = buffer[:char_index]
-
-        cat_id: int = None
-        cat_title: str = None
-
-        if str_cat_id.isnumeric():
-            cat_id = int(str_cat_id)
-
-        if cat_id is not None:
-            buffer = buffer[char_index + 1:]
-
-            for i in range(3):
-                char_index = buffer.rfind(',')
-
-                buffer = buffer[:char_index]
-
-        cat_title = buffer
-
-        if cat_title:
-            cat_title = cat_title.strip()
-
-        if cat_title:
-            cat_title = cat_title.strip("'")
-
-        if cat_title:
-            print(f"Category ID: {cat_id}, Title: {cat_title}")
-    
-    def _parse_category_insert_line(self, line):
-        """Parse a single INSERT line from the SQL dump"""
+    def _process_insert_line(self, insert_line: str, file_path: str):
+        """Process a complete INSERT statement and extract tuples"""
         try:
-            # Extract the VALUES part of the INSERT statement
-            values_start = line.find('VALUES')
-            if values_start == -1:
-                return 0
+            # Determine table type based on file name for different parsing strategies
+            is_category_table = 'category.sql' in file_path and 'categorylinks' not in file_path
+            is_categorylinks_table = 'categorylinks.sql' in file_path
             
-            values_part = line[values_start + 6:].strip()
+            # Find the VALUES part
+            values_start = insert_line.upper().find('VALUES')
+            if values_start == -1:
+                return
+
+            values_part = insert_line[values_start + 6:].strip()
             
             # Remove trailing semicolon
-            values_part = values_part.rstrip(';')
-            
-            # Parse the VALUES string to extract individual records
-            records = self._parse_values_string(values_part)
-            
-            dict_categories: dict[int, list[str]] = {}
+            if values_part.endswith(';'):
+                values_part = values_part[:-1]
 
-            # Process each record
-            for record in records:
-                if len(record) >= 2:  # Should have at least ID and category name
-                    category_id = record[0]
-                    
-                    category_name = record[1]
-
-                    kuku = record[4]
-
-                    #dict_categories[category_id] = category_name
-                    if kuku not in dict_categories:
-                        dict_categories[kuku] = []
-
-                    list_cat_names: list[str] = dict_categories[kuku]
-
-                    list_cat_names.append(category_name)
-
-                    print(f"    Category ID: {category_id}, Name: {category_name}")
-                    if len(record) > 2:
-                        print(f"      Additional data: {record[2:]}")
+            # Extract tuples from the VALUES part
+            tuples = self._extract_tuples_from_values(values_part)
             
-            return len(records)
-            
-        except Exception as e:
-            print(f"Error parsing INSERT line: {e}")
-            return 0
-    
-    def _parse_values_string(self, values_string):
-        """Parse VALUES string like (280000,'יחידות_שריון_סובייטיות',9,0,0),(280038,'פרדס_חנה-כרכור',16,3,0),..."""
-        records = []
-        
-        try:
-            # Remove whitespace and split by '),(' pattern
-            values_string = values_string.strip()
-            
-            # Handle the case where string starts with ( and ends with )
-            if values_string.startswith('('):
-                values_string = values_string[1:]
-            if values_string.endswith(')'):
-                values_string = values_string[:-1]
-            
-            # Split by '),(' to get individual records
-            record_strings = values_string.split('),(')
-            
-            for record_str in record_strings:
-                record = self._parse_single_record(record_str)
-                if record:
-                    records.append(record)
-                    
-        except Exception as e:
-            print(f"Error parsing VALUES string: {e}")
-            
-        return records
-    
-    def _parse_single_record(self, record_str):
-        """Parse a single record like '280000,\'יחידות_שריון_סובייטיות\',9,0,0'"""
-        try:
-            # Split by comma, but be careful with quoted strings
-            parts = []
-            current_part = ""
-            in_quotes = False
-            escape_next = False
-            
-            for char in record_str:
-                if escape_next:
-                    current_part += char
-                    escape_next = False
-                elif char == '\\':
-                    escape_next = True
-                    current_part += char
-                elif char == "'" and not escape_next:
-                    in_quotes = not in_quotes
-                    # Don't include the quotes in the final string
-                elif char == ',' and not in_quotes:
-                    parts.append(current_part.strip())
-                    current_part = ""
-                else:
-                    current_part += char
-            
-            # Add the last part
-            if current_part.strip():
-                parts.append(current_part.strip())
-            
-            # Process parts: convert numbers, clean strings
-            processed_parts = []
-            for part in parts:
-                part = part.strip()
-                # Remove surrounding quotes if present
-                if part.startswith("'") and part.endswith("'"):
-                    part = part[1:-1]
+            for tuple_data in tuples:
+                values = self._parse_tuple_values(tuple_data)
                 
-                # Try to convert to int if it's a number
-                try:
-                    processed_parts.append(int(part))
-                except ValueError:
-                    # Keep as string, handle escaped characters
-                    part = part.replace("\\'", "'")  # Unescape quotes
-                    processed_parts.append(part)
-            
-            return processed_parts
-            
+                if is_category_table:
+                    self._process_category_tuple(values)
+                elif is_categorylinks_table:
+                    self._process_categorylinks_tuple(values)
+                else:
+                    print(f"Unknown table type, raw values: {values}")
+                
         except Exception as e:
-            print(f"Error parsing single record '{record_str}': {e}")
-            return None
+            print(f"Error processing INSERT line: {e}")
+
+    def _process_category_tuple(self, values):
+        """Process category table tuple (cat_id, cat_title, cat_pages, cat_subcats, cat_files)"""
+        if len(values) >= 2:
+            cat_id = values[0] if isinstance(values[0], int) else None
+            cat_title = values[1] if len(values) > 1 else None
+            cat_pages = values[2] if len(values) > 2 and isinstance(values[2], int) else 0
+            cat_subcats = values[3] if len(values) > 3 and isinstance(values[3], int) else 0
+            cat_files = values[4] if len(values) > 4 and isinstance(values[4], int) else 0
             
+            if cat_title:
+                cat_title = str(cat_title).strip().strip("'\"")
+            
+            print(f"Category - ID: {cat_id}, Title: '{cat_title}', Pages: {cat_pages}, Subcats: {cat_subcats}, Files: {cat_files}")
+
+    def _process_categorylinks_tuple(self, values):
+        """Process categorylinks table tuple (cl_from, cl_to, cl_sortkey, cl_timestamp, cl_sortkey_prefix, cl_collation, cl_type)"""
+        if len(values) >= 2:
+            cl_from = values[0] if isinstance(values[0], int) else None  # Page ID
+            cl_to = values[1] if len(values) > 1 else None  # Category name
+            cl_sortkey = values[2] if len(values) > 2 else None
+            cl_type = values[6] if len(values) > 6 else 'page'  # page, subcat, file
+            
+            if cl_to:
+                cl_to = str(cl_to).strip().strip("'\"")
+            
+            print(f"CategoryLink - From Page: {cl_from}, To Category: '{cl_to}', Type: {cl_type}")
+
+    def _extract_tuples_from_values(self, values_string: str):
+        """Extract individual tuples from VALUES string"""
+        tuples = []
+        current_tuple = ""
+        parentheses_level = 0
+        in_quotes = False
+        quote_char = None
+        escape_next = False
+        
+        i = 0
+        while i < len(values_string):
+            char = values_string[i]
+            
+            if escape_next:
+                current_tuple += char
+                escape_next = False
+            elif char == '\\':
+                escape_next = True
+                current_tuple += char
+            elif char in ('"', "'") and not escape_next:
+                if not in_quotes:
+                    in_quotes = True
+                    quote_char = char
+                elif char == quote_char:
+                    in_quotes = False
+                    quote_char = None
+                current_tuple += char
+            elif char == '(' and not in_quotes:
+                if parentheses_level == 0:
+                    current_tuple = ""  # Start new tuple
+                else:
+                    current_tuple += char
+                parentheses_level += 1
+            elif char == ')' and not in_quotes:
+                parentheses_level -= 1
+                if parentheses_level == 0:
+                    # Complete tuple found
+                    if current_tuple.strip():
+                        tuples.append(current_tuple.strip())
+                    current_tuple = ""
+                else:
+                    current_tuple += char
+            elif parentheses_level > 0:  # Inside a tuple
+                current_tuple += char
+            # Skip commas and whitespace between tuples
+            
+            i += 1
+            
+        return tuples
+
+    def _parse_tuple_values(self, buffer: str):
+        """
+        Parse comma-separated values from a tuple buffer.
+        Handles quoted strings, escaped characters, and numeric values.
+        """
+        values = []
+        current_value = ""
+        in_quotes = False
+        quote_char = None
+        escape_next = False
+        
+        i = 0
+        while i < len(buffer):
+            char = buffer[i]
+            
+            if escape_next:
+                current_value += char
+                escape_next = False
+            elif char == '\\':
+                escape_next = True
+                current_value += char
+            elif char in ('"', "'") and not escape_next:
+                if not in_quotes:
+                    in_quotes = True
+                    quote_char = char
+                elif char == quote_char:
+                    in_quotes = False
+                    quote_char = None
+                else:
+                    current_value += char
+            elif char == ',' and not in_quotes:
+                values.append(self._convert_value(current_value.strip()))
+                current_value = ""
+            else:
+                current_value += char
+            
+            i += 1
+        
+        # Add the last value
+        if current_value.strip():
+            values.append(self._convert_value(current_value.strip()))
+        
+        return values
+
+    def _convert_value(self, value_str: str):
+        """Convert a string value to appropriate type (int or cleaned string)."""
+        if not value_str:
+            return ""
+        
+        # Remove surrounding quotes
+        if ((value_str.startswith('"') and value_str.endswith('"')) or 
+            (value_str.startswith("'") and value_str.endswith("'"))):
+            value_str = value_str[1:-1]
+        
+        # Try to convert to integer
+        if value_str.isdigit() or (value_str.startswith('-') and value_str[1:].isdigit()):
+            return int(value_str)
+        
+        # Handle escaped characters in strings
+        value_str = value_str.replace("\\'", "'").replace('\\"', '"').replace('\\\\', '\\')
+        
+        return value_str
         
     def read_wikipedia_xml(self, file_path, max_articles=0, line_limit=100000):
         """
