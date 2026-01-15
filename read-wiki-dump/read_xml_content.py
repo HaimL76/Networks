@@ -29,7 +29,7 @@ class WikiDumpReader:
     def read_sql_dumps(self):        
         self.read_title_to_id_dictionary()
 
-        self.read_articles_with_links()
+        #self.read_articles_with_links()
 
         file_path = "C:\\Users\\HaimL1\\Downloads\\hewiki-20251220-category.sql.gz"
 
@@ -143,22 +143,30 @@ class WikiDumpReader:
             print(f"Category - ID: {cat_id}, Title: '{cat_title}', Pages: {cat_pages}, Subcats: {cat_subcats}, Files: {cat_files}")
 
     def _process_categorylinks_tuple(self, values):
-        """Process categorylinks table tuple (cl_from, cl_to, cl_sortkey, cl_timestamp, cl_sortkey_prefix, cl_collation, cl_type)"""
+        """Process categorylinks table tuple (cl_from, cl_sortkey, cl_timestamp, cl_sortkey_prefix, cl_type, cl_collation_id, cl_target_id)"""
         if len(values) >= 2:
             cl_from = values[0] if isinstance(values[0], int) else None  # Page ID
-            cl_to = values[1] if len(values) > 1 else None  # Category name
-            cl_sortkey = values[2] if len(values) > 2 else None
-            cl_type = values[6] if len(values) > 6 else 'page'  # page, subcat, file
+            cl_sortkey = values[1] if len(values) > 1 else None  # Sort key
+            cl_timestamp = values[2] if len(values) > 2 else None  # Timestamp
+            cl_sortkey_prefix = values[3] if len(values) > 3 else None  # Sort key prefix
+            cl_type = values[4] if len(values) > 4 else 'page'  # page, subcat, file
+            cl_collation_id = values[5] if len(values) > 5 and isinstance(values[5], int) else 0  # Collation ID
+            cl_target_id = values[6] if len(values) > 6 and isinstance(values[6], int) else None  # Category ID
             
-            if cl_to:
-                cl_to = str(cl_to).strip().strip("'\"")
+            # Clean up string values
+            if cl_sortkey:
+                cl_sortkey = str(cl_sortkey).strip().strip("'\"")
+            if cl_sortkey_prefix:
+                cl_sortkey_prefix = str(cl_sortkey_prefix).strip().strip("'\"")
+            if cl_type:
+                cl_type = str(cl_type).strip().strip("'\"")
 
             page_title: str = None
 
             if cl_from in self.id_to_title_dict:
                 page_title = self.id_to_title_dict[cl_from]
             
-            print(f"CategoryLink - From Page: {cl_from} {page_title}, To Category: '{cl_to}', Type: {cl_type}")
+            print(f"CategoryLink - From Page: {cl_from} ({page_title}), Target Category ID: {cl_target_id}, Type: {cl_type}, Sort Key: '{cl_sortkey}'")
 
     def _extract_tuples_from_values(self, values_string: str):
         """Extract individual tuples from VALUES string"""
