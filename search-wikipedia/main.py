@@ -14,20 +14,49 @@ def read_names(folder: str):
     for file in files:
         full_path: str = os.path.join(folder, file)
         if os.path.isfile(full_path):
-            with open(full_path, "r", encoding="utf-8") as fr:
-                for line in fr:
-                    if "<li>" in line:
-                        arr: list[str] = re.split(r'<li>|</li>', line)
-                        for name in arr:
-                            name = name.strip()
-                            if name and not name.startswith("<"):
-                                name_parts: list[str] = name.split(" ")
+            # Try different encodings to handle various file formats
+            encodings_to_try = ["utf-8", "utf-8-sig", "latin-1", "cp1252", "iso-8859-1"]
+            
+            for encoding in encodings_to_try:
+                try:
+                    with open(full_path, "r", encoding=encoding) as fr:
+                        for line in fr:
+                            if "<li>" in line:
+                                arr: list[str] = re.split(r'<li>|</li>', line)
+                                for name in arr:
+                                    name = name.strip()
+                                    if name and not name.startswith("<"):
+                                        name_parts: list[str] = name.split(" ")
 
-                                if len(name_parts) > 1:
-                                    for part in name_parts:
-                                        part = part.strip()
-                                        if part:
-                                            names.add(part)
+                                        if len(name_parts) > 1:
+                                            for part in name_parts:
+                                                part = part.strip()
+                                                if part:
+                                                    names.add(part)
+                        break  # Successfully read the file, exit the encoding loop
+                except (UnicodeDecodeError, UnicodeError):
+                    # If this encoding fails, try the next one
+                    continue
+            else:
+                # If all encodings fail, try with error handling
+                print(f"Warning: Could not decode file {full_path} with any standard encoding. Trying with error handling...")
+                try:
+                    with open(full_path, "r", encoding="utf-8", errors="ignore") as fr:
+                        for line in fr:
+                            if "<li>" in line:
+                                arr: list[str] = re.split(r'<li>|</li>', line)
+                                for name in arr:
+                                    name = name.strip()
+                                    if name and not name.startswith("<"):
+                                        name_parts: list[str] = name.split(" ")
+
+                                        if len(name_parts) > 1:
+                                            for part in name_parts:
+                                                part = part.strip()
+                                                if part:
+                                                    names.add(part)
+                except Exception as e:
+                    print(f"Error reading file {full_path}: {e}")
     return names
 
 def search(word: str):

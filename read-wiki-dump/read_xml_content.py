@@ -24,6 +24,241 @@ class WikiDumpReader:
         self.list_article_links_files: list[str] = []
         self.subject_counter: int = 0
         self.last_updated_subject_counter = 0
+
+    def read_sql_dumps(self):
+        file_path = "C:\\Users\\HaimL1\\Downloads\\hewiki-20251220-category.sql.gz"
+
+        self.read_sql_dump(file_path)
+
+        file_path = "C:\\Users\\HaimL1\\Downloads\\hewiki-20251220-categorylinks.sql.gz"
+
+        self.read_sql_dump(file_path)
+
+    def read_sql_dump(self, file_path: str):
+        import gzip
+        
+        if not os.path.exists(file_path):
+            print(f"SQL dump file not found: {file_path}\n")
+            return
+            
+        print(f"Reading SQL dump file: {file_path}")
+        
+        try:
+            text_file_path: str = file_path.replace(".gz", ".txt")
+
+            with gzip.open(file_path, 'rt', encoding='utf-8') as f:
+                line_count = 0
+
+                buffer: str = ""
+
+                parentheses_level: int = 0
+
+                for line in f:
+                    line_count += 1
+
+                    if line:
+                        line = line.strip()
+
+                    for i in range(len(line)):
+                        char = line[i]
+
+                        add_char: bool = False
+
+                        if char == '(':
+                            if parentheses_level == 0:
+                                buffer = ""
+                            else:
+                                add_char = True
+
+                            parentheses_level += 1
+                        elif char == ')':
+                            parentheses_level -= 1
+
+                            if parentheses_level > 0:
+                                add_char = True
+                            else:
+                                self.parse_buffer(buffer)
+                                #print(buffer)
+                        else:
+                            add_char = True
+                            
+                        if add_char:
+                            buffer += char
+
+                    continue
+                    
+                    # Skip comments and non-INSERT statements
+                    if line.startswith('--') or line.startswith('/*') or not line.strip().startswith('INSERT INTO'):
+                        continue
+                    
+                    # Parse INSERT statements for category data
+                    if 'INSERT INTO' in line and 'category' in line.lower():
+                        self._parse_category_insert_line(line)
+                    
+                    # Print progress every 10000 lines
+                    if line_count % 10000 == 0:
+                        print(f"Processed {line_count} lines...")
+                        
+                print(f"Finished processing {line_count} lines from SQL dump")
+                
+        except Exception as e:
+            print(f"Error reading SQL dump file: {e}")
+
+        print(f"line count: {line_count}")
+
+    def parse_buffer(self, buffer: str):
+        char_index: int = buffer.find(',')
+
+        str_cat_id: str = buffer[:char_index]
+
+        cat_id: int = None
+        cat_title: str = None
+
+        if str_cat_id.isnumeric():
+            cat_id = int(str_cat_id)
+
+        if cat_id is not None:
+            buffer = buffer[char_index + 1:]
+
+            for i in range(3):
+                char_index = buffer.rfind(',')
+
+                buffer = buffer[:char_index]
+
+        cat_title = buffer
+
+        if cat_title:
+            cat_title = cat_title.strip()
+
+        if cat_title:
+            cat_title = cat_title.strip("'")
+
+        if cat_title:
+            print(f"Category ID: {cat_id}, Title: {cat_title}")
+    
+    def _parse_category_insert_line(self, line):
+        """Parse a single INSERT line from the SQL dump"""
+        try:
+            # Extract the VALUES part of the INSERT statement
+            values_start = line.find('VALUES')
+            if values_start == -1:
+                return 0
+            
+            values_part = line[values_start + 6:].strip()
+            
+            # Remove trailing semicolon
+            values_part = values_part.rstrip(';')
+            
+            # Parse the VALUES string to extract individual records
+            records = self._parse_values_string(values_part)
+            
+            dict_categories: dict[int, list[str]] = {}
+
+            # Process each record
+            for record in records:
+                if len(record) >= 2:  # Should have at least ID and category name
+                    category_id = record[0]
+                    
+                    category_name = record[1]
+
+                    kuku = record[4]
+
+                    #dict_categories[category_id] = category_name
+                    if kuku not in dict_categories:
+                        dict_categories[kuku] = []
+
+                    list_cat_names: list[str] = dict_categories[kuku]
+
+                    list_cat_names.append(category_name)
+
+                    print(f"    Category ID: {category_id}, Name: {category_name}")
+                    if len(record) > 2:
+                        print(f"      Additional data: {record[2:]}")
+            
+            return len(records)
+            
+        except Exception as e:
+            print(f"Error parsing INSERT line: {e}")
+            return 0
+    
+    def _parse_values_string(self, values_string):
+        """Parse VALUES string like (280000,'יחידות_שריון_סובייטיות',9,0,0),(280038,'פרדס_חנה-כרכור',16,3,0),..."""
+        records = []
+        
+        try:
+            # Remove whitespace and split by '),(' pattern
+            values_string = values_string.strip()
+            
+            # Handle the case where string starts with ( and ends with )
+            if values_string.startswith('('):
+                values_string = values_string[1:]
+            if values_string.endswith(')'):
+                values_string = values_string[:-1]
+            
+            # Split by '),(' to get individual records
+            record_strings = values_string.split('),(')
+            
+            for record_str in record_strings:
+                record = self._parse_single_record(record_str)
+                if record:
+                    records.append(record)
+                    
+        except Exception as e:
+            print(f"Error parsing VALUES string: {e}")
+            
+        return records
+    
+    def _parse_single_record(self, record_str):
+        """Parse a single record like '280000,\'יחידות_שריון_סובייטיות\',9,0,0'"""
+        try:
+            # Split by comma, but be careful with quoted strings
+            parts = []
+            current_part = ""
+            in_quotes = False
+            escape_next = False
+            
+            for char in record_str:
+                if escape_next:
+                    current_part += char
+                    escape_next = False
+                elif char == '\\':
+                    escape_next = True
+                    current_part += char
+                elif char == "'" and not escape_next:
+                    in_quotes = not in_quotes
+                    # Don't include the quotes in the final string
+                elif char == ',' and not in_quotes:
+                    parts.append(current_part.strip())
+                    current_part = ""
+                else:
+                    current_part += char
+            
+            # Add the last part
+            if current_part.strip():
+                parts.append(current_part.strip())
+            
+            # Process parts: convert numbers, clean strings
+            processed_parts = []
+            for part in parts:
+                part = part.strip()
+                # Remove surrounding quotes if present
+                if part.startswith("'") and part.endswith("'"):
+                    part = part[1:-1]
+                
+                # Try to convert to int if it's a number
+                try:
+                    processed_parts.append(int(part))
+                except ValueError:
+                    # Keep as string, handle escaped characters
+                    part = part.replace("\\'", "'")  # Unescape quotes
+                    processed_parts.append(part)
+            
+            return processed_parts
+            
+        except Exception as e:
+            print(f"Error parsing single record '{record_str}': {e}")
+            return None
+            
         
     def read_wikipedia_xml(self, file_path, max_articles=0, line_limit=100000):
         """
@@ -437,6 +672,11 @@ class WikiDumpReader:
         return clean_links
 
 def main():
+    reader = WikiDumpReader()
+
+    reader.read_sql_dumps()
+
+    return
     """Main function"""
     # List of possible XML files to try
     download_dir = r"c:\Users\HaimL1\Networks\downloads"
