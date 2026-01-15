@@ -176,7 +176,8 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
     plt.savefig(f"ba_model_P_k{file_name_fitness_part}.png")
 
     node_indices: list[int] = [0] * len(list_nodes)
-    ks: list[int] = [0] * len(list_nodes)
+    node_degrees: list[int] = [0] * len(list_nodes)
+    calc_node_degrees: list[float] = [0] * len(list_nodes)
 
     max_k: int = 0
     min_k: int = 0
@@ -190,7 +191,8 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
         min_k = k_i if min_k == 0 else min(min_k, k_i)
 
         node_indices[i] = i
-        ks[i] = k_i
+        node_degrees[i] = k_i
+        calc_node_degrees[i] = kernel_size * (len(list_nodes) / (i + 1)) ** 0.5
 
     diff: int = max_k - min_k
 
@@ -356,14 +358,15 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
     plt.figure(figsize=(8, 6))
 
     #plt.plot(node_indices, ks, "-bD")
-    plt.plot(node_indices, ks, "-b")
+    plt.plot(node_indices, node_degrees, "-b")
+    plt.plot(node_indices, calc_node_degrees, "-r")
 
-    plt.xlabel("node index", fontsize=18)
+    plt.xlabel("node index (time)", fontsize=18)
     plt.ylabel("node degree", fontsize=18)
 
-    plt.title("ba model")
+    plt.title("ba model degree by time")
     #plt.show()
-    plt.savefig(f"ba_model{file_name_fitness_part}.png")
+    plt.savefig(f"ba_model_degree_by_time{file_name_fitness_part}.png")
 
 
 def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int) -> np.ndarray:
