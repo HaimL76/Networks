@@ -10,6 +10,15 @@ import re
 import sys
 import os
 
+class CategoryComposite:
+    def __init__(self, category_id: int):
+        self.category_id: int = category_id
+        self.category_composites: dict[int, CategoryComposite] = {}
+
+    def add_object(self, object_id: int):
+        if object_id not in self.category_composites:
+            self.category_composites[object_id] = CategoryComposite(object_id)
+
 class WikiDumpReader:
     def __init__(self):
         self.last_title_to_id_count: int = 0
@@ -25,6 +34,7 @@ class WikiDumpReader:
         self.list_article_links_files: list[str] = []
         self.subject_counter: int = 0
         self.last_updated_subject_counter = 0
+        self.dict_page_category: dict[int, int] = {}
 
     def read_sql_dumps(self):        
         self.read_title_to_id_dictionary()
@@ -38,6 +48,30 @@ class WikiDumpReader:
         file_path = "C:\\Users\\HaimL1\\Downloads\\hewiki-20251220-categorylinks.sql.gz"
 
         self.read_sql_dump(file_path)
+        
+        with open("kuku.txt") as fw:
+            for page in self.dict_page_category:
+                titles: list[str] = []
+
+                is_leaf: bool = False
+
+                page0: int = page
+
+                while not is_leaf:
+                    titles.append[page0]
+
+                    is_leaf = page0 not in self.dict_page_category
+
+                    if not is_leaf:
+                        page0 = self.dict_page_category[page0]
+
+                if len(titles) > 0:
+                    str_write: str = [str(title) for title in titles]
+
+                    fw.write(f"{str_write}\n")
+
+
+
 
     def read_sql_dump(self, file_path: str):
         import gzip
@@ -165,8 +199,29 @@ class WikiDumpReader:
 
             if cl_from in self.id_to_title_dict:
                 page_title = self.id_to_title_dict[cl_from]
-            
+                
+            self.dict_page_category[cl_from] = cl_target_id
+
             print(f"CategoryLink - From Page: {cl_from} ({page_title}), Target Category ID: {cl_target_id}, Type: {cl_type}, Sort Key: '{cl_sortkey}'")
+
+    def check_category(self, page_id: int):
+        objects: list[str] = self.check_category(page_id)
+
+        if isinstance(objects, list) and len(objects) > 0:
+            print(f"Category path for page ID {page_id}: {' -> '.join(objects)}")
+
+    def check_category(self, page_id: int, objects: list[str]):
+        object: str = str(page_id)
+        
+        if page_id in self.id_to_title_dict:
+            obj = self.id_to_title_dict[page_id]
+
+            objects.append(obj)
+
+            if page_id in self.dict_page_category:
+                category_id = self.dict_page_category[page_id]
+                self.check_category(category_id, objects)
+            
 
     def _extract_tuples_from_values(self, values_string: str):
         """Extract individual tuples from VALUES string"""
