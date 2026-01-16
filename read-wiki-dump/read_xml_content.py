@@ -49,7 +49,7 @@ class WikiDumpReader:
 
         self.read_sql_dump(file_path)
         
-        with open("kuku.txt") as fw:
+        with open("kuku.txt", "w") as fw:
             for page in self.dict_page_category:
                 titles: list[str] = []
 
@@ -58,16 +58,17 @@ class WikiDumpReader:
                 page0: int = page
 
                 while not is_leaf:
-                    titles.append[page0]
+                    titles.append(page0)
 
                     is_leaf = page0 not in self.dict_page_category
 
                     if not is_leaf:
                         page0 = self.dict_page_category[page0]
 
-                if len(titles) > 0:
-                    str_write: str = [str(title) for title in titles]
-
+                if len(titles) > 2:
+                    list_str_write: list[str] = [str(title) for title in titles]
+                    str_write = " -> ".join(list_str_write)
+                    print(str_write)
                     fw.write(f"{str_write}\n")
 
 
@@ -89,39 +90,42 @@ class WikiDumpReader:
                 in_insert_statement = False
 
                 for line in f:
-                    line_count += 1
-                    line = line.strip()
+                    try:
+                        line_count += 1
+                        line = line.strip()
 
-                    # Skip comments and empty lines
-                    if not line or line.startswith('--') or line.startswith('/*'):
-                        continue
+                        # Skip comments and empty lines
+                        if not line or line.startswith('--') or line.startswith('/*'):
+                            continue
 
-                    # Check if this is the start of an INSERT statement
-                    if line.upper().startswith('INSERT INTO'):
-                        in_insert_statement = True
-                        insert_line_buffer = line
-                        
-                        # If the entire INSERT is on one line
-                        if ';' in line:
-                            self._process_insert_line(insert_line_buffer, file_path)
-                            in_insert_statement = False
-                            insert_line_buffer = ""
-                        continue
+                        # Check if this is the start of an INSERT statement
+                        if line.upper().startswith('INSERT INTO'):
+                            in_insert_statement = True
+                            insert_line_buffer = line
+                            
+                            # If the entire INSERT is on one line
+                            if ';' in line:
+                                self._process_insert_line(insert_line_buffer, file_path)
+                                in_insert_statement = False
+                                insert_line_buffer = ""
+                            continue
 
-                    # Continue building the INSERT statement if we're in one
-                    if in_insert_statement:
-                        insert_line_buffer += " " + line
-                        
-                        # Check if INSERT statement is complete
-                        if ';' in line:
-                            self._process_insert_line(insert_line_buffer, file_path)
-                            in_insert_statement = False
-                            insert_line_buffer = ""
-                        continue
+                        # Continue building the INSERT statement if we're in one
+                        if in_insert_statement:
+                            insert_line_buffer += " " + line
+                            
+                            # Check if INSERT statement is complete
+                            if ';' in line:
+                                self._process_insert_line(insert_line_buffer, file_path)
+                                in_insert_statement = False
+                                insert_line_buffer = ""
+                            continue
 
-                    # Print progress every 10000 lines
-                    if line_count % 10000 == 0:
-                        print(f"Processed {line_count} lines...")
+                        # Print progress every 10000 lines
+                        if line_count % 10000 == 0:
+                            print(f"Processed {line_count} lines...")
+                    except Exception as e:
+                        print(f"Error processing line {line_count}: {e}")
                         
                 print(f"Finished processing {line_count} lines from SQL dump")
                 
@@ -150,15 +154,17 @@ class WikiDumpReader:
             tuples = self._extract_tuples_from_values(values_part)
             
             for tuple_data in tuples:
-                values = self._parse_tuple_values(tuple_data)
+                try:
+                    values = self._parse_tuple_values(tuple_data)
                 
-                if is_category_table:
-                    self._process_category_tuple(values)
-                elif is_categorylinks_table:
-                    self._process_categorylinks_tuple(values)
-                else:
-                    print(f"Unknown table type, raw values: {values}")
-                
+                    if is_category_table:
+                        self._process_category_tuple(values)
+                    elif is_categorylinks_table:
+                        self._process_categorylinks_tuple(values)
+                    else:
+                        print(f"Unknown table type, raw values: {values}")
+                except Exception as e:
+                    print(f"Error processing tuple data: {e}")
         except Exception as e:
             print(f"Error processing INSERT line: {e}")
 
