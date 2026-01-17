@@ -58,7 +58,12 @@ class WikiDumpReader:
                 page0: int = page
 
                 while not is_leaf:
-                    titles.append(page0)
+                    title: str = str(page0)
+
+                    if page0 in self.id_to_title_dict:
+                        title = self.id_to_title_dict[page0]
+
+                    titles.append(title)
 
                     is_leaf = page0 not in self.dict_page_category
 
@@ -69,7 +74,10 @@ class WikiDumpReader:
                     list_str_write: list[str] = [str(title) for title in titles]
                     str_write = " -> ".join(list_str_write)
                     print(str_write)
-                    fw.write(f"{str_write}\n")
+                    try:
+                        fw.write(f"{str_write}\n")
+                    except Exception as e:
+                        print(f"Error writing to file: {e}")
 
 
 
