@@ -187,6 +187,24 @@ class WikiDumpReader:
             
             if cat_title:
                 cat_title = str(cat_title).strip().strip("'\"")
+
+            error_counter: int = 0
+
+            if cat_id not in self.id_to_title_dict:
+                error_counter += 1
+                print(f"Category title not found in dictionary: {cat_title} -> {cat_id}")
+
+            if cat_title not in self.title_to_id_dict:
+                error_counter += 1
+                print(f"Category ID not found in dictionary: {cat_id} -> {cat_title}")
+
+            if error_counter == 1:
+                return
+            
+            if error_counter == 2:
+                self.title_to_id_dict[cat_title] = cat_id
+                self.id_to_title_dict[cat_id] = cat_title
+                print(f"Added missing category to dictionary: {cat_title} -> {cat_id}")
             
             print(f"Category - ID: {cat_id}, Title: '{cat_title}', Pages: {cat_pages}, Subcats: {cat_subcats}, Files: {cat_files}")
 
@@ -215,6 +233,15 @@ class WikiDumpReader:
                 page_title = self.id_to_title_dict[cl_from]
                 
             self.dict_page_category[cl_from] = cl_target_id
+
+            if cl_from in self.id_to_title_dict:
+                page_title = self.id_to_title_dict[cl_from]
+
+                print(f"CategoryLink - From Page: {cl_from} ({page_title}), Target Category ID: {cl_target_id}, Type: {cl_type}, Sort Key: '{cl_sortkey}'")
+
+            if cl_target_id in self.id_to_title_dict:
+                category_title = self.id_to_title_dict[cl_target_id]
+                print(f"CategoryLink - From Page: {cl_from} ({page_title}), Target Category: {category_title} ({cl_target_id}), Type: {cl_type}, Sort Key: '{cl_sortkey}'")
 
             print(f"CategoryLink - From Page: {cl_from} ({page_title}), Target Category ID: {cl_target_id}, Type: {cl_type}, Sort Key: '{cl_sortkey}'")
 
