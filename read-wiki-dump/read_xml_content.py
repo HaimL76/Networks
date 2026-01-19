@@ -396,8 +396,6 @@ class WikiDumpReader:
             for article_id, link_ids in self.article_links_buffer.items():
                 for link_id in link_ids:
                     edges_file.write(f"{article_id},{link_id}\n")
-
-        return
         
         print(f"Reading Wikipedia XML file: {file_path}")
         print("=" * 80)
@@ -711,36 +709,8 @@ class WikiDumpReader:
 
             if not skip_links:
                 # Extract links from the article
-                wiki_links = self.extract_wiki_links(text)
+                wiki_links, category_links = self.extract_wiki_links(text)
 
-                if wiki_links:
-                    list_link_ids: set[int] = set()
-
-                    for link in wiki_links:
-                        link_id: int = None
-
-                        if link:
-                            link = link.strip()
-
-                        if link:
-                            skip_link: bool = False
-
-                            if link.startswith('קטגוריה: '):
-                                skip_link = True
-
-                            
-                            if not skip_link:
-                                if link in self.title_to_id_dict:
-                                    link_id = self.title_to_id_dict[link]
-                                
-                                    list_link_ids.add(link_id)
-
-                                #print(f"Link found: {link} -> {link_id}")
-                            else:
-                                print(f"Link title not found in dictionary: {link}")
-
-                    if isinstance(list_link_ids, set) and len(list_link_ids) > 0:
-                        self.article_links_buffer[int_page_id] = sorted(list_link_ids)
 
         if len(self.article_links_buffer) >= 1000:
             self.save_article_links_dictionary_to_file()
@@ -769,6 +739,37 @@ class WikiDumpReader:
         print("-" * 80)
         print(f"Statistics: {word_count} words, {char_count} characters, ~{link_count} links")
 
+    def kukuku(self, links):
+        if links:
+            list_link_ids: set[int] = set()
+
+            for link in links:
+                link_id: int = None
+
+                if link:
+                    link = link.strip()
+
+                if link:
+                    skip_link: bool = False
+
+                    if False:# link.startswith('קטגוריה: '):
+                        skip_link = True
+
+                            
+                    if not skip_link:
+                        if link in self.title_to_id_dict:
+                            link_id = self.title_to_id_dict[link]
+                                
+                            list_link_ids.add(link_id)
+
+                            #print(f"Link found: {link} -> {link_id}")
+                        else:
+                            print(f"Link title not found in dictionary: {link}")
+
+                    if isinstance(list_link_ids, set) and len(list_link_ids) > 0:
+                        self.article_links_buffer[int_page_id] = sorted(list_link_ids)
+
+
     def extract_wiki_links(self, text):
         """Extract wiki links from wikitext"""
         # Pattern for wiki links: [[Target Page|Display Text]] or [[Target Page]]
@@ -776,22 +777,32 @@ class WikiDumpReader:
         link_pattern = r'\[\[([^|\]]+)(?:\|[^\]]*)?\]\]'
         links = re.findall(link_pattern, text)
         
+        category_links: list[str] = []
+
         # Clean up links (remove namespace prefixes for files, categories, etc.)
         clean_links = []
         for link in links:
             link = link.strip()
             # Skip files, categories, templates, etc. - focus on article links
-            if not any(link.startswith(prefix) for prefix in ['File:', 'Category:', 'Template:', 'Help:', 'Wikipedia:', 'User:']):
+            if not any(link.startswith(prefix) for prefix in ['File:'
+                                                              #, 'Category:'
+                                                              , 'Template:', 'Help:', 'Wikipedia:', 'User:']):
+                
                 clean_links.append(link)
+
+            if link.startswith('קטגוריה:') or link.startswith('Category:'):
+                category_title = link.split(':', 1)[1].strip()
+
+                if category_title in self.title_to_id_dict:
+                    category_id = self.title_to_id_dict[category_title]
+                    category_links.append(category_id)
         
-        return clean_links
+        return clean_links, category_links
 
 def main():
     reader = WikiDumpReader()
 
-    reader.read_sql_dumps()
-
-    return
+    #reader.read_sql_dumps()
 
     """Main function"""
     # List of possible XML files to try
