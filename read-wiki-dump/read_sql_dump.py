@@ -35,7 +35,9 @@ def parse_file_content(f, category_map):
             # Format: (cl_from, cl_to, ...)
             values = re.findall(r'\((\d+),\'([^\']+)\'', line)
             for page_id, category in values:
-                print(page_id, category)
+                if len(category_map) % 10000 == 0:
+                    print(f"{page_id} -> {category}")
+                #print(page_id, category)
                 if page_id not in category_map:
                     category_map[page_id] = []
                 category_map[page_id].append(category)
@@ -96,5 +98,9 @@ def get_full_hierarchy(page_id, category_map, category_ids, visited=None):
 
 def main():
     parse_categorylinks(r"c:\Users\HaimL1\Downloads\hewiki-20251220-categorylinks.sql.gz")
+    
+    for i in range(999999):
+        hierarchy = get_full_hierarchy(i, {}, {})  # Example usage
 
+        print(f"{i} {hierarchy}")
 main()

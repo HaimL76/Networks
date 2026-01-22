@@ -54,6 +54,12 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
 
     square_root_size_and_ratio: list[tuple[float, float]] = []
 
+    list_avg_k: list[tuple[float, float]] = [0.0] * (size - 1)
+
+    total_nodes_count: int = kernel_size + size - 1
+
+    list_k_i_by_time: list[list[int]] = [[]] * total_nodes_count
+
     for step in range(1, size):
         fitness_value: float = 0.0
 
@@ -71,6 +77,26 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
         max_k: int = 0
         min_k: int = 0
 
+        for i in range(total_nodes_count):
+            if i % 100 == 0:
+                print(f"step={step}, i={i}")
+
+            list_for_i: list[int] = list_k_i_by_time[i]
+
+            if not list_for_i:
+                list_for_i = [0] * size
+                list_k_i_by_time[i] = list_for_i
+
+            k_i: int = 0
+
+            if i < len(list_nodes):
+                node: Node = list_nodes[i]
+                k_i = len(node.neighbors)
+
+            step_index: int = step - 1
+
+            list_for_i[step_index] = k_i
+
         for i in range(len(list_nodes)):
             node: Node = list_nodes[i]
 
@@ -83,17 +109,6 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
         square_root_size: float = math.sqrt(len(list_nodes))
 
         square_root_size_and_ratio.append((square_root_size, ratio))
-
-        k: int = 0
-
-        for i in range(len(list_nodes)):
-            node: Node = list_nodes[i]
-
-            k += len(node.neighbors)
-
-        k_avg: float = k / len(list_nodes) if len(list_nodes) > 0 else 0.0
-    
-        print(f"size={len(list_nodes)}, ratio={ratio}, sqrt_size={square_root_size}, k_avg={k_avg}")
 
         probabilities = prepare_probabilities(list_nodes, kernel_size, step)
 
@@ -109,6 +124,49 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
             new_node.add_neighbor(node)
 
         list_nodes.append(new_node)
+
+        sum_k: int = sum(len(node.neighbors) for node in list_nodes)
+
+        index_avg_k: int = step - 1
+
+        list_avg_k[index_avg_k] = (sum_k / len(list_nodes), (2 * step * kernel_size) / len(list_nodes))
+
+    plt.figure(figsize=(8, 6))
+
+    for i in range(len(list_k_i_by_time)):
+        list_degrees: list[int] = list_k_i_by_time[i]
+
+        xs: list[int] = [0] * len(list_degrees)
+        ys: list[int] = [0] * len(list_degrees)
+
+        for t in range(len(list_degrees)):
+            degree: int = list_degrees[t]
+
+            xs[t] = t
+            ys[t] = degree
+
+        plt.plot(xs, ys, "-b")
+
+        print(f"plotted node {i} degree over time")
+
+    plt.xlabel("Time", fontsize=18)
+    plt.ylabel("Node Degree", fontsize=18)
+    plt.title("Node degree over time in ba model")
+    #plt.show()
+    plt.savefig(f"ba_figs\\degree_over_time{file_name_fitness_part}.png")
+
+    xs: list[int] = [i for i in range(1, size)]
+    ys1: list[float] = [tup[0] for tup in list_avg_k]
+    ys2: list[float] = [tup[1] for tup in list_avg_k]
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(xs, ys1, "-b")
+    plt.plot(xs, ys2, "-r")
+    plt.xlabel("Time", fontsize=18)
+    plt.ylabel("Average Degree", fontsize=18)
+    plt.title("average degree over time in ba model")
+    #plt.show()
+    plt.savefig(f"ba_figs\\average_degree_over_time{file_name_fitness_part}.png")
 
     sqrs: list[float] = [0.0] * len(square_root_size_and_ratio)
     ratios: list[float] = [0.0] * len(square_root_size_and_ratio)
@@ -416,6 +474,6 @@ def create_kernel(kernel_size: int) -> list[Node]:
 size=22222
 
 run_ba_model(size=size, kernel_size=4)
-run_ba_model(size=size, kernel_size=4, fitness=('exp', 5/size))
-run_ba_model(size=size, kernel_size=4, fitness=('mul', 10))
-run_ba_model(size=size, kernel_size=4, fitness=('pol', 10))
+#run_ba_model(size=size, kernel_size=4, fitness=('exp', 5/size))
+#run_ba_model(size=size, kernel_size=4, fitness=('mul', 10))
+#run_ba_model(size=size, kernel_size=4, fitness=('pol', 10))
