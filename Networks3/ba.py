@@ -59,7 +59,7 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
 
     list_nodes[:node_index] = kernel
     
-    num_steps_to_track: int = 2
+    num_steps_to_track: int = 4
     
     ki_by_time: list[tuple[int, list[int]]] = [None] * num_steps_to_track
 
@@ -68,7 +68,7 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
     diff: int = int(num_list_nodes / num_steps_to_track)
 
     for i in range(num_steps_to_track):
-        ti: int = i * diff
+        ti: int = 10 ** i
         if ti == 0:
             ti = 1
 
