@@ -4,7 +4,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 class Node:
-    def __init__(self, fitness: float = 0.0):
+    def __init__(self, step: int, fitness: float = 0.0):
+        self.appearance_step: int = step
         self.fitness: float = fitness
         self.neighbors: list[Node] = []
 
@@ -36,7 +37,7 @@ def has_double(selected_indices: np.ndarray) -> bool:
         
     return is_double
 
-def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
+def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
     os.makedirs("ba_figs", exist_ok=True)
 
     fitness_param: float = 0.0
@@ -48,32 +49,59 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
 
     with_fitness: str = f"{fitness_method}_{fitness_param}" if fitness_method and fitness_param > 0.0 else ""
 
-    file_name_fitness_part: str = f"_with_fitness_{with_fitness}" if with_fitness else ""
+    kernel: list[Node] = create_kernel(kernel_size)
 
-    list_nodes: list[Node] = create_kernel(kernel_size)
+    node_index: int = len(kernel)
+
+    nodes_count: int = node_index + num_steps
+
+    list_nodes: list[Node]  = [None] * nodes_count
+
+    list_nodes[:node_index] = kernel
+    
+    num_steps_to_track: int = 2
+
+    ki_by_time: list[list[int]] = [[]] * num_steps_to_track
+
+    for step in range(num_steps):
+        step_id: int = step + 1
+
+        fitness_value: float = 0.0
+
+        new_node: Node = Node(step=step_id, fitness=fitness_value)
+
+        list_nodes[node_index] = new_node
+
+        probabilities = prepare_probabilities(list_nodes, node_index=node_index, step=step)
+        
+        node_index += 1
+        
+        list_indices: list[int] = [index for index in range(len(probabilities))]
+
+        selected_indices = np.random.choice(list_indices, replace=False, size=kernel_size, p=probabilities)
+
+        if has_double(selected_indices):
+            raise Exception("double selection of nodes")
+
+        for index in selected_indices:
+            node: Node = list_nodes[index]
+
+            node.add_neighbor(new_node)
+            new_node.add_neighbor(node)
+        
+
+
+
+
+
+def kuku():
+    file_name_fitness_part: str = f"_with_fitness_{with_fitness}" if with_fitness else ""
 
     square_root_size_and_ratio: list[tuple[float, float]] = []
 
     list_avg_k: list[tuple[float, float]] = [0.0] * (size - 1)
 
-    total_nodes_count: int = kernel_size + size - 1
-
-    list_k_i_by_time: list[list[int]] = [[]] * total_nodes_count
-
-    for step in range(1, size):
-        fitness_value: float = 0.0
-
-        if fitness_method == 'exp':
-            fitness_value = math.exp(step * fitness_param)
-        elif fitness_method == 'mul':
-            fitness_value = step * fitness_param
-        elif fitness_method == 'pol':
-            fitness_value = math.pow(step, fitness_param)
-
-        new_node: Node = Node(fitness=fitness_value)
-
-        list_indices: list[int] = [index for index in range(len(list_nodes))]
-
+    if False:
         max_k: int = 0
         min_k: int = 0
 
@@ -110,21 +138,6 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
 
         square_root_size_and_ratio.append((square_root_size, ratio))
 
-        probabilities = prepare_probabilities(list_nodes, kernel_size, step)
-
-        selected_indices = np.random.choice(list_indices, replace=False, size=kernel_size, p=probabilities)
-
-        if has_double(selected_indices):
-            raise Exception("Double selection of nodes!")
-
-        for index in selected_indices:
-            node: Node = list_nodes[index]
-
-            node.add_neighbor(new_node)
-            new_node.add_neighbor(node)
-
-        list_nodes.append(new_node)
-
         sum_k: int = sum(len(node.neighbors) for node in list_nodes)
 
         index_avg_k: int = step - 1
@@ -134,26 +147,32 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
     plt.figure(figsize=(8, 6))
 
     for i in range(len(list_k_i_by_time)):
-        list_degrees: list[int] = list_k_i_by_time[i]
+        if i % 100 == 0:
+            print(f"plotting node {i} degree over time")
+            list_degrees: list[int] = list_k_i_by_time[i]
 
-        xs: list[int] = [0] * len(list_degrees)
-        ys: list[int] = [0] * len(list_degrees)
+            xs: list[int] = [0] * len(list_degrees)
+            ys: list[int] = [0] * len(list_degrees)
 
-        for t in range(len(list_degrees)):
-            degree: int = list_degrees[t]
+            for t in range(len(list_degrees)):
+                ki_t: int = list_degrees[t]
 
-            xs[t] = t
-            ys[t] = degree
+                xs[t] = t
+                ys[t] = ki_t
 
-        plt.plot(xs, ys, "-b")
+            print(f"plotting node {i} degree over time")
+            
+            plt.loglog(xs, ys)
 
-        print(f"plotted node {i} degree over time")
+            print(f"plotted node {i} degree over time")
 
+    #plt.gca().set_xscale('log', base=np.e)
+    #plt.gca().set_yscale('log', base=np.e)
     plt.xlabel("Time", fontsize=18)
     plt.ylabel("Node Degree", fontsize=18)
     plt.title("Node degree over time in ba model")
     #plt.show()
-    plt.savefig(f"ba_figs\\degree_over_time{file_name_fitness_part}.png")
+    plt.savefig(f"ba_figs\\degree_over_time_loglog{file_name_fitness_part}.png")
 
     xs: list[int] = [i for i in range(1, size)]
     ys1: list[float] = [tup[0] for tup in list_avg_k]
@@ -202,25 +221,46 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
 
     degrees_count: int = sum(dict_degrees.values())
 
+    degrees_count = sum(len(node.neighbors) for node in list_nodes)
+
+    min_k = min(len(node.neighbors) for node in list_nodes)
+    max_k = max(len(node.neighbors) for node in list_nodes)
+
+    #for k in range(min_k, max_k + 1):
+     #   count_k: int = 0
+        
+      #  if k in dict_degrees:
+       #     count_k = dict_degrees[k]
+
+        #    if count_k > 0:
+         #       pk: float = count_k / degrees_count
+
+          #      pks.append((k, pk))
+
+    dict_degrees: dict[int, int] = {}
+    
     for k in range(min_k, max_k + 1):
         count_k: int = 0
         
-        if k in dict_degrees:
-            count_k = dict_degrees[k]
+        for node in list_nodes:
+            k_i: int = len(node.neighbors)
 
-            if count_k > 0:
-                pk: float = count_k / degrees_count
+            if k_i == k:
+                count_k += 1
 
-                pks.append((k, pk))
+        dict_degrees[k] = count_k
 
-    ks: list[int] = [0] * len(pks)
-    pks_values: list[float] = [0.0] * len(pks)
+    list_degrees: list[int] = sorted(dict_degrees.keys())
 
-    for i in range(len(pks)):
-        tup: tuple[int, float] = pks[i]
+    ks: list[int] = [0] * len(list_degrees)
+    pks_values: list[float] = [0.0] * len(list_degrees)
 
-        ks[i] = tup[0]
-        pks_values[i] = tup[1]
+    for i in range(len(list_degrees)):
+        k: int = list_degrees[i]
+        count_k: int = dict_degrees[k]
+
+        ks[i] = k
+        pks_values[i] = count_k / degrees_count
 
     plt.figure(figsize=(8, 6))
 
@@ -234,7 +274,19 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
 
     plt.title("ba model P(k)")
     #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_P_k{file_name_fitness_part}.png")
+    plt.savefig(f"ba_figs\\ba_model_p_k_loglog{file_name_fitness_part}.png")
+
+    plt.figure(figsize=(8, 6))
+
+    #plt.plot(node_indices, ks, "-bD")
+    plt.plot(ks, pks_values, "-b")
+
+    plt.xlabel("k", fontsize=18)
+    plt.ylabel("P(k)", fontsize=18)
+
+    plt.title("ba model P(k)")
+    #plt.show()
+    plt.savefig(f"ba_figs\\ba_model_p_k{file_name_fitness_part}.png")
 
     node_indices: list[int] = [0] * len(list_nodes)
     node_degrees: list[int] = [0] * len(list_nodes)
@@ -430,10 +482,12 @@ def run_ba_model(size: int, kernel_size: int, fitness: tuple = None):
     plt.savefig(f"ba_figs\\ba_model_degree_by_time{file_name_fitness_part}.png")
 
 
-def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int) -> np.ndarray:
+def prepare_probabilities(list_nodes: list[Node], node_index: int, step: int) -> np.ndarray:
     total_links_weight: int = 0
 
-    for node in list_nodes:
+    for i in range(node_index):
+        node: Node = list_nodes[i]
+
         node_weight: int = len(node.neighbors)
 
         if node.fitness != 0.0:
@@ -441,9 +495,9 @@ def prepare_probabilities(list_nodes: list[Node], kernel_size: int, step: int) -
 
         total_links_weight += node_weight
 
-    probabilities: list[float] = [0.0] * len(list_nodes)
+    probabilities: list[float] = [0.0] * node_index
 
-    for i in range(len(list_nodes)):
+    for i in range(node_index):
         node: Node = list_nodes[i]
 
         node_weight: int = len(node.neighbors)
@@ -459,7 +513,7 @@ def create_kernel(kernel_size: int) -> list[Node]:
     list_of_nodes: list[Node] = [None] * kernel_size
 
     for i in range(kernel_size):
-        list_of_nodes[i] = Node()
+        list_of_nodes[i] = Node(step=0)
 
     for i in range(kernel_size - 1):
         for j in range(i + 1, kernel_size):
@@ -471,9 +525,9 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-size=22222
+num_steps: int = 2222
 
-run_ba_model(size=size, kernel_size=4)
+run_ba_model(num_steps=num_steps, kernel_size=4)
 #run_ba_model(size=size, kernel_size=4, fitness=('exp', 5/size))
 #run_ba_model(size=size, kernel_size=4, fitness=('mul', 10))
 #run_ba_model(size=size, kernel_size=4, fitness=('pol', 10))
