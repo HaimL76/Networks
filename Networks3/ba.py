@@ -60,8 +60,19 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
     list_nodes[:node_index] = kernel
     
     num_steps_to_track: int = 2
+    
+    ki_by_time: list[tuple[int, list[int]]] = [None] * num_steps_to_track
 
-    ki_by_time: list[list[int]] = [[]] * num_steps_to_track
+    num_list_nodes: int = len(list_nodes)
+
+    diff: int = int(num_list_nodes / num_steps_to_track)
+
+    for i in range(num_steps_to_track):
+        ti: int = i * diff
+        if ti == 0:
+            ti = 1
+
+        ki_by_time[i] = (ti, [])
 
     k: int = kernel_size - 1
 
@@ -118,21 +129,30 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
 
         print(f"step={step}, new_node_degree={len(new_node.neighbors)}, max_k={k_max}, min_k={k_min}")
 
-        for index in [0]:
-            node: Node = list_nodes[index]
+        for i in range(len(ki_by_time)):
+            tup: tuple[int, list[int]] = ki_by_time[i]
+
+            ti: int = tup[0]
+
+            node: Node = list_nodes[ti]
             
-            ki_for_node: list = ki_by_time[index]
+            ki_for_node: list[int] = tup[1]
 
             if not ki_for_node:
                 ki_for_node = [0] * num_steps
-                ki_by_time[index] = ki_for_node
+                tup = (ti, ki_for_node)
+                ki_by_time[i] = tup
 
-            ki_for_node = ki_by_time[index]
+            ki_for_node = tup[1]
 
             if node is None:
                 ki_for_node[step] = 0
             else:
                 ki_for_node[step] = len(node.neighbors)
+
+    save_square_root_n_ratio_plot(ki_by_time=ki_by_time,
+                                  kernel_size=kernel_size,
+                                  with_fitness=with_fitness)
 
     save_k_average_n_plot(kernel_size=kernel_size, k_average=k_average, 
                           with_fitness=with_fitness)
@@ -150,6 +170,46 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
 
     save_p_k_plot(dict_k=dict_k, nodes_count=nodes_count, 
                   with_fitness=with_fitness)
+    
+def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
+                                  kernel_size: int,
+                                  with_fitness: str):
+    
+    num_steps: int = len(ki_by_time[0][1])
+
+    xs: list[int] = [0.0] * num_steps
+    list_ys: list[list[tuple[float, float]]] = [[]] * num_steps
+
+    plt.figure(figsize=(8, 6))
+    plt.xlabel("t", fontsize=18)
+    plt.ylabel("k_i and sqrt(t)", fontsize=18)
+    plt.title("ba model k_i and sqrt(t) by t")
+    plt.legend(["k_i", "sqrt(t)"])
+
+    for i in range(len(ki_by_time)):
+        tup: tuple[int, list[int]] = ki_by_time[i]
+
+        ti: int = tup[0]
+        list_ki: list[int] = tup[1]
+
+        ys_ki: list[float] = [0.0] * len(list_ki)
+        ys_calc_ki: list[float] = [0.0] * len(list_ki)
+
+        for t in range(len(list_ki)):
+            xs[t] = t
+
+            calc_ki: float = kernel_size * ((t/ti) ** 0.5)
+            
+            ki: int = list_ki[t]
+
+            ys_ki[t] = ki
+            ys_calc_ki[t] = calc_ki
+
+        plt.loglog(xs, ys_ki, "-b")
+        plt.loglog(xs, ys_calc_ki, "-r")
+
+    #plt.show()
+    plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
 def save_p_k_plot(dict_k: dict[int, int], nodes_count: int, 
                   with_fitness: str):
@@ -167,8 +227,6 @@ def save_p_k_plot(dict_k: dict[int, int], nodes_count: int,
 
     plt.figure(figsize=(8, 6))
     plt.loglog(xs, ys, "-b")
-    plt.gca().set_xscale('log', base=np.e)
-    plt.gca().set_yscale('log', base=np.e)
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
     plt.title("ba model P(k)")
@@ -284,9 +342,6 @@ def kuku():
             plt.loglog(xs, ys)
 
             print(f"plotted node {i} degree over time")
-
-    #plt.gca().set_xscale('log', base=np.e)
-    #plt.gca().set_yscale('log', base=np.e)
     plt.xlabel("Time", fontsize=18)
     plt.ylabel("Node Degree", fontsize=18)
     plt.title("Node degree over time in ba model")
@@ -385,8 +440,6 @@ def kuku():
 
     #plt.plot(node_indices, ks, "-bD")
     plt.loglog(ks, pks_values, "-b")
-    plt.gca().set_xscale('log', base=np.e)
-    plt.gca().set_yscale('log', base=np.e)
 
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
@@ -541,8 +594,6 @@ def kuku():
     print(f"len xs={len(xs)}, len ys={len(ys)}, len k bins={len(k_bins)}")
 
     plt.loglog(xs, ys, "-b")
-    plt.gca().set_xscale('log', base=alpha)
-    plt.gca().set_yscale('log', base=alpha)
     
     plt.xlabel("k", fontsize=18)
     plt.ylabel("density", fontsize=18)
@@ -571,8 +622,6 @@ def kuku():
     print(f"len xs={len(xs)}, len ys={len(ys)}, len k bins={len(k_bins)}")
 
     plt.loglog(xs, ys, "-b")
-    plt.gca().set_xscale('log', base=alpha)
-    plt.gca().set_yscale('log', base=alpha)
     
     plt.xlabel("k", fontsize=18)
     plt.ylabel("density", fontsize=18)
