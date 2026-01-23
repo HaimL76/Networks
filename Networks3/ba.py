@@ -63,18 +63,32 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
 
     ki_by_time: list[list[int]] = [[]] * num_steps_to_track
 
+    k: int = kernel_size - 1
+
+    k_max: int = k
+    k_min: int = k
+
+    k_ratio_n: list[tuple[float, float]] = [None] * nodes_count
+    k_average: list[float] = [0.0] * nodes_count
+
+    k_average_kernel: float = k
+
+    k_ratio_n[:node_index] = [(node_index, 1) for _ in kernel]
+    k_average[:node_index] = [k_average_kernel for _ in kernel]
+
     for step in range(num_steps):
+        curr_node_index: int = node_index
+        node_index += 1
+
         step_id: int = step + 1
 
         fitness_value: float = 0.0
 
         new_node: Node = Node(step=step_id, fitness=fitness_value)
 
-        list_nodes[node_index] = new_node
+        list_nodes[curr_node_index] = new_node
 
         probabilities = prepare_probabilities(list_nodes, node_index=node_index, step=step)
-        
-        node_index += 1
         
         list_indices: list[int] = [index for index in range(len(probabilities))]
 
@@ -88,11 +102,89 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
 
             node.add_neighbor(new_node)
             new_node.add_neighbor(node)
-        
 
+            k += 2
 
+            node_k: int = len(node.neighbors)
+            new_node_k: int = len(new_node.neighbors)
 
+            k_max: int = max(k_max, node_k, new_node_k)
+            k_min: int = min(k_min, node_k, new_node_k)
 
+            k_ratio: float = k_max / k_min
+
+            k_ratio_n[curr_node_index] = (curr_node_index ** 0.5, k_ratio)
+            k_average[curr_node_index] = k / curr_node_index
+
+        print(f"step={step}, new_node_degree={len(new_node.neighbors)}, max_k={k_max}, min_k={k_min}")
+
+        for index in [0]:
+            node: Node = list_nodes[index]
+            
+            ki_for_node: list = ki_by_time[index]
+
+            if not ki_for_node:
+                ki_for_node = [0] * num_steps
+                ki_by_time[index] = ki_for_node
+
+            ki_for_node = ki_by_time[index]
+
+            if node is None:
+                ki_for_node[step] = 0
+            else:
+                ki_for_node[step] = len(node.neighbors)
+
+    save_k_average_n_plot(kernel_size=kernel_size, k_average=k_average, 
+                          with_fitness=with_fitness)
+    save_k_ratio_n_plot(k_ratio_n=k_ratio_n, with_fitness=with_fitness)
+    
+    dict_k: dict[int, int] = {}
+
+    for node in list_nodes:
+        k_i: int = len(node.neighbors)
+
+        if k_i not in dict_k:
+            dict_k[k_i] = 0
+
+        dict_k[k_i] += 1
+
+def save_k_average_n_plot(kernel_size: int, k_average: list[float], 
+                          with_fitness: str):
+    xs: list[int] = [0] * len(k_average)
+    ys: list[float] = [0.0] * len(k_average)
+    ys1: list[int] = [0] * len(k_average)
+
+    for i in range(len(k_average)):
+        xs[i] = i
+        ys[i] = k_average[i]
+        ys1[i] = 2 * kernel_size
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(xs, ys, "-b")
+    plt.plot(xs, ys1, "-r")
+    plt.xlabel("N", fontsize=18)
+    plt.ylabel("Average Degree", fontsize=18)
+    plt.title("ba model average degree by N")
+    #plt.show()
+    plt.savefig(f"ba_figs\\ba_model_k_average_n{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+
+def save_k_ratio_n_plot(k_ratio_n: list[tuple[int, float]], with_fitness: str):
+    xs: list[int] = [0] * len(k_ratio_n)
+    ys: list[float] = [0.0] * len(k_ratio_n)
+
+    for i in range(len(k_ratio_n)):
+        tup: tuple[int, float] = k_ratio_n[i]
+
+        xs[i] = tup[0]
+        ys[i] = tup[1]
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(xs, ys, "-b")
+    plt.xlabel("N", fontsize=18)
+    plt.ylabel("Max and Min Degrees Ratio", fontsize=18)
+    plt.title("ba model max and min degrees ratio by N")
+    #plt.show()
+    plt.savefig(f"ba_figs\\ba_model_k_ratio_n{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
 def kuku():
     file_name_fitness_part: str = f"_with_fitness_{with_fitness}" if with_fitness else ""
