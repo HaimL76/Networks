@@ -137,7 +137,7 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
     save_k_average_n_plot(kernel_size=kernel_size, k_average=k_average, 
                           with_fitness=with_fitness)
     save_k_ratio_n_plot(k_ratio_n=k_ratio_n, with_fitness=with_fitness)
-    
+
     dict_k: dict[int, int] = {}
 
     for node in list_nodes:
@@ -147,6 +147,33 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
             dict_k[k_i] = 0
 
         dict_k[k_i] += 1
+
+    save_p_k_plot(dict_k=dict_k, nodes_count=nodes_count, 
+                  with_fitness=with_fitness)
+
+def save_p_k_plot(dict_k: dict[int, int], nodes_count: int, 
+                  with_fitness: str):
+    ks: list[int] = sorted(dict_k.keys())
+
+    xs: list[int] = [0] * len(ks)
+    ys: list[float] = [0.0] * len(ks)
+
+    for i in range(len(ks)):
+        k: int = ks[i]
+        count_k: int = dict_k[k]
+
+        xs[i] = k
+        ys[i] = count_k / nodes_count
+
+    plt.figure(figsize=(8, 6))
+    plt.loglog(xs, ys, "-b")
+    plt.gca().set_xscale('log', base=np.e)
+    plt.gca().set_yscale('log', base=np.e)
+    plt.xlabel("k", fontsize=18)
+    plt.ylabel("P(k)", fontsize=18)
+    plt.title("ba model P(k)")
+    #plt.show()
+    plt.savefig(f"ba_figs\\ba_model_p_k_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
 def save_k_average_n_plot(kernel_size: int, k_average: list[float], 
                           with_fitness: str):
