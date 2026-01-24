@@ -168,7 +168,9 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
 
         dict_k[k_i] += 1
 
-    save_p_k_plot(dict_k=dict_k, nodes_count=nodes_count, 
+    save_p_k_plot(dict_k=dict_k, 
+                  kernel_size=kernel_size,
+                  nodes_count=nodes_count, 
                   with_fitness=with_fitness)
     
 def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
@@ -211,13 +213,15 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
     arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    plt.xticks(e_powers, arr)
-    plt.yticks(e_powers, arr)
+    #plt.xticks(e_powers, arr)
+    #plt.yticks(e_powers, arr)
     plt.ylim(bottom=kernel_size - 1)
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
-def save_p_k_plot(dict_k: dict[int, int], nodes_count: int, 
+def save_p_k_plot(dict_k: dict[int, int],
+                  kernel_size: int, 
+                  nodes_count: int, 
                   with_fitness: str):
     ks: list[int] = sorted(dict_k.keys())
 
@@ -235,9 +239,11 @@ def save_p_k_plot(dict_k: dict[int, int], nodes_count: int,
     plt.loglog(xs, ys, "-b")
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
-    arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    plt.xticks(e_powers, arr)
-    plt.yticks(e_powers, arr)
+    arr_x: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
+    arr_y: list[str] = [f'$e^{{{i*-1}}}$' for i in range(len(e_powers))]
+    #plt.xticks(e_powers, arr_x)
+    #plt.yticks(e_powers, arr_y)
+    plt.xlim(left=kernel_size - 1)
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
     plt.title("ba model P(k)")
