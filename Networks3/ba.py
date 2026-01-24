@@ -211,7 +211,7 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
     plt.xticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
-
+    plt.yticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
@@ -234,6 +234,7 @@ def save_p_k_plot(dict_k: dict[int, int], nodes_count: int,
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
     plt.xticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
+    plt.yticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
     plt.title("ba model P(k)")
@@ -352,6 +353,7 @@ def kuku():
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max([x for x in xs if x > 0]))) + 1)]
     plt.xticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
+    plt.yticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
     plt.xlabel("Time", fontsize=18)
     plt.ylabel("Node Degree", fontsize=18)
     plt.title("Node degree over time in ba model")
@@ -453,7 +455,7 @@ def kuku():
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(ks))) + 1)]
     plt.xticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
-
+    plt.yticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
     plt.xlabel("k", fontsize=18)
     plt.ylabel("P(k)", fontsize=18)
 
@@ -610,7 +612,7 @@ def kuku():
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
     plt.xticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
-    
+    plt.yticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
     plt.xlabel("k", fontsize=18)
     plt.ylabel("density", fontsize=18)
     plt.title("ba model binned density")
@@ -641,7 +643,7 @@ def kuku():
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
     plt.xticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
-    
+    plt.yticks(e_powers, [f'$e^{{{i}}}$' for i in range(len(e_powers))])
     plt.xlabel("k", fontsize=18)
     plt.ylabel("density", fontsize=18)
     plt.title("ba model binned density (median k)")
