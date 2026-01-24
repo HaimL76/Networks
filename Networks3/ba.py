@@ -77,7 +77,6 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
     k: int = kernel_size - 1
 
     k_max: int = k
-    k_min: int = k
 
     k_ratio_n: list[tuple[float, float]] = [None] * nodes_count
     k_average: list[float] = [0.0] * nodes_count
@@ -111,21 +110,35 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
         for index in selected_indices:
             node: Node = list_nodes[index]
 
+            num_neighbors_before_add: int = len(node.neighbors) + len(new_node.neighbors)
+
             node.add_neighbor(new_node)
             new_node.add_neighbor(node)
 
-            k += 2
+            num_neighbors_after_add: int = len(node.neighbors) + len(new_node.neighbors)
+
+            num_added_neighbors: int = num_neighbors_after_add - num_neighbors_before_add
+
+            k += num_added_neighbors
 
             node_k: int = len(node.neighbors)
-            new_node_k: int = len(new_node.neighbors)
 
-            k_max: int = max(k_max, node_k, new_node_k)
-            k_min: int = min(k_min, node_k, new_node_k)
+            k_max: int = max(k_max, node_k)
 
-            k_ratio: float = k_max / k_min
+        new_node_k: int = len(new_node.neighbors)
 
-            k_ratio_n[curr_node_index] = (curr_node_index ** 0.5, k_ratio)
-            k_average[curr_node_index] = k / curr_node_index
+        k_max: int = max(k_max, new_node_k)
+
+        k_min: int = k_max
+
+        for i in range(node_index):
+            node: Node = list_nodes[i]
+            k_min: int = min(k_min, len(node.neighbors))
+        
+        k_ratio: float = k_max / k_min
+
+        k_ratio_n[curr_node_index] = (curr_node_index ** 0.5, k_ratio)
+        k_average[curr_node_index] = k / curr_node_index
 
         print(f"step={step}, new_node_degree={len(new_node.neighbors)}, max_k={k_max}, min_k={k_min}")
 
