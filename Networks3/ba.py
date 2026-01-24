@@ -213,6 +213,7 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
     plt.xticks(e_powers, arr)
     plt.yticks(e_powers, arr)
+    plt.ylim(bottom=kernel_size - 1)
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
