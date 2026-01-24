@@ -168,10 +168,12 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
 
         dict_k[k_i] += 1
 
-    save_p_k_plot(dict_k=dict_k, 
-                  kernel_size=kernel_size,
-                  nodes_count=nodes_count, 
-                  with_fitness=with_fitness)
+    save_p_k_plot(dict_k=dict_k, kernel_size=kernel_size,
+                  nodes_count=nodes_count, with_fitness=with_fitness)
+    
+    save_p_k_plot(dict_k=dict_k, kernel_size=kernel_size,
+                  nodes_count=nodes_count, with_fitness=with_fitness,
+                  with_calculated_slope=True)
     
 def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
                                   kernel_size: int,
@@ -219,14 +221,18 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
-def save_p_k_plot(dict_k: dict[int, int],
-                  kernel_size: int, 
-                  nodes_count: int, 
-                  with_fitness: str):
+def save_p_k_plot(dict_k: dict[int, int], kernel_size: int, 
+                  nodes_count: int, with_fitness: str,
+                  with_calculated_slope: bool = False):
     ks: list[int] = sorted(dict_k.keys())
 
     xs: list[int] = [0] * len(ks)
     ys: list[float] = [0.0] * len(ks)
+
+    if with_calculated_slope:
+        ys1: list[int] = [0] * len(ks)
+
+    b: float = None
 
     for i in range(len(ks)):
         k: int = ks[i]
@@ -235,8 +241,13 @@ def save_p_k_plot(dict_k: dict[int, int],
         xs[i] = k
         ys[i] = count_k / nodes_count
 
+        if with_calculated_slope:
+            ys1[i] = k ** -3
+
     plt.figure(figsize=(8, 6))
     plt.loglog(xs, ys, "-b")
+    if with_calculated_slope:
+        plt.loglog(xs, ys1, "-r")
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
     arr_x: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
@@ -248,7 +259,12 @@ def save_p_k_plot(dict_k: dict[int, int],
     plt.ylabel("P(k)", fontsize=18)
     plt.title("ba model P(k)")
     #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_p_k_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+    str_with_calculated_slope: str = ""
+    
+    if with_calculated_slope:
+        str_with_calculated_slope = "_with_slope"
+    
+    plt.savefig(f"ba_figs\\ba_model_p_k_loglog{str_with_calculated_slope}{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
 def save_k_average_n_plot(kernel_size: int, k_average: list[float], 
                           with_fitness: str):
