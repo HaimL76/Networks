@@ -188,6 +188,9 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
                   nodes_count=nodes_count, with_fitness=with_fitness,
                   with_calculated_slope=True)
     
+    save_p_k_plot_log_binning(list_nodes=list_nodes, num_bins=15, dict_k=dict_k)
+        #dict_k=dict_k, kernel_size=kernel_size,
+    
 def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
                                   kernel_size: int,
                                   with_fitness: str):
@@ -233,6 +236,71 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     plt.ylim(bottom=kernel_size - 1)
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+
+def save_p_k_plot_log_binning(list_nodes: list[Node], num_bins: int,
+        dict_k: dict[int, int], 
+        #kernel_size: int, 
+                  #nodes_count: int, with_fitness: str, 
+                  
+                  with_calculated_slope: bool = False):
+    ks: list[int] = sorted(dict_k.keys())
+
+    k_min: int = ks[0]
+    k_max: int = ks[-1]
+
+    width: int = k_max - k_min
+
+    bin_size: float = width / num_bins
+
+    list_bins: list[tuple[float, list[Node]]] = [None] * num_bins
+
+    for node in list_nodes:
+        k_i: int = len(node.neighbors)
+
+        bin_index: int = None
+
+        index: int = 0
+
+        while bin_index is None and index < len(list_bins):
+            curr_index: int = index
+            index += 1
+            
+            bin: tuple[float, list[Node]] = list_bins[curr_index]
+
+            if bin is None:
+                list_bins[curr_index] = (None, None)
+
+            bin = list_bins[curr_index]
+
+            k_start: float = bin[0]
+            
+            if k_start is None:
+                k_start = k_min + bin_size * curr_index
+                list_bins[curr_index] = (k_start, None)
+
+            k_end: float = k_start + bin_size
+
+            if k_i >= k_start and k_i < k_end:
+                bin_index = curr_index
+
+        #print(f"node k_i={k_i}, bin_index={bin_index}")
+
+        if bin_index is None:
+            bin_index = -1
+
+        bin: tuple[float, list[Node]] = list_bins[bin_index]
+
+        if isinstance(bin, tuple) and len(bin) == 2:
+            k_start: float = bin[0]
+            bin_nodes: list[Node] = bin[1]
+
+            if not isinstance(bin_nodes, list):
+                bin_nodes = []
+                list_bins[bin_index] = (k_start, bin_nodes)
+
+            bin_nodes.append(node)
+
+    _ = 0
 
 def save_p_k_plot(dict_k: dict[int, int], kernel_size: int, 
                   nodes_count: int, with_fitness: str,
