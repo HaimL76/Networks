@@ -189,7 +189,15 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
                   with_calculated_slope=True)
     
     save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=15, dict_k=dict_k)
-        #dict_k=dict_k, kernel_size=kernel_size,
+
+    save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=15, dict_k=dict_k,
+                              with_calculated_slope=True)
+    
+    save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=15, dict_k=dict_k,
+                              take_bins_medians=True)
+
+    save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=15, dict_k=dict_k,
+                              with_calculated_slope=True, take_bins_medians=True)
     
 def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
                                   kernel_size: int,
@@ -238,11 +246,8 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
 def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
-        dict_k: dict[int, int], 
-        #kernel_size: int, 
-                  #nodes_count: int, with_fitness: str, 
-                  
-                  with_calculated_slope: bool = False):
+        dict_k: dict[int, int], with_calculated_slope: bool = False,
+        take_bins_medians: bool = False):
     ks: list[int] = sorted(dict_k.keys())
 
     k_min: int = ks[0]
@@ -357,22 +362,62 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
 
         dict_k_bins[k] = list_bin_densities[bin_index]
 
-    xs: list[int] = [0] * len(dict_k_bins)
-    ys: list[float] = [0.0] * len(dict_k_bins)
+    len_arr: int = len(dict_k_bins)
 
-    ks: list[int] = sorted(dict_k_bins.keys())
+    if take_bins_medians:
+        len_arr = len(list_bins)
 
-    for i in range(len(ks)):
-        k: int = ks[i]
-        density_k: float = dict_k_bins[k]
+    xs: list[int] = [0] * len_arr
+    ys: list[float] = [0.0] * len_arr
 
-        xs[i] = k
-        ys[i] = density_k
+    if with_calculated_slope:
+        ys_calc: list[float] = [0.0] * len_arr
+
+    if take_bins_medians:
+        for i in range(len(list_bins)):
+            k_mean: float = 0.0
+
+            bin: tuple[float, list[Node]] = list_bins[i]
+
+            if isinstance(bin, tuple) and len(bin) == 2:
+                bin_nodes: list[Node] = bin[1]
+                
+                if isinstance(bin_nodes, list) and len(bin_nodes) > 0:
+                    bin_nodes = list(sorted(bin_nodes, 
+                                       key=lambda node: len(node.neighbors)))
+
+                if isinstance(bin_nodes, list) and len(bin_nodes) > 0:
+                    index_mean: int = int(len(bin_nodes) / 2)
+                    node_mean: Node = bin_nodes[index_mean]
+
+                    k_mean = len(node_mean.neighbors)
+
+            density_k: float = list_bin_densities[i]
+
+            xs[i] = k_mean
+            ys[i] = density_k
+
+            if with_calculated_slope:
+                ys_calc[i] = k_mean ** -3
+    else:
+        ks: list[int] = sorted(dict_k_bins.keys())
+
+        for i in range(len(ks)):
+            k: int = ks[i]
+            density_k: float = dict_k_bins[k]
+
+            xs[i] = k
+            ys[i] = density_k
+
+            if with_calculated_slope:
+                ys_calc[i] = k ** -3
 
     plt.figure(figsize=(8, 6))
     plt.loglog(xs, ys, "-b")
-    #if with_calculated_slope:
-     #   plt.loglog(xs, ys1, "-r")
+
+    if with_calculated_slope:
+        plt.loglog(xs, ys_calc, "-r")
+
     # Add xticks by powers of e
     e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
     arr_x: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
@@ -389,10 +434,14 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
     if with_calculated_slope:
         str_with_calculated_slope = "_with_slope"
 
+    str_take_bins_medians: str = ""
+
+    if take_bins_medians:
+        str_take_bins_medians = "_take_medians"
+
     with_fitness: bool = False
     
-    plt.savefig(f"ba_figs\\ba_model_p_k_loglog_binning{str_with_calculated_slope}{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
-
+    plt.savefig(f"ba_figs\\ba_model_p_k_loglog_binning{str_with_calculated_slope}{str_take_bins_medians}{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
 def save_p_k_plot(dict_k: dict[int, int], kernel_size: int, 
                   nodes_count: int, with_fitness: str,
