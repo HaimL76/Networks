@@ -188,7 +188,7 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
                   nodes_count=nodes_count, with_fitness=with_fitness,
                   with_calculated_slope=True)
     
-    save_p_k_plot_log_binning(list_nodes=list_nodes, num_bins=15, dict_k=dict_k)
+    save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=15, dict_k=dict_k)
         #dict_k=dict_k, kernel_size=kernel_size,
     
 def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
@@ -237,7 +237,7 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
 
-def save_p_k_plot_log_binning(list_nodes: list[Node], num_bins: int,
+def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
         dict_k: dict[int, int], 
         #kernel_size: int, 
                   #nodes_count: int, with_fitness: str, 
@@ -248,9 +248,9 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], num_bins: int,
     k_min: int = ks[0]
     k_max: int = ks[-1]
 
-    width: int = k_max - k_min
+    alpha: float = (k_max / k_min) ** (1 / n_max)
 
-    bin_size: float = width / num_bins
+    num_bins: int = n_max
 
     list_bins: list[tuple[float, list[Node]]] = [None] * num_bins
 
@@ -275,10 +275,10 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], num_bins: int,
             k_start: float = bin[0]
             
             if k_start is None:
-                k_start = k_min + bin_size * curr_index
+                k_start = k_min * (alpha ** curr_index)
                 list_bins[curr_index] = (k_start, None)
 
-            k_end: float = k_start + bin_size
+            k_end: float = k_start * alpha
 
             if k_i >= k_start and k_i < k_end:
                 bin_index = curr_index
