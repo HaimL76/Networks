@@ -300,6 +300,58 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
 
             bin_nodes.append(node)
 
+    list_bin_densities: list[float] = [0.0] * len(list_bins)
+
+    for index in range(len(list_bins)):
+        bin: tuple[float, list[Node]] = list_bins[index]
+
+        k_min: float = bin[0]
+
+        k_max: float = None
+
+        index_next: int = index + 1
+
+        if index_next < len(list_bins):
+            next_bin = list_bins[index_next]
+            k_max = next_bin[0]
+
+        if k_max is None:
+            k_max = k_min * alpha
+
+        bin_nodes: list[Node] = bin[1]
+
+        bin_size: float = k_max - k_min
+
+        density: float = len(bin_nodes) / bin_size
+
+        list_bin_densities[index] = density
+
+    dict_k_bins: dict[int, float] = {}
+
+    for i in range(len(ks)):
+        k: int = ks[i]
+        
+        bin_index: int = None
+
+        index: int = 0
+
+        while bin_index is None and index < len(list_bins):
+            curr_index: int = index
+            index += 1
+            
+            bin: tuple[float, list[Node]] = list_bins[curr_index]
+
+            k_start: float = bin[0]
+            k_end: float = k_start * alpha
+
+            if k >= k_start and k < k_end:
+                bin_index = curr_index
+
+        if bin_index is None:
+            bin_index = -1
+
+        dict_k_bins[k] = list_bin_densities[bin_index]
+
     _ = 0
 
 def save_p_k_plot(dict_k: dict[int, int], kernel_size: int, 
