@@ -320,10 +320,15 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
 
         bin_nodes: list[Node] = bin[1]
 
+        num_bin_nodes: int = 0
+
+        if isinstance(bin_nodes, list):
+            num_bin_nodes = len(bin_nodes)
+
         bin_size: float = k_max - k_min
 
-        density: float = len(bin_nodes) / bin_size
-
+        density: float = num_bin_nodes / bin_size
+        
         list_bin_densities[index] = density
 
     dict_k_bins: dict[int, float] = {}
@@ -352,7 +357,42 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
 
         dict_k_bins[k] = list_bin_densities[bin_index]
 
-    _ = 0
+    xs: list[int] = [0] * len(dict_k_bins)
+    ys: list[float] = [0.0] * len(dict_k_bins)
+
+    ks: list[int] = sorted(dict_k_bins.keys())
+
+    for i in range(len(ks)):
+        k: int = ks[i]
+        density_k: float = dict_k_bins[k]
+
+        xs[i] = k
+        ys[i] = density_k
+
+    plt.figure(figsize=(8, 6))
+    plt.loglog(xs, ys, "-b")
+    #if with_calculated_slope:
+     #   plt.loglog(xs, ys1, "-r")
+    # Add xticks by powers of e
+    e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
+    arr_x: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
+    arr_y: list[str] = [f'$e^{{{i*-1}}}$' for i in range(len(e_powers))]
+    #plt.xticks(e_powers, arr_x)
+    #plt.yticks(e_powers, arr_y)
+    plt.xlim(left=ks[0])
+    plt.xlabel("k", fontsize=18)
+    plt.ylabel("P(k)", fontsize=18)
+    plt.title("ba model P(k)")
+    #plt.show()
+    str_with_calculated_slope: str = ""
+    
+    if with_calculated_slope:
+        str_with_calculated_slope = "_with_slope"
+
+    with_fitness: bool = False
+    
+    plt.savefig(f"ba_figs\\ba_model_p_k_loglog_binning{str_with_calculated_slope}{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+
 
 def save_p_k_plot(dict_k: dict[int, int], kernel_size: int, 
                   nodes_count: int, with_fitness: str,
