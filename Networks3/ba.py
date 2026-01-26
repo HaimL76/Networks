@@ -190,16 +190,17 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
     
     n_max: int = 15
     
-    save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=n_max, dict_k=dict_k)
+    save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=n_max, dict_k=dict_k,
+                              kernel_size=kernel_size)
 
     save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=n_max, dict_k=dict_k,
-                              with_calculated_slope=True)
+                              kernel_size=kernel_size, with_calculated_slope=True)
     
     save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=n_max, dict_k=dict_k,
-                              take_bins_medians=True)
+                              kernel_size=kernel_size, take_bins_medians=True)
 
     save_p_k_plot_log_binning(list_nodes=list_nodes, n_max=n_max, dict_k=dict_k,
-                              with_calculated_slope=True, take_bins_medians=True)
+                              kernel_size=kernel_size, with_calculated_slope=True, take_bins_medians=True)
     
 def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
                                   kernel_size: int,
@@ -252,6 +253,8 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
         with_calculated_slope: bool = False,
         take_bins_medians: bool = False):
     ks: list[int] = sorted(dict_k.keys())
+
+    sum_k: int = sum(ks)
 
     k_min: int = ks[0]
     k_max: int = ks[-1]
@@ -337,7 +340,7 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
 
         density: float = num_bin_nodes / bin_size
         
-        list_bin_densities[index] = density
+        list_bin_densities[index] = density / sum_k
 
     dict_k_bins: dict[int, float] = {}
 
@@ -978,7 +981,7 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-num_steps: int = 2222
+num_steps: int = 22222
 
 run_ba_model(num_steps=num_steps, kernel_size=4)
 #run_ba_model(size=size, kernel_size=4, fitness=('exp', 5/size))
