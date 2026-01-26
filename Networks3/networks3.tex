@@ -15,44 +15,44 @@ Code is in https://github.com/HaimL76/Networks.git
 \section{}
 All the plots in this section are for the BA model without fitness.
 \subsection{}
+Graph of the average degree as function of the time / number of nodes.
 \begin{figure}[H]
     \makebox[\linewidth]{
-\includegraphics[width=1.85\linewidth]{ba_model_square_root_n_ratio.png}
+\includegraphics[width=1.85\linewidth]{ba_model_k_average_n.png}
     }
 \end{figure}
 \subsection{}
-Without fitness, the $k_i(t)$ graph is
+Graph of the degree ratio as function of the square root of the time / number of nodes.
 \begin{figure}[H]
     \makebox[\linewidth]{
-\includegraphics[width=1.75\linewidth]{ba_model_degree_by_time.png
+\includegraphics[width=1.75\linewidth]{ba_model_k_ratio_n.png}
 }
+\end{figure}
+\subsection{}
+Graph of the degree of several nodes as function of the time / number of nodes (in log-log scale).
+\begin{figure}[H]
+    \makebox[\linewidth]{
+\includegraphics[width=1.75\linewidth]{ba_model_k_i_sqrt_t_loglog.png}
     }
 \end{figure}
 \subsection{}
+Graph of the degree distribution (in log-log scale, with the calculated distribution).
 \begin{figure}[H]
     \makebox[\linewidth]{
-\includegraphics[width=1.75\linewidth]{ba_model_P_k.png}
+\includegraphics[width=1.75\linewidth]{ba_model_p_k_loglog_with_slope.png}
     }
 \end{figure}
-\subsection{}
+Graph of the degree distribution (in log-log scale, with log binning, with the calculated distribution).
 \begin{figure}[H]
     \makebox[\linewidth]{
-\includegraphics[width=1.75\linewidth]{ba_model_binned_density.png}
+\includegraphics[width=1.75\linewidth]{ba_model_p_k_loglog_binning_with_slope.png}
     }
 \end{figure}
+Graph of the degree distribution (in log-log scale, with log binning taking medians only, with the calculated distribution).
 \begin{figure}[H]
     \makebox[\linewidth]{
-\includegraphics[width=1.75\linewidth]{ba_model_binned_density_median_k.png}
+\includegraphics[width=1.75\linewidth]{ba_model_p_k_loglog_binning_with_slope_take_medians.png}
     }
 \end{figure}
 \section{}
-\
-For the fitness model, we need a fitness function $\eta_i$.
-
-For $\eta_i=t_i^{10}$, the graph of $k_i$ by $t_i$ is
-\begin{figure}[H]
-    \makebox[\linewidth]{
-\includegraphics[width=1.75\linewidth]{ba_model_degree_by_time_with_fitness_pol_10.png}
-    }
-\end{figure}
 \end{document}
