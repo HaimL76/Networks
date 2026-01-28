@@ -201,6 +201,9 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
                                   with_fitness: bool):
     str_with_fitness: str = "_with_fitness" if with_fitness else ""
     
+    # Rainbow colors list
+    rainbow_colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
+    
     num_steps: int = len(ki_by_time[0][1])
 
     xs: list[int] = [0.0] * num_steps
@@ -231,8 +234,10 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
             ys_ki[t] = ki
             ys_calc_ki[t] = calc_ki
 
-        plt.loglog(xs, ys_ki)
-        plt.loglog(xs, ys_calc_ki, "-r")
+        color = rainbow_colors[i % len(rainbow_colors)]
+
+        plt.loglog(xs, ys_ki, color=color)
+        plt.loglog(xs, ys_calc_ki, color=color)
 
     plt.ylim(bottom=kernel_size - 1)
     #plt.show()
