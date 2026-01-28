@@ -17,7 +17,7 @@ Code is in https://github.com/HaimL76/Networks.git
 \section{}
 All the plots in this section are for the BA model without fitness.
 \subsection{}
-Graph of the average degree as function of the time / number of nodes.
+Graph of the average degree as function of the time / number of nodes. We get almost immediately $\langle{k}\rangle=2m$, except for $t=0$ where $\langle{k}\rangle=m-1$.
 \begin{figure}[H]
     \makebox[\linewidth]{
 \includegraphics[width=1.85\linewidth]{ba_model_k_average_n.png}
@@ -44,7 +44,7 @@ Graph of the degree distribution (in log-log scale, with the calculated distribu
 \includegraphics[width=1.75\linewidth]{ba_model_p_k_loglog_with_slope.png}
     }
 \end{figure}
-Graph of the degree distribution (in log-log scale, with log binning, with the calculated distribution).
+Graph of the degree distribution (in log-log scale, with log binning, with the calculated distribution). We need to divide the density of each bin in the total sum of degrees, to get the log binning close enough to the calculated degree distribution.
 \begin{figure}[H]
     \makebox[\linewidth]{
 \includegraphics[width=1.75\linewidth]{ba_model_p_k_loglog_binning_with_slope.png}
@@ -57,6 +57,5 @@ Graph of the degree distribution (in log-log scale, with log binning taking medi
     }
 \end{figure}
 \section{}
-We use the same analysis method, $\frac{dk_i}{dt}=\mathbb{E}[k_i(t)]=m\pi_i(t)=m\frac{k_i\eta_i}{\sum_{j=1}^tk_j\eta_j}$, where $\eta_i$ is fixed for every node $i$ (the node that appears at $t_i$). Taking $\eta_i=\alpha$ for all $i$, where $\alpha$ is some constant, reduces to the BA preferential attachment model. Taking $\eta_i>\eta_j$ for every $i<j$ only increases the first-mover advantage in this model, because then $\pi_i>>\pi_j$, so $\eta_i$ is not a valid fitness. So we must take $\eta_j>\eta_i$ for every $i<j$. I did not achieve a general analysis of this, so for simplicity
-assume $\sum_{j=1}^tk_j\eta_j=\alpha{t}$ for all $t$, where $\alpha$ is some constant, and fix $\eta_i=\beta{t_i}$, for some constant $\beta$. so $\frac{dk_i}{dt}=m\frac{k_i\eta_i}{\alpha{t}}=m\frac{k_i\beta{t_i}}{\alpha{t}}$, but $\eta_i$ is fixed for every $i$, so we have a differential equation which translates to $\frac{dk_i}{k_i}=\frac{m\beta{t_i}}{\alpha}\frac{dt}{t}$, which translates to $\log(\frac{k_i}{m})=\frac{m\beta{t_i}}{\alpha}\log(\frac{t}{t_i})$, so $\log(\frac{k_{i+1}}{m})=\frac{m\beta{t}_{i+1}}{\alpha}\log(\frac{t}{t_{i+1}})=\frac{m\beta(t_i+1)}{\alpha}\log(\frac{t}{t_{i+1}})=\frac{m\beta{t_i}+m\beta}{\alpha}\log(\frac{t}{t_{i+1}})$, so the log-log slope for $k_{i+1}$ is greater than the slope for $k_i$ in $\frac{m\beta}{\alpha}$. We choose appropriate $\alpha$ and $\beta$, and the increase in slopes, for every $j>i$ ensures that we have a range of nodes $j_1,j_2,\dots>i$ s.t. $k_{j_1},k_{j_2}\geq{k_i}$, but we will always have a tail of late-mover nodes that cannot match their predecessors (because then it means their slope is infinite).
+We use the same analysis method, $\frac{dk_i}{dt}=\mathbb{E}[k_i(t)]=m\pi_i(t)=m\frac{k_i\eta_i}{\sum_{j=1}^tk_j\eta_j}$, where $\eta_i$ is fixed for every node $i$ (the node that appears at $t_i$). Taking $\eta_i=\alpha$ for all $i$, where $\alpha$ is some constant, reduces to the BA preferential attachment model. Taking $\eta_i>\eta_j$ for every $i<j$ only increases the first-mover advantage in this model, because then $\pi_i>>\pi_j$, so $\eta_i$ is not a valid fitness. So we must take $\eta_j>\eta_i$ for every $i<j$. I did not achieve a general analysis for this, but I picked the case where we fix $\eta_i=\beta{t_i}$, for some constant $\beta$ so obviously $\eta_j>\eta_i$ for every $j>i$.
 \end{document}
