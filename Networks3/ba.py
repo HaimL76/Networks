@@ -37,17 +37,8 @@ def has_double(selected_indices: np.ndarray) -> bool:
         
     return is_double
 
-def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
+def run_ba_model(num_steps: int, kernel_size: int, with_fitness: bool = False):
     os.makedirs("ba_figs", exist_ok=True)
-
-    fitness_param: float = 0.0
-    fitness_method: str = None
-
-    if isinstance(fitness, tuple) and len(fitness) == 2:
-        fitness_method = fitness[0]
-        fitness_param = fitness[1]
-
-    with_fitness: str = f"{fitness_method}_{fitness_param}" if fitness_method and fitness_param > 0.0 else ""
 
     kernel: list[Node] = create_kernel(kernel_size)
 
@@ -93,6 +84,9 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
         step_id: int = step + 1
 
         fitness_value: float = 0.0
+
+        if with_fitness:
+            fitness_value = step_id ** 0.5
 
         new_node: Node = Node(step=step_id, fitness=fitness_value)
 
@@ -204,7 +198,8 @@ def run_ba_model(num_steps: int, kernel_size: int, fitness: tuple = None):
     
 def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
                                   kernel_size: int,
-                                  with_fitness: str):
+                                  with_fitness: bool):
+    str_with_fitness: str = "_with_fitness" if with_fitness else ""
     
     num_steps: int = len(ki_by_time[0][1])
 
@@ -246,12 +241,14 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
     #plt.yticks(e_powers, arr)
     plt.ylim(bottom=kernel_size - 1)
     #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+    plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{str_with_fitness}.png")
 
 def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
-        dict_k: dict[int, int], kernel_size: int = 0,
+        dict_k: dict[int, int], kernel_size: int = 0, with_fitness: bool = False,
         with_calculated_slope: bool = False,
         take_bins_medians: bool = False):
+    str_with_fitness: str = "_with_fitness" if with_fitness else ""
+
     ks: list[int] = sorted(dict_k.keys())
 
     sum_k: int = sum(ks)
@@ -455,13 +452,13 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
     if take_bins_medians:
         str_take_bins_medians = "_take_medians"
 
-    with_fitness: bool = False
-    
-    plt.savefig(f"ba_figs\\ba_model_p_k_loglog_binning{str_with_calculated_slope}{str_take_bins_medians}{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+    plt.savefig(f"ba_figs\\ba_model_p_k_loglog_binning{str_with_calculated_slope}{str_take_bins_medians}{str_with_fitness}.png")
 
 def save_p_k_plot(dict_k: dict[int, int], kernel_size: int, 
-                  nodes_count: int, with_fitness: str,
+                  nodes_count: int, with_fitness: bool = False,
                   with_calculated_slope: bool = False):
+    str_with_fitness: str = "_with_fitness" if with_fitness else ""
+
     ks: list[int] = sorted(dict_k.keys())
 
     xs: list[int] = [0] * len(ks)
@@ -502,10 +499,12 @@ def save_p_k_plot(dict_k: dict[int, int], kernel_size: int,
     if with_calculated_slope:
         str_with_calculated_slope = "_with_slope"
     
-    plt.savefig(f"ba_figs\\ba_model_p_k_loglog{str_with_calculated_slope}{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+    plt.savefig(f"ba_figs\\ba_model_p_k_loglog{str_with_calculated_slope}{str_with_fitness}.png")
 
 def save_k_average_n_plot(kernel_size: int, k_average: list[float], 
-                          with_fitness: str):
+                          with_fitness: bool):
+    str_with_fitness: str = "_with_fitness" if with_fitness else ""
+
     xs: list[int] = [0] * len(k_average)
     ys: list[float] = [0.0] * len(k_average)
     ys1: list[int] = [0] * len(k_average)
@@ -522,9 +521,11 @@ def save_k_average_n_plot(kernel_size: int, k_average: list[float],
     plt.ylabel("Average Degree", fontsize=18)
     plt.title("ba model average degree by N")
     #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_k_average_n{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
+    plt.savefig(f"ba_figs\\ba_model_k_average_n{str_with_fitness}.png")
 
-def save_k_ratio_n_plot(k_ratio_n: list[tuple[int, float]], with_fitness: str):
+def save_k_ratio_n_plot(k_ratio_n: list[tuple[int, float]], with_fitness: bool):
+    str_with_fitness: str = "_with_fitness" if with_fitness else ""
+
     xs: list[int] = [0] * len(k_ratio_n)
     ys: list[float] = [0.0] * len(k_ratio_n)
 
@@ -540,403 +541,7 @@ def save_k_ratio_n_plot(k_ratio_n: list[tuple[int, float]], with_fitness: str):
     plt.ylabel("Max and Min Degrees Ratio", fontsize=18)
     plt.title("ba model max and min degrees ratio by N")
     #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_k_ratio_n{('_with_fitness_' + with_fitness) if with_fitness else ''}.png")
-
-def kuku():
-    file_name_fitness_part: str = f"_with_fitness_{with_fitness}" if with_fitness else ""
-
-    square_root_size_and_ratio: list[tuple[float, float]] = []
-
-    list_avg_k: list[tuple[float, float]] = [0.0] * (size - 1)
-
-    if False:
-        max_k: int = 0
-        min_k: int = 0
-
-        for i in range(total_nodes_count):
-            if i % 100 == 0:
-                print(f"step={step}, i={i}")
-
-            list_for_i: list[int] = list_k_i_by_time[i]
-
-            if not list_for_i:
-                list_for_i = [0] * size
-                list_k_i_by_time[i] = list_for_i
-
-            k_i: int = 0
-
-            if i < len(list_nodes):
-                node: Node = list_nodes[i]
-                k_i = len(node.neighbors)
-
-            step_index: int = step - 1
-
-            list_for_i[step_index] = k_i
-
-        for i in range(len(list_nodes)):
-            node: Node = list_nodes[i]
-
-            k_i: int = len(node.neighbors)
-
-            max_k = max(max_k, k_i)
-            min_k = k_i if min_k == 0 else min(min_k, k_i)
-
-        ratio: float = max_k / min_k if min_k > 0 else 0.0
-        square_root_size: float = math.sqrt(len(list_nodes))
-
-        square_root_size_and_ratio.append((square_root_size, ratio))
-
-        sum_k: int = sum(len(node.neighbors) for node in list_nodes)
-
-        index_avg_k: int = step - 1
-
-        list_avg_k[index_avg_k] = (sum_k / len(list_nodes), (2 * step * kernel_size) / len(list_nodes))
-
-    plt.figure(figsize=(8, 6))
-
-    for i in range(len(list_k_i_by_time)):
-        if i % 100 == 0:
-            print(f"plotting node {i} degree over time")
-            list_degrees: list[int] = list_k_i_by_time[i]
-
-            xs: list[int] = [0] * len(list_degrees)
-            ys: list[int] = [0] * len(list_degrees)
-
-            for t in range(len(list_degrees)):
-                ki_t: int = list_degrees[t]
-
-                xs[t] = t
-                ys[t] = ki_t
-
-            print(f"plotting node {i} degree over time")
-            
-            plt.loglog(xs, ys)
-
-            print(f"plotted node {i} degree over time")
-    # Add xticks by powers of e
-    e_powers = [np.exp(i) for i in range(int(np.log(max([x for x in xs if x > 0]))) + 1)]
-    arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    plt.xticks(e_powers, arr)
-    plt.yticks(e_powers, arr)
-    plt.xlabel("Time", fontsize=18)
-    plt.ylabel("Node Degree", fontsize=18)
-    plt.title("Node degree over time in ba model")
-    #plt.show()
-    plt.savefig(f"ba_figs\\degree_over_time_loglog{file_name_fitness_part}.png")
-
-    xs: list[int] = [i for i in range(1, size)]
-    ys1: list[float] = [tup[0] for tup in list_avg_k]
-    ys2: list[float] = [tup[1] for tup in list_avg_k]
-
-    plt.figure(figsize=(8, 6))
-    plt.plot(xs, ys1, "-b")
-    plt.plot(xs, ys2, "-r")
-    plt.xlabel("Time", fontsize=18)
-    plt.ylabel("Average Degree", fontsize=18)
-    plt.title("average degree over time in ba model")
-    #plt.show()
-    plt.savefig(f"ba_figs\\average_degree_over_time{file_name_fitness_part}.png")
-
-    sqrs: list[float] = [0.0] * len(square_root_size_and_ratio)
-    ratios: list[float] = [0.0] * len(square_root_size_and_ratio)
-
-    for i in range(len(square_root_size_and_ratio)):
-        sqrs[i] = square_root_size_and_ratio[i][0]
-        ratios[i] = square_root_size_and_ratio[i][1]
-
-    plt.figure(figsize=(8, 6))
-    plt.plot(sqrs, ratios, "-b")
-    plt.xlabel("Square Root of N", fontsize=18)
-    plt.ylabel("Max and Min Degrees Ratio", fontsize=18)
-    plt.title("ba square root of size to max and min degrees ratio")
-    #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_square_root_n_ratio{file_name_fitness_part}.png")
-
-    dict_degrees: dict[int, int] = {}
-
-    for node in list_nodes:
-        k_i: int = len(node.neighbors)
-
-        if k_i not in dict_degrees:
-            dict_degrees[k_i] = 0
-
-        dict_degrees[k_i] += 1
-
-    list_degrees: list[int] = sorted(dict_degrees.keys())
-
-    max_k: int = list_degrees[-1]
-    min_k: int = list_degrees[0]
-
-    pks: list[tuple[int, float]] = []
-
-    degrees_count: int = sum(dict_degrees.values())
-
-    degrees_count = sum(len(node.neighbors) for node in list_nodes)
-
-    min_k = min(len(node.neighbors) for node in list_nodes)
-    max_k = max(len(node.neighbors) for node in list_nodes)
-
-    #for k in range(min_k, max_k + 1):
-     #   count_k: int = 0
-        
-      #  if k in dict_degrees:
-       #     count_k = dict_degrees[k]
-
-        #    if count_k > 0:
-         #       pk: float = count_k / degrees_count
-
-          #      pks.append((k, pk))
-
-    dict_degrees: dict[int, int] = {}
-    
-    for k in range(min_k, max_k + 1):
-        count_k: int = 0
-        
-        for node in list_nodes:
-            k_i: int = len(node.neighbors)
-
-            if k_i == k:
-                count_k += 1
-
-        dict_degrees[k] = count_k
-
-    list_degrees: list[int] = sorted(dict_degrees.keys())
-
-    ks: list[int] = [0] * len(list_degrees)
-    pks_values: list[float] = [0.0] * len(list_degrees)
-
-    for i in range(len(list_degrees)):
-        k: int = list_degrees[i]
-        count_k: int = dict_degrees[k]
-
-        ks[i] = k
-        pks_values[i] = count_k / degrees_count
-
-    plt.figure(figsize=(8, 6))
-
-    #plt.plot(node_indices, ks, "-bD")
-    plt.loglog(ks, pks_values, "-b")
-    # Add xticks by powers of e
-    e_powers = [np.exp(i) for i in range(int(np.log(max(ks))) + 1)]
-    arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    plt.xticks(e_powers, arr)
-    plt.yticks(e_powers, arr)
-    plt.xlabel("k", fontsize=18)
-    plt.ylabel("P(k)", fontsize=18)
-
-    plt.title("ba model P(k)")
-    #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_p_k_loglog{file_name_fitness_part}.png")
-
-    plt.figure(figsize=(8, 6))
-
-    #plt.plot(node_indices, ks, "-bD")
-    plt.plot(ks, pks_values, "-b")
-
-    plt.xlabel("k", fontsize=18)
-    plt.ylabel("P(k)", fontsize=18)
-
-    plt.title("ba model P(k)")
-    #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_p_k{file_name_fitness_part}.png")
-
-    node_indices: list[int] = [0] * len(list_nodes)
-    node_degrees: list[int] = [0] * len(list_nodes)
-    calc_node_degrees: list[float] = [0] * len(list_nodes)
-
-    max_k: int = 0
-    min_k: int = 0
-
-    for i in range(len(list_nodes)):
-        node: Node = list_nodes[i]
-
-        k_i: int = len(node.neighbors)
-
-        max_k = max(max_k, k_i)
-        min_k = k_i if min_k == 0 else min(min_k, k_i)
-
-        node_indices[i] = i
-        node_degrees[i] = k_i
-        calc_node_degrees[i] = kernel_size * (len(list_nodes) / (i + 1)) ** 0.5
-
-    diff: int = max_k - min_k
-
-    n: int = 22
-
-    ratio: float = max_k / min_k
-
-    exp_n: float = 1/float(n)
-
-    alpha: float = ratio ** exp_n
-
-    print(f"alpha={alpha}")
-
-    bins: list[tuple[float, int, list[Node]]] = [[]] * (n + 1)
-
-    for i in range(n + 1):
-        threshold: float = min_k * (alpha ** i)
-
-        print(f"threshold[{i}]={threshold}")
-
-        bins[i] = threshold, [], 0
-
-    for node in list_nodes:
-        k_i: int = len(node.neighbors)
-
-        ratio_i: float = k_i / min_k
-
-        log_ratio_i: float = math.log(ratio_i, alpha)
-
-        index_bin: int = int(log_ratio_i)
-
-        if index_bin < len(bins):
-            bin: tuple[float, list[Node], int] = bins[index_bin]
-
-            list_nodes: list[Node] = bin[1]
-
-            list_nodes.append(node)
-        else:
-            print("no bin found!")
-            return
-        
-    for i in range(len(bins)):
-        bin: tuple[float, list[Node], int] = bins[i]
-        list_nodes: list[Node] = bin[1]
-        sorted_nodes: list[Node] = list(sorted(list_nodes, 
-                           key=lambda node: len(node.neighbors)))
-        
-        if isinstance(sorted_nodes, list) and len(sorted_nodes) > 0:
-            index_median: int = int(len(sorted_nodes) / 2)
-            node_median: Node = sorted_nodes[index_median]
-
-            bins[i] = bin[0], list_nodes, len(node_median.neighbors)
-
-    bin_densities: dict[int, tuple[float, int]] = {}
-
-    for i in range(len(bins)):
-        bin: tuple[float, list[Node], int] = bins[i]
-        next_bin: tuple[float, list[Node], int] = None
-
-        if i < len(bins) - 1:
-            next_bin = bins[i + 1]
-
-        k_i: float = bin[0]
-        k_next: float = next_bin[0] if next_bin is not None else min_k * (alpha ** (n + 1))
-
-        list_nodes: list[Node] = bin[1]
-
-        bin_n: int = len(list_nodes)
-
-        width = k_next - k_i
-
-        if bin_n > 0:
-            density: float = bin_n / width
-            bin_densities[i] = density, bin[2]
-
-    print(f"len bin_densities={len(bin_densities)}, len list degrees={len(list_degrees)}")
-        
-    k_bins: list[tuple[int, float, int]] = []
-
-    for i in range(len(list_degrees)):
-        k: int = list_degrees[i]
-
-        ratio_k: float = k / min_k
-
-        log_ratio_k: float = math.log(ratio_k, alpha)
-
-        bin_index: int = int(log_ratio_k)
-
-        if bin_index in bin_densities.keys():
-            tup: tuple[float, int] = bin_densities[bin_index]
-
-            k_density: float = tup[0]
-            k_median: int = tup[1]
-
-            k_bins.append((k, k_density, k_median))
-        else:
-            print(f"No density for k={k} (bin_index={bin_index})")
-            return
-
-    plt.figure(figsize=(8, 6))
-
-    xs: list[float] = [0] * len(k_bins)
-    ys: list[float] = [0] * len(k_bins)
-
-    for i in range(len(k_bins)):
-        k_bin: tuple[int, int, float] = k_bins[i]
-
-        k: int = k_bin[0]
-        density: float = k_bin[1]
-
-        xs[i] = k
-        ys[i] = density
-
-    print(f"len xs={len(xs)}, len ys={len(ys)}, len k bins={len(k_bins)}")
-
-    plt.loglog(xs, ys, "-b")
-    # Add xticks by powers of e
-    e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
-    arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    plt.xticks(e_powers, arr)
-    plt.yticks(e_powers, arr)
-    plt.xlabel("k", fontsize=18)
-    plt.ylabel("density", fontsize=18)
-    plt.title("ba model binned density")
-    #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_binned_density{file_name_fitness_part}.png")
-
-    plt.figure(figsize=(8, 6))
-
-    xs: list[float] = [0] * len(bin_densities)
-    ys: list[float] = [0] * len(bin_densities)
-
-    keys: list[int] = sorted(bin_densities.keys())
-
-    for i in range(len(keys)):
-        k: int = keys[i]
-
-        tup: tuple[float, int] = bin_densities[k]
-
-        median_k: int = tup[1]
-        density: float = tup[0]
-
-        xs[i] = median_k
-        ys[i] = density
-
-    print(f"len xs={len(xs)}, len ys={len(ys)}, len k bins={len(k_bins)}")
-
-    plt.loglog(xs, ys, "-b")
-    # Add xticks by powers of e
-    e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
-    arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    plt.xticks(e_powers, arr)
-    plt.yticks(e_powers, arr)
-    plt.xlabel("k", fontsize=18)
-    plt.ylabel("density", fontsize=18)
-    plt.title("ba model binned density (median k)")
-    #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_binned_density_median_k{file_name_fitness_part}.png")
-
-    ratio: float = max_k / min_k if min_k > 0 else 0.0
-    square_root_size: float = math.sqrt(len(list_nodes))
-    
-    print(f"size={len(list_nodes)}, ratio={ratio}, sqrt_size={square_root_size}")
-
-    print(f"max_k={max_k}, min_k={min_k}")
-
-    plt.figure(figsize=(8, 6))
-
-    #plt.plot(node_indices, ks, "-bD")
-    plt.plot(node_indices, node_degrees, "-b")
-    plt.plot(node_indices, calc_node_degrees, "-r")
-
-    plt.xlabel("node index (time)", fontsize=18)
-    plt.ylabel("node degree", fontsize=18)
-
-    plt.title("ba model degree by time")
-    #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_degree_by_time{file_name_fitness_part}.png")
-
+    plt.savefig(f"ba_figs\\ba_model_k_ratio_n{str_with_fitness}.png")
 
 def prepare_probabilities(list_nodes: list[Node], node_index: int, step: int) -> np.ndarray:
     total_links_weight: int = 0
@@ -981,9 +586,7 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-num_steps: int = 22222
+num_steps: int = 2222
 
 run_ba_model(num_steps=num_steps, kernel_size=4)
-#run_ba_model(size=size, kernel_size=4, fitness=('exp', 5/size))
-#run_ba_model(size=size, kernel_size=4, fitness=('mul', 10))
-#run_ba_model(size=size, kernel_size=4, fitness=('pol', 10))
+run_ba_model(num_steps=num_steps, kernel_size=4, with_fitness=True)
