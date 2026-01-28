@@ -86,13 +86,13 @@ def run_ba_model(num_steps: int, kernel_size: int, with_fitness: bool = False):
         fitness_value: float = 0.0
 
         if with_fitness:
-            fitness_value = step_id ** 0.5
+            fitness_value = step_id
 
         new_node: Node = Node(step=step_id, fitness=fitness_value)
 
         list_nodes[curr_node_index] = new_node
 
-        probabilities = prepare_probabilities(list_nodes, node_index=node_index, step=step)
+        probabilities = prepare_probabilities(list_nodes, node_index=node_index)
         
         list_indices: list[int] = [index for index in range(len(probabilities))]
 
@@ -231,14 +231,9 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
             ys_ki[t] = ki
             ys_calc_ki[t] = calc_ki
 
-        plt.loglog(xs, ys_ki, "-b")
+        plt.loglog(xs, ys_ki)
         plt.loglog(xs, ys_calc_ki, "-r")
 
-    # Add xticks by powers of e
-    e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
-    arr: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    #plt.xticks(e_powers, arr)
-    #plt.yticks(e_powers, arr)
     plt.ylim(bottom=kernel_size - 1)
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{str_with_fitness}.png")
@@ -431,15 +426,9 @@ def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
     if with_calculated_slope:
         plt.loglog(xs, ys_calc, "-r")
 
-    # Add xticks by powers of e
-    e_powers = [np.exp(i) for i in range(int(np.log(max(xs))) + 1)]
-    arr_x: list[str] = [f'$e^{{{i}}}$' for i in range(len(e_powers))]
-    arr_y: list[str] = [f'$e^{{{i*-1}}}$' for i in range(len(e_powers))]
-    #plt.xticks(e_powers, arr_x)
-    #plt.yticks(e_powers, arr_y)
     plt.xlim(left=ks[0])
-    plt.xlabel("k", fontsize=18)
-    plt.ylabel("P(k)", fontsize=18)
+    plt.xlabel("log k", fontsize=18)
+    plt.ylabel("log P(k)", fontsize=18)
     plt.title("ba model P(k)")
     #plt.show()
     str_with_calculated_slope: str = ""
@@ -523,27 +512,26 @@ def save_k_average_n_plot(kernel_size: int, k_average: list[float],
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_average_n{str_with_fitness}.png")
 
-def save_k_ratio_n_plot(k_ratio_n: list[tuple[int, float]], with_fitness: bool):
+def save_k_ratio_n_plot(k_ratio_n: list[tuple[float, float]], with_fitness: bool):
     str_with_fitness: str = "_with_fitness" if with_fitness else ""
 
     xs: list[int] = [0] * len(k_ratio_n)
     ys: list[float] = [0.0] * len(k_ratio_n)
 
     for i in range(len(k_ratio_n)):
-        tup: tuple[int, float] = k_ratio_n[i]
-
+        tup: tuple[float, float] = k_ratio_n[i]
         xs[i] = tup[0]
         ys[i] = tup[1]
 
     plt.figure(figsize=(8, 6))
     plt.plot(xs, ys, "-b")
-    plt.xlabel("N", fontsize=18)
+    plt.xlabel("Square root of N", fontsize=18)
     plt.ylabel("Max and Min Degrees Ratio", fontsize=18)
-    plt.title("ba model max and min degrees ratio by N")
+    plt.title("ba model max and min degrees ratio by square root of N")
     #plt.show()
     plt.savefig(f"ba_figs\\ba_model_k_ratio_n{str_with_fitness}.png")
 
-def prepare_probabilities(list_nodes: list[Node], node_index: int, step: int) -> np.ndarray:
+def prepare_probabilities(list_nodes: list[Node], node_index: int) -> np.ndarray:
     total_links_weight: int = 0
 
     for i in range(node_index):
