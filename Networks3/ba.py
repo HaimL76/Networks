@@ -86,7 +86,7 @@ def run_ba_model(num_steps: int, kernel_size: int, with_fitness: bool = False):
         fitness_value: float = 0.0
 
         if with_fitness:
-            fitness_value = step_id
+            fitness_value = 2 ** step_id
 
         new_node: Node = Node(step=step_id, fitness=fitness_value)
 
@@ -214,9 +214,8 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
 
     plt.figure(figsize=(8, 6))
     plt.xlabel("t", fontsize=18)
-    plt.ylabel("k_i and sqrt(t)", fontsize=18)
-    plt.title("ba model k_i and sqrt(t) by t")
-    plt.legend(["k_i", "sqrt(t)"])
+    plt.ylabel("ki", fontsize=18)
+    plt.title("ba model ki by t")
 
     for i in range(len(ki_by_time)):
         tup: tuple[int, list[int]] = ki_by_time[i]
@@ -244,7 +243,7 @@ def save_square_root_n_ratio_plot(ki_by_time: list[tuple[int, list[int]]],
 
     plt.ylim(bottom=kernel_size - 1)
     #plt.show()
-    plt.savefig(f"ba_figs\\ba_model_k_i_sqrt_t_loglog{str_with_fitness}.png")
+    plt.savefig(f"ba_figs\\ba_model_ki_t_loglog{str_with_fitness}.png")
 
 def save_p_k_plot_log_binning(list_nodes: list[Node], n_max: int,
         dict_k: dict[int, int], kernel_size: int = 0, with_fitness: bool = False,
@@ -582,7 +581,7 @@ def create_kernel(kernel_size: int) -> list[Node]:
 
     return list_of_nodes
 
-num_steps: int = 22222
+num_steps: int = 2222
 
 run_ba_model(num_steps=num_steps, kernel_size=4)
 run_ba_model(num_steps=num_steps, kernel_size=4, with_fitness=True)
