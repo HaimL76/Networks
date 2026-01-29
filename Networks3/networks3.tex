@@ -38,7 +38,7 @@ Graph of the degree of several nodes as function of the time / number of nodes (
     }
 \end{figure}
 \subsection{}
-Graph of the degree distribution (in log-log scale, with the calculated distribution).
+Graph of the degree distribution (in log-log scale, with the calculated distribution). Notice that since our network is finite, then $\mathbb{P}[k]$ is either zero or $\geq\frac{1}{N}$ (either no node has this $k$, or at least one does), so taking only degrees that appear in the graph, we get the line of $\mathbb{P}[k]$ to turn away from the calculated slope and fix around $\frac{1}{N}$, for the highest degrees.
 \begin{figure}[H]
     \makebox[\linewidth]{
 \includegraphics[width=1.75\linewidth]{ba_model_p_k_loglog_with_slope.png}
