@@ -34,7 +34,7 @@ Graph of the degree ratio as function of the square root of the time / number of
 Graph of the degree of several nodes as function of the time / number of nodes (in log-log scale).
 \begin{figure}[H]
     \makebox[\linewidth]{
-\includegraphics[width=1.75\linewidth]{ba_model_k_i_sqrt_t_loglog.png}
+\includegraphics[width=1.75\linewidth]{ba_model_ki_t_loglog.png}
     }
 \end{figure}
 \subsection{}
@@ -75,7 +75,23 @@ For step $4$ we get
 
 $\pi_1(4)=\frac{k_1(3)\eta_1}{\sum_{i=1}^3}=\frac{(2m+\frac{m}{2})\cdot{1}}{\sum_{i=1}^3}=\frac{\frac{5m}{2}}{\sum_{i=1}^3}$.
 
-$\pi_2(4)=\frac{k_2(3)\eta_2}{\sum_{i=1}^3}=\frac{(m+\frac{m}{2})\cdot{2}}{\sum_{i=1}^3}=\frac{\frac{3m}{2}\cdot{2}}{\sum_{i=1}^3}=\frac{6m}{\sum_{i=1}^3}$.
+$\pi_2(4)=\frac{k_2(3)\eta_2}{\sum_{i=1}^3}=\frac{(m+\frac{m}{2})\cdot{2}}{\sum_{i=1}^3}=\frac{\frac{3m}{2}\cdot{2}}{\sum_{i=1}^3}=\frac{3m}{\sum_{i=1}^3}$.
 
 $\pi_3(4)=\frac{k_3(3)\eta_3}{\sum_{i=1}^3}=\frac{3m}{\sum_{i=1}^3}$.
+
+Moving further with this calculation will show that a portion of fitter nodes will match their predecessor nodes in probability after they appear, and will surpass them in next steps.
+Taking greater fitness functions ($\xi_i\geq\eta_i$, for every node $i$) will obviously result in a greater advantage for the fitter nodes. However, notice that there is always a tail of nodes that will have lower degrees, even for higher fitness values, because at each step, $\frac{dk_i}{dt}(t)=\mathbb{E}[k_i(t)]=m\pi_i(t)\leq{m}$, so the latest late-mover nodes will not be able to match their predecessors.
+
+Graph of $K_i(t)$, for several nodes $i$, where $\eta_i=i$
+\begin{figure}[H]
+    \makebox[\linewidth]{
+\includegraphics[width=1.75\linewidth]{ba_model_ki_t_loglog_fitness_linear.png}
+    }
+\end{figure}
+Graph of $K_i(t)$, for several nodes $i$, where $\eta_i=2^i$
+\begin{figure}[H]
+    \makebox[\linewidth]{
+\includegraphics[width=1.75\linewidth]{ba_model_ki_t_loglog_fitness_square.png}
+    }
+\end{figure}
 \end{document}
