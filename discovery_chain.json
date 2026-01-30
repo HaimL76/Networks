@@ -1,0 +1,107 @@
+{
+  "timestamp": "2026-01-30T14:56:10.226014",
+  "total_servers": 16,
+  "servers": [
+    "1.0.0.1",
+    "1.1.1.1",
+    "8.8.4.4",
+    "8.8.8.8",
+    "9.9.9.9",
+    "64.6.64.6",
+    "64.6.65.6",
+    "149.112.112.112",
+    "205.251.194.151",
+    "205.251.196.198",
+    "208.67.220.220",
+    "208.67.222.222",
+    "216.239.32.10",
+    "216.239.34.10",
+    "216.239.36.10",
+    "216.239.38.10"
+  ],
+  "discovery_chain": {
+    "8.8.8.8": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "8.8.4.4": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "1.1.1.1": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "1.0.0.1": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "208.67.222.222": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "208.67.220.220": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "9.9.9.9": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "149.112.112.112": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "64.6.64.6": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "64.6.65.6": {
+      "method": "known_server",
+      "source": "built-in_list",
+      "info": "Pre-configured public DNS"
+    },
+    "216.239.34.10": {
+      "method": "ns_record",
+      "source": "8.8.8.8",
+      "info": "ns2.google.com for google.com"
+    },
+    "216.239.38.10": {
+      "method": "ns_record",
+      "source": "8.8.8.8",
+      "info": "ns4.google.com for google.com"
+    },
+    "216.239.36.10": {
+      "method": "ns_record",
+      "source": "8.8.8.8",
+      "info": "ns3.google.com for google.com"
+    },
+    "216.239.32.10": {
+      "method": "ns_record",
+      "source": "8.8.8.8",
+      "info": "ns1.google.com for google.com"
+    },
+    "205.251.196.198": {
+      "method": "ns_record",
+      "source": "1.1.1.1",
+      "info": "b.r06.twtrdns.net for twitter.com"
+    },
+    "205.251.194.151": {
+      "method": "ns_record",
+      "source": "1.1.1.1",
+      "info": "c.r06.twtrdns.net for twitter.com"
+    }
+  },
+  "statistics": {
+    "known_server": {
+      "count": 10,
+      "sources": 
