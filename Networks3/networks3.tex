@@ -57,37 +57,16 @@ Graph of the degree distribution (in log-log scale, with log binning taking medi
     }
 \end{figure}
 \section{}
-We use the same analysis method, $\frac{dk_i}{dt}=\mathbb{E}[k_i(t)]=m\pi_i(t)=m\frac{k_i\eta_i}{\sum_{j=1}^tk_j\eta_j}$, where $\eta_i$ is fixed for every node $i$ (the node that appears at $t_i$). Taking $\eta_i=\alpha$ for all $i$, where $\alpha$ is some constant, reduces to the BA preferential attachment model. Taking $\eta_i>\eta_j$ for every $i<j$ only increases the first-mover advantage in this model, because then $\pi_i>>\pi_j$, so $\eta_i$ is not a valid fitness. So we must take $\eta_j>\eta_i$ for every $i<j$. But in order to have the fitter nodes match or surpass the first-mover nodes, we need $\pi_1\leq\pi_2\leq\cdots\leq\pi_N$.
-
-I found the general analysis particularly difficult, so I picked the fitness function $\eta_i=i$.
-
-$k_1(1)=m$.
-
-$k_1(2)=2m$, $k_2(2)=m$.
-
-So if we take $\eta_1=1$ and $\eta_2=2$, then for step $3$ we get 
-
-$\pi_1(3)=\frac{k_1(2)\eta_2}{\sum_{i=1}^2}=\frac{2m\cdot{1}}{4m}=\frac{1}{2}$.
-
-$\pi_2(3)=\frac{k_2(2)\eta_2}{\sum_{i=1}^2}=\frac{m\cdot{2}}{4m}=\frac{1}{2}$.
-
-For step $4$ we get
-
-$\pi_1(4)=\frac{k_1(3)\eta_1}{\sum_{i=1}^3}=\frac{(2m+\frac{m}{2})\cdot{1}}{\sum_{i=1}^3}=\frac{\frac{5m}{2}}{\sum_{i=1}^3}$.
-
-$\pi_2(4)=\frac{k_2(3)\eta_2}{\sum_{i=1}^3}=\frac{(m+\frac{m}{2})\cdot{2}}{\sum_{i=1}^3}=\frac{\frac{3m}{2}\cdot{2}}{\sum_{i=1}^3}=\frac{3m}{\sum_{i=1}^3}$.
-
-$\pi_3(4)=\frac{k_3(3)\eta_3}{\sum_{i=1}^3}=\frac{3m}{\sum_{i=1}^3}$.
-
-Moving further with this calculation will show that a portion of fitter nodes will match their predecessor nodes in probability after they appear, and will surpass them in next steps.
-Taking greater fitness functions ($\xi_i\geq\eta_i$, for every node $i$) will obviously result in a greater advantage for the fitter nodes. However, notice that there is always a tail of nodes that will have lower degrees, even for higher fitness values, because at each step, $\frac{dk_i}{dt}(t)=\mathbb{E}[k_i(t)]=m\pi_i(t)\leq{m}$, so the latest late-mover nodes will not be able to match their predecessors.
-
+We use the same analysis method, $\frac{dk_i}{dt}(t)=m\pi_i(t)=m\frac{k_i\eta_i}{\sum_{j=1}^tk_j\eta_j}$, where $\eta_i$ is fixed for every node $i$ (the node that appears at $t_i$). Taking $\eta_i=\alpha$ for all $i$, where $\alpha$ is some constant, reduces to the BA preferential attachment model. Taking $\eta_i>\eta_j$ for every $i<j$ only increases the early comers advantage in this model, because then $\pi_i>>\pi_j$, so $\eta_i$ cannot be a valid fitness. So we must take $\eta_j>\eta_i$ for every $i<j$. But in order to have the fitter nodes match or surpass the early comers, we need $\pi_1\leq\pi_2\leq\cdots\leq\pi_N$.
+Schematically, it is sufficient that $\frac{dk_j}{dt}(t=j)>\frac{dk_i}{dt}(t=j)\iff{\pi_j}(t=j)>\pi_i(t=j)\iff{\eta_j}>\eta_i\frac{k_i}{k_j}(t=j)$ for $i<<j$, but $\frac{k_i}{k_j}(t=j)=\frac{k_i(t=j)}{m}>>1\implies{\eta_j}>>\eta_i$. This means that if the slope for node $j$ is higher than the slope for node $i$, then the line for $\log(\frac{k_j}{m})$ will have an intersection point with $\log(\frac{k_i}{m})$ at some point, and will surpass it thereafter. So in infinite networks this always happens, but in a finite network (like our numeric simulation), there are always late comers that have lower degrees than early comers, because for every node $i$ and every time $t$, $\frac{dk_i}{dt}(t)\leq{m}$.
+\newpage
 Graph of $K_i(t)$, for several nodes $i$, where $\eta_i=i$
 \begin{figure}[H]
     \makebox[\linewidth]{
 \includegraphics[width=1.75\linewidth]{ba_model_ki_t_loglog_fitness_linear.png}
     }
 \end{figure}
+\newpage
 Graph of $K_i(t)$, for several nodes $i$, where $\eta_i=2^i$
 \begin{figure}[H]
     \makebox[\linewidth]{

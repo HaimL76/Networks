@@ -11,8 +11,14 @@ def open_wikipedia_page(page_id: int, lang: str = "he"):
     url = get_wikipedia_url_by_id(page_id, lang)
     webbrowser.open(url)
 
-def read_dump_file(file_path: str, open_in_browser: bool = False, max_pages: int = None):
-    with bz2.open(file_path, 'rt', encoding='utf-8', errors='ignore') as f, open(r"c:\gpp\kuku.txt", "w", encoding="utf-8") as fw:   
+def read_dump_file(file_path: str):
+    id_page_title: dict[int, str] = {}
+    id_category_title: dict[int, str] = {}
+
+    with bz2.open(file_path, 'rt', encoding='utf-8', errors='ignore') as f\
+        , open(r"c:\gpp\page_titles.txt", "w", encoding="utf-8") as fw_page_titles\
+        , open(r"c:\gpp\category_titles.txt", "w", encoding="utf-8") as fw_category_titles\
+        , open(r"c:\gpp\wiki_dump_output.txt", "w", encoding="utf-8") as fw:   
         counter: int = 0
 
         in_page: bool = False
@@ -24,15 +30,46 @@ def read_dump_file(file_path: str, open_in_browser: bool = False, max_pages: int
             if line:
                 line = line.strip()
 
-            #fw.write(line + "\n")
+            if fw:
+                fw.write(line + "\n")
+                fw.flush()
 
             if line == "<page>":
                 in_page = True
 
             if line == "</page>":
                 if in_page:
-                    print(f"counter: {counter}, line_num: {line_num}, page_id: {page_id}, page_title: {page_title}")
-                    
+                    arr: list[str] = page_title.split(":")
+
+                    title_kind: str = ""
+
+                    if len(arr) > 1:
+                        title_kind = arr[0]
+
+                        if False:# title_kind in ["עזרה", "קטגוריה", "תבנית", "ויקי-פרויקט", "ויקי-נתונים", "מדיה", "קובץ", "ויקיפדיה"]:
+                            pass
+
+                    if not isinstance(title_kind, str) or title_kind == "":
+                        id_page_title[page_id] = page_title
+                    elif title_kind == "קטגוריה":
+                        id_category_title[page_id] = page_title
+                    else:
+                        print(f"Skipped title kind: {title_kind}, title: {page_title}, id: {page_id}")
+
+                    #print(f"id_page_title size: {len(id_page_title)}, id_category_title size: {len(id_category_title)}")
+
+                    if len(id_page_title) >= 1000:
+                        for id, title in id_page_title.items():
+                            fw_page_titles.write(f"{id},{title}\n")
+                        
+                        id_page_title.clear()
+
+                    if len(id_category_title) >= 1000:
+                        for id, title in id_category_title.items():
+                            fw_category_titles.write(f"{id},{title}\n")
+                        
+                        id_category_title.clear()
+
                     page_title = None
                     page_id = None
                     counter += 1
@@ -87,6 +124,6 @@ def read_dump_file(file_path: str, open_in_browser: bool = False, max_pages: int
 def main():
     # Example usage:
     # read_dump_file(r"C:\Users\HaimL1\Downloads\hewiki-latest-pages-articles.xml.bz2", open_in_browser=True, max_pages=10)
-    read_dump_file(r"C:\Users\HaimL1\Downloads\hewiki-latest-pages-articles.xml.bz2", max_pages=20)
+    read_dump_file(r"C:\Users\HaimL1\Downloads\hewiki-latest-pages-articles.xml.bz2")#, max_pages=20)
 
 main()
