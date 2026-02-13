@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{networks 4}
+\author{Haim Lavi, 038712105}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{}
+\subsection{}
+For every $\frac{1}{t}$, $\alpha$ infected individuals become recovered, regardless of their contact with other individuals, hence $I\rightarrow-\alpha{I}$.\\
+For every $\frac{1}{t}$, $\beta$ susceptible individuals become infected, hence $S\rightarrow-\beta{S}\frac{I}{N}$.\\
+Susceptible individuals cannot become recovered.\\
+Thus, $\frac{dS}{dt}=-\beta{S}\frac{I}{N}$.\\
+For every $\frac{1}{t}$, $\beta$ susceptible individuals become infected, provided that they contact infected individuals, but the probability to meet an infected individual is $\frac{I}{N}$, hence $S\rightarrow\beta{S}\frac{I}{N}$.\\
+Thus, $\frac{dI}{dt}=-\alpha{I}+\beta{S}\frac{I}{N}$.\\
+For every $\frac{1}{t}$, $\alpha$ infected individuals become recovered, regardless of their contact with others, hence $R\rightarrow\alpha{I}$.\\
+Thus, $\frac{dR}{dt}=\alpha{I}$.\\
+The sum of derivatives is $\frac{dS}{dt}+\frac{dI}{dt}+\frac{dR}{dt}=-\beta{S}\frac{I}{N}-\alpha{I}+\beta{S}\frac{I}{N}+\alpha{I}=0$.\\
+Normalized equations are
+$\frac{ds}{dt}=-\beta{s}j$, $\frac{dj}{dt}=-\alpha{j}+\beta{s}j$ and $\frac{dr}{dt}=\alpha{j}$, which also sum up to zero.
+\subsection{}
+$\frac{dj}{dt}=-\alpha{j}+\beta{s}j$, like in the SIS model.
+Intuitively speaking, the healthy state is stable, if we calculate the percentage of infected individuals $j$s, because like in the SIS model, a $\delta$ of infected will recover before they infect others, only in this model they will become recovered rather than susceptible.\\
+But in the SIR model, $j$ is not the complement of $s$ but rather to $s$ and $r$, hence 
+$\frac{dj}{dt}=-\alpha{j}+\beta{s}j=-\alpha{j}+\beta{j}(1-j-r)=f(j,r)$, so we need also the equation
+$\frac{dr}{dt}=\alpha{j}=g(j,r)$.\\
+So the fixed point $(j,r)=(j_0,r_0)=(0,0)$ (nobody is infected, nobody is recovered), we get a possible solution for both equations.
+We infect $\delta$ of the individuals, and recover (vaccinate) $\delta$ of them. Intuitively, this will affect the number of the infected individuals like infecting $\delta$ of the susceptible individuals in the SIS model (actually the SIR model should be more stable, because recovered individuals cannot be infected, hence infect others, after their recovery).\\
+$\frac{dr}{dt}=\frac{d(r_0+\delta{r})}{dt}=g(j_0,r_0)+\frac{dg}{dt}(j_0,r_0)\delta{r}+o(\delta{r}^2)$. But $\frac{dg}{dt}(j,r)=\alpha{j}$ actually depends only on $j$, so $\frac{dr}{dt}=\frac{d(r_0+\delta{r})}{dt}=g(j_0,r_0)+\frac{dg}{dj}(j_0,r_0)\delta{r}$. Here, because $\frac{dg}{dj}=\alpha$, there are no derivatives after the first, hence $\frac{dr}{dt}=\alpha\delta{j}\implies$.
+
+\approx{0}+\alpha\delta{j}+0=\alpha\delta{j}$.
+
+
+$\frac{dj}{dt}=\frac{d(j_0+\delta{j})}{dt}=f(j=j_0,r=r_0)+\frac{df}{dj}(j=j_0,r=r_0)\delta{j}+o(\delta{j}^2)\approx{0}+c_0(j=j_0)\delta{j}+0$.
+\end{document}
