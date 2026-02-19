@@ -28,5 +28,11 @@ Intuitively speaking, the healthy state is stable, if we calculate the percentag
 But in the SIR model, $s$ is not the complement of $j$ but rather of $j+r$, hence 
 $\frac{dj}{dt}=-\alpha{j}+\beta{s}j=-\alpha{j}+\beta{j}(1-j-r)=f(j,r)$, so we need also the equation
 $\frac{dr}{dt}=\alpha{j}$, meaning that $\frac{dr}{dt}$ does not depend on $r$, but then $\frac{d\delta{r}}{dt}=\alpha\delta{j}$.\\
-$\frac{d\delta{j}}{dt}=\frac{df}{dr}(j_0,\delta{r})+\frac{df}{dj}(\delta{j},r_0)=-\beta{j_0}\delta{r}+\frac{df}{dj}(\delta{j},r_0)=0+\frac{df}{dj}(\delta{j},r_0)=\frac{d\delta{j}}{dt}$, hence the $j$ perturbation in the SIR model is identical to the SIS model.  
+$\frac{d\delta{j}}{dt}=\frac{df}{dr}(j_0,\delta{r})+\frac{df}{dj}(\delta{j},r_0)=-\beta{j_0}\delta{r}+\frac{df}{dj}(\delta{j},r_0)=0+\frac{df}{dj}(\delta{j},r_0)=\frac{d\delta{j}}{dt}$, hence the $j$ perturbation in the SIR model is identical to the SIS model.
+\subsection{}
+This is also intuitive, because in the first stages of the spread from a state of $s=1,j=0,r=0$, until a recovery occurs (meaning until $\alpha$ time units pass), there is no difference between SIS and SIR, because at this point we have $j$ infected and $s=1-j$ susceptible. After $\alpha$ time units $I\rightarrow{R}$ in the SIR, while $I\rightarrow{S}$ in SIS. Hence \[\frac{dj}{dt}=-\alpha{j}+\beta{j}s=\begin{cases}
+-\alpha{j}+\beta(1-r-j)j,&\text{SIR}\\
+-\alpha{j}+\beta(1-j)j,&\text{SIS}
+\end{cases}\]
+But $r\geq{0}\implies-\alpha{j}+\beta(1-r-j)j\leq-\alpha{j}+\beta(1-j)j$, so when recovery appears in the system, the growth of infected in time for SIR is less or equal to that of SIS, but while $r=0$, the growth of infected is identical.
 \end{document}
