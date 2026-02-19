@@ -34,5 +34,18 @@ This is also intuitive, because in the first stages of the spread from a state o
 -\alpha{j}+\beta(1-r-j)j,&\text{SIR}\\
 -\alpha{j}+\beta(1-j)j,&\text{SIS}
 \end{cases}\]
-But $r\geq{0}\implies-\alpha{j}+\beta(1-r-j)j\leq-\alpha{j}+\beta(1-j)j$, so when recovery appears in the system, the growth of infected in time for SIR is less or equal to that of SIS, but while $r=0$, the growth of infected is identical.
+But $r\geq{0}\implies-\alpha{j}+\beta(1-r-j)j\leq-\alpha{j}+\beta(1-j)j$, so when recovery appears in the system, the growth of infected in time for SIR is less or equal to that of SIS, but while $r=0$, the growth of infected is identical between the two cases.
+\section{}
+\subsection{}
+From what I read, measles behaves as a SIR model disease.
+$\frac{dj}{dt}=-\alpha{j}+\beta{j}s$.
+The chart is given in time units of a month.
+We look at the population of all the individuals who got infected, that is $N=3,964$.
+Looking at April-May 2018:\\
+$\frac{32-7}{3964}=\frac{25}{3964}=\frac{dj}{dt}(j=\frac{7}{3964})=-\alpha{\frac{7}{3964}}+\beta\frac{7}{3964}\frac{3964-7}{3964}$.\\
+Looking at May-June 2018:\\
+$\frac{40-32}{3964}=\frac{8}{3964}=\frac{dj}{dt}(j=\frac{32}{3964})=-\alpha{\frac{32}{3964}}+\beta\frac{32}{3964}\frac{3964-32}{3964}$.\\
+This results in $\alpha\approx522.144$ and $\beta\approx526.645$, hence $r=\frac{\beta}{\alpha}=1+\epsilon$.
+\subsection{}
+At $r$ slightly greater than $1$ we expect an immediate rapid growth in infected individuals in the first stages of the spread, instead we have a mild growth, which may suggest an efficient vaccination, or other efficient ways to treat the disease such as isolation.
 \end{document}
